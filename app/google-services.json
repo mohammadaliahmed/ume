@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "967195866142",
+    "firebase_url": "https://umechatapp.firebaseio.com",
+    "project_id": "umechatapp",
+    "storage_bucket": "umechatapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967195866142:android:e955c5d950fb3468",
+        "android_client_info": {
+          "package_name": "com.appsinventiv.ume"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967195866142-selt1019mfde49vktd6ge2ah2c58eh5n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsinventiv.ume",
+            "certificate_hash": "fa7734f56677f3ea319837d95cad6564d25b63ef"
+          }
+        },
+        {
+          "client_id": "967195866142-bvgh6tarp51alihtscck53of0pr8bd8j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWUYeo-aBXhR1UCPIW9Xl_F4NbCt4Zrjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967195866142-bvgh6tarp51alihtscck53of0pr8bd8j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
