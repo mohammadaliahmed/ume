@@ -12,6 +12,12 @@ public class Constants {
     public static String MESSAGE_TYPE_VIDEO="VIDEO";
     public static String MESSAGE_TYPE_DOCUMENT="DOCUMENT";
     public static String MESSAGE_TYPE_STICKER="STICKER";
+    public static String MESSAGE_TYPE_DELETED="MESSAGE_DELETED";
+
+
+
+    public static long DELETED_MSG_TIME=600000;
+
 
 
 }

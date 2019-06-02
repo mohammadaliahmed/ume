@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:text="Pick Age Range" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal">
+
+        <NumberPicker
+            android:id="@+id/numberPicker1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:descendantFocusability="blocksDescendants"
+
+            android:layout_weight="1"
+            android:theme="@style/DefaultNumberPickerTheme">
+
+        </NumberPicker>
+
+        <NumberPicker
+            android:id="@+id/numberPicker2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:descendantFocusability="blocksDescendants"
+
+            android:theme="@style/DefaultNumberPickerTheme">
+
+        </NumberPicker>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/btn_red"
+            android:inputType="text"
+            android:text="Cancel"
+            android:textColor="#fff" />
+
+        <Button
+            android:id="@+id/ok"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/btn_green"
+            android:inputType="text"
+            android:text="Ok"
+            android:textColor="#fff" />
+    </LinearLayout>
+
+
+</LinearLayout>

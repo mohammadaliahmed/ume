@@ -23,7 +23,10 @@ import android.os.Handler;
 import android.os.UserManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -62,6 +65,7 @@ import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.CompressImage;
 import com.appsinventiv.ume.Utils.Constants;
 import com.appsinventiv.ume.Utils.GifSizeFilter;
+import com.appsinventiv.ume.Utils.MyEditText;
 import com.appsinventiv.ume.Utils.NotificationAsync;
 import com.appsinventiv.ume.Utils.NotificationObserver;
 import com.appsinventiv.ume.Utils.SharedPrefs;
@@ -78,6 +82,7 @@ import com.devlomi.record_view.RecordView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -106,7 +111,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     RecordView recordView;
     RecordButton recordButton;
     DatabaseReference mDatabase;
-    EditText message;
+    MyEditText message;
     ImageView send, back;
     CardView attachArea;
     ImageView attach;
@@ -226,11 +231,31 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
             @Override
             public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel) {
+                showDeleteForAllAlert(otherUser.getUsername(), chatModel.getId());
+            }
 
+            @Override
+            public void setAudioDownloadUrl(ChatModel model, String newAudioUrl) {
+                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                        .child(hisUserModel.getUsername()).child(model.getId()).child("audioUrl").setValue(newAudioUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("Updated");
+                    }
+                });
             }
         });
 
+        message.setKeyBoardInputCallbackListener(new MyEditText.KeyBoardInputCallbackListener() {
+            @Override
+            public void onCommitContent(InputContentInfoCompat inputContentInfo,
+                                        int flags, Bundle opts) {
+                //you will get your gif/png/jpg here in opts bundle
+                sendStickerMessageToServer(Constants.MESSAGE_TYPE_STICKER, "" + inputContentInfo.getContentUri(), "png");
 
+
+            }
+        });
         recyclerView.setAdapter(adapter);
 
         getMessagesFromServer();
@@ -477,7 +502,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                     mRecorder.start();
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "prepare() failed");
-                } catch (IllegalStateException e) {
+                } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                     messagingArea.setVisibility(View.VISIBLE);
 
@@ -574,6 +599,48 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+    public void putSticker(String path, ChatModel chatModel) {
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        final Uri file = Uri.parse(path);
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        StorageReference riversRef = mStorageRef.child("Photos").child(imgName);
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    @SuppressWarnings("VisibleForTests")
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("stickerUrl").setValue("" + downloadUrl);
+                        chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                        chatModel.setName(SharedPrefs.getUserModel().getName());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setStickerUrl("" + downloadUrl);
+                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(chatModel);
+                        sendNotification(chatModel.getMessageType());
+
+                        String k = mDatabase.push().getKey();
+                        mDatabase.child("Stickers").child(k).setValue(new MediaModel(k, Constants.MESSAGE_TYPE_IMAGE, "" + downloadUrl, System.currentTimeMillis()));
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        CommonUtils.showToast(exception.getMessage() + "");
+
+                    }
+                });
+
+
+    }
 
     public void putPictures(String path, ChatModel chatModel) {
         String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -746,7 +813,10 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83C\uDFB5 Audio";
         } else if (type.equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCC4 Document";
+        } else if (type.equals(Constants.MESSAGE_TYPE_STICKER)) {
+            NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDD37 Sticker";
         }
+
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, Constants.MESSAGE_TYPE_TEXT, "chat",
                 SharedPrefs.getUserModel().getUsername(),
                 "" + SharedPrefs.getUserModel().getUsername().length()
@@ -786,6 +856,53 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         putAudio(mFileName + recordingLocalUrl + ".mp3", chatModel);
 
 //                        sendNotification(type);
+
+                    }
+                });
+
+
+    }
+
+    private void sendStickerMessageToServer(final String type, final String url, String extension) {
+        message.setText(null);
+        messageId = mDatabase.push().getKey();
+        ChatModel chatModel = new ChatModel(
+                messageId,
+                msgText,
+                SharedPrefs.getUserModel().getUsername(),
+                type.equals(Constants.MESSAGE_TYPE_IMAGE) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_AUDIO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_VIDEO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_DOCUMENT) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_STICKER) ? url : "",
+                hisUserModel.getUsername(),
+                hisUserModel.getName(),
+                hisUserModel.getPicUrl(),
+                type,
+                "." + extension,
+                roomId,
+                System.currentTimeMillis(),
+                recordingTime
+        );
+
+        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
+                .setValue(chatModel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+                        putSticker(url, chatModel);
+
+//                        sendNotification(type);
+
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
                     }
                 });
@@ -919,6 +1036,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     @Override
     public void onBackPressed() {
+        adapter.activityBackPressed();
         finish();
     }
 
@@ -962,6 +1080,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //        invalidateOptionsMenu();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -1001,6 +1120,37 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 CommonUtils.showToast("Message deleted");
                             }
                         });
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+        AlertDialog.Builder builder;
+
+
+    }
+
+    private void showDeleteForAllAlert(String username, String msgId) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(SingleChattingScreen.this);
+        builder1.setMessage("Delete for all?");
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "Yes",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                .child(username).child(msgId).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
+                        mDatabase.child("Chats").child(hisUserModel.getUsername())
+                                .child(SharedPrefs.getUserModel().getUsername()).child(msgId).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
                     }
                 });
 

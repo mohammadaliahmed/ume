@@ -1,35 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="60dp">
+    android:layout_height="80dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/pic"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerVertical="true"
         android:layout_margin="10dp"
-        android:src="@drawable/ic_profile_plc" />
+        android:src="@drawable/ic_profile_plc"
+        app:civ_border_color="@color/colorBlue"
+        app:civ_border_width="3dp" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="70dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="20dp"
         android:text=""
         android:textColor="#000"
         android:textSize="15sp" />
+
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="70dp"
+        android:layout_marginBottom="8dp"
+        android:padding="2dp"
+        android:src="@drawable/ic_speak" />
+
     <TextView
-        android:id="@+id/status"
-        android:visibility="gone"
+        android:id="@+id/speakingLanguage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="95dp"
+        android:layout_marginBottom="11dp"
+        android:text=""
+        android:textSize="10sp" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="170dp"
+        android:layout_marginBottom="8dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_book" />
+
+    <TextView
+        android:id="@+id/learningLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="195dp"
+        android:layout_marginBottom="11dp"
+        android:lines="1"
+        android:text=""
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/userStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
-        android:text="online"
-        android:textColor="#000"
-        android:textSize="15sp" />
+        android:layout_marginLeft="195dp"
+        android:text="Online"
+        android:textSize="12sp" />
 
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="1dp"
+        android:background="#d6d6d6" />
 </RelativeLayout>

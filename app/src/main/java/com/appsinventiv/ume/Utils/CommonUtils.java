@@ -1,7 +1,6 @@
 package com.appsinventiv.ume.Utils;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -14,10 +13,18 @@ import android.net.ConnectivityManager;
 
 
 import com.appsinventiv.ume.ApplicationClass;
+import com.appsinventiv.ume.Models.Country;
+import com.appsinventiv.ume.Models.Example;
+import com.appsinventiv.ume.Models.ExampleLanguage;
+import com.appsinventiv.ume.Models.LangaugeModel;
+import com.appsinventiv.ume.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -34,7 +41,7 @@ public class CommonUtils {
     }
 
     public static void sendCustomerStatus(final String b) {
-        if (SharedPrefs.getUserModel().getUsername() != null) {
+        if (SharedPrefs.getUserModel() != null) {
             DatabaseReference mDatabase;
             mDatabase = FirebaseDatabase.getInstance().getReference();
             mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -45,6 +52,27 @@ public class CommonUtils {
         }
 
 
+    }
+    public static List<Country> countryList(){
+        String myJson = inputStreamToString(ApplicationClass.getInstance().getApplicationContext().getResources().openRawResource(R.raw.countries));
+        Example myModel = new Gson().fromJson(myJson, Example.class);
+        return myModel.getCountries();
+
+    }  public static List<LangaugeModel> languageList(){
+        String myJson = inputStreamToString(ApplicationClass.getInstance().getApplicationContext().getResources().openRawResource(R.raw.langaugeslist));
+        ExampleLanguage myModel = new Gson().fromJson(myJson, ExampleLanguage.class);
+        return myModel.getLanguages();
+
+    }
+    public static String inputStreamToString(InputStream inputStream) {
+        try {
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes, 0, bytes.length);
+            String json = new String(bytes);
+            return json;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public static void showToast(final String msg) {

@@ -98,30 +98,82 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             }
         }
 
-        if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
+        if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
+            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+            holder.msgtext.setVisibility(View.GONE);
+            holder.audio.setVisibility(View.GONE);
+            holder.name.setText(model.getName());
+            holder.document.setVisibility(View.GONE);
+            holder.image.setVisibility(View.GONE);
+            holder.image.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+            holder.imgProgress.setVisibility(View.GONE);
+            holder.balloon.setVisibility(View.GONE);
+            holder.messageDeleted.setVisibility(View.VISIBLE);
+//            Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
+
+        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
             holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
             holder.msgtext.setVisibility(View.GONE);
             holder.audio.setVisibility(View.GONE);
             holder.name.setText(model.getName());
             holder.document.setVisibility(View.GONE);
             holder.image.setVisibility(View.VISIBLE);
+            holder.sticker.setVisibility(View.VISIBLE);
+            holder.imgProgress.setVisibility(View.GONE);
+            holder.balloon.setVisibility(View.GONE);
+            Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
+            holder.messageDeleted.setVisibility(View.GONE);
+
+        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
+            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+            holder.msgtext.setVisibility(View.GONE);
+            holder.audio.setVisibility(View.GONE);
+            holder.name.setText(model.getName());
+            holder.balloon.setVisibility(View.VISIBLE);
+            holder.document.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+
+            holder.image.setVisibility(View.VISIBLE);
+            holder.imgProgress.setVisibility(View.GONE);
             Glide.with(context).load(model.getImageUrl()).into(holder.image);
+            if (model.getImageUrl().startsWith("/storage/em")) {
+                holder.imgProgress.setVisibility(View.VISIBLE);
+            } else {
+                holder.imgProgress.setVisibility(View.GONE);
+            }
+            holder.messageDeleted.setVisibility(View.GONE);
+
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             holder.image.setVisibility(View.GONE);
             holder.msgtext.setVisibility(View.VISIBLE);
             holder.name.setText(model.getName());
             holder.audio.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+
+            holder.balloon.setVisibility(View.VISIBLE);
+
             holder.document.setVisibility(View.GONE);
             holder.msgtext.setText(model.getMessageText());
+            holder.imgProgress.setVisibility(View.GONE);
             holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+            holder.messageDeleted.setVisibility(View.GONE);
+
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
             holder.image.setVisibility(View.GONE);
             holder.name.setText(model.getName());
             holder.msgtext.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+
+            holder.balloon.setVisibility(View.VISIBLE);
+
             holder.audio.setVisibility(View.GONE);
             holder.document.setVisibility(View.VISIBLE);
+            holder.imgProgress.setVisibility(View.GONE);
             holder.msgtext.setText(model.getMessageText());
             holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+            holder.messageDeleted.setVisibility(View.GONE);
+
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
             if (model.getAudioUrl().equalsIgnoreCase("")) {
                 holder.audioProgress.setVisibility(View.VISIBLE);
@@ -131,9 +183,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.audioProgress.setVisibility(View.GONE);
             }
             holder.playPause.setVisibility(View.VISIBLE);
+            holder.imgProgress.setVisibility(View.GONE);
             holder.image.setVisibility(View.GONE);
             holder.document.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+
             holder.name.setText(model.getName());
+            holder.balloon.setVisibility(View.VISIBLE);
+
             holder.msgtext.setVisibility(View.GONE);
             holder.audio.setVisibility(View.VISIBLE);
 
@@ -145,6 +202,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             } else {
                 updateInitialPlayerView(holder);
             }
+            holder.messageDeleted.setVisibility(View.GONE);
+
         }
 
         holder.document.setOnClickListener(new View.OnClickListener() {
@@ -213,23 +272,21 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         });
 
         holder.itemView.setOnLongClickListener(v -> {
-            callbacks.deleteMessage(hisUserModel, model);
+            deleteMsg(hisUserModel, model, position);
+
 
             return false;
         });
         holder.document.setOnLongClickListener(v -> {
-            callbacks.deleteMessage(hisUserModel, model);
-
+            deleteMsg(hisUserModel, model, position);
             return false;
         });
         holder.audio.setOnLongClickListener(v -> {
-            callbacks.deleteMessage(hisUserModel, model);
-
+            deleteMsg(hisUserModel, model, position);
             return false;
         });
         holder.image.setOnLongClickListener(v -> {
-            callbacks.deleteMessage(hisUserModel, model);
-
+            deleteMsg(hisUserModel, model, position);
             return false;
         });
 
@@ -237,31 +294,68 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         holder.playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                performPlayButtonClick(model, holder);
-//                if (!isPlaying[0]) {
-//
-//                    stopPlayer(holder);
-//                    holder.playPause.setImageResource(R.drawable.play_btn);
-//                    startMediaPlayer(model);
-//                    isPlaying[0] = true;
-//                } else {
-//                    holder.playPause.setImageResource(R.drawable.play_btn);
-//                    isPlaying[0] = false;
-//                    releaseMediaPlayer();
-//
-//                }
+                if (getItemViewType(position) == LEFT_CHAT) {
+                    if (model.getAudioUrl().contains("https://firebasestorage"))
+                        downloadAudio(model);
+                }
 
+                performPlayButtonClick(model, holder);
 
             }
         });
 
     }
 
+    private void deleteMsg(UserModel hisUserModel, ChatModel model, int position) {
+        if (!model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_DELETED)) {
+
+            if ((System.currentTimeMillis() - model.getTime()) < Constants.DELETED_MSG_TIME) {
+                if (getItemViewType(position) == RIGHT_CHAT) {
+                    callbacks.deleteMessageForAll(hisUserModel, model);
+                } else {
+                    callbacks.deleteMessage(hisUserModel, model);
+
+                }
+
+            } else {
+                callbacks.deleteMessage(hisUserModel, model);
+            }
+        }
+    }
+
+    private void downloadAudio(ChatModel model) {
+        String audioLocalUrl = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        String mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mFileName += "/r";
+
+        String filename = "" + model.getAudioUrl().substring(model.getAudioUrl().length() - 7, model.getAudioUrl().length());
+
+
+        File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp3");
+
+        if (applictionFile != null && applictionFile.exists()) {
+        } else {
+
+
+            DownloadFile.fromUrl(model.getAudioUrl(), filename + ".mp3");
+            String fname = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp3";
+            callbacks.setAudioDownloadUrl(model, fname);
+
+
+        }
+    }
+
 
     public interface ChatScreenCallbacks {
+
         public void deleteMessage(UserModel otherUser, ChatModel chatModel);
 
         public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel);
+
+        public void setAudioDownloadUrl(ChatModel model, String newAudioUrl);
 
     }
 
@@ -380,6 +474,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         return false;
     }
 
+    public void activityBackPressed() {
+        if (mediaPlayer == null) return;
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            mediaPlayer.stop();
+            releaseMediaPlayer();
+
+        }
+    }
+
+
     private void performPlayButtonClick(ChatModel recordingItem, ViewHolder myViewHolder) {
 
         int currentPosition = chatList.indexOf(recordingItem);
@@ -418,6 +523,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         SeekBar seekBar;
         ProgressBar audioProgress, attachmentProgress;
         RelativeLayout selectedItem;
+        ProgressBar imgProgress;
+        RelativeLayout balloon;
+        ImageView sticker;
+        TextView messageDeleted;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -434,6 +543,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             audioProgress = itemView.findViewById(R.id.audioProgress);
             audioProgress = itemView.findViewById(R.id.audioProgress);
             selectedItem = itemView.findViewById(R.id.selectedItem);
+            imgProgress = itemView.findViewById(R.id.imgProgress);
+            balloon = itemView.findViewById(R.id.balloon);
+            sticker = itemView.findViewById(R.id.sticker);
+            messageDeleted = itemView.findViewById(R.id.messageDeleted);
 
 //            seekBar.setOnSeekBarChangeListener(this);
 

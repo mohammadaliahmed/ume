@@ -28,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appsinventiv.ume.BottomDialogs.BottomDialog;
+import com.appsinventiv.ume.BottomDialogs.DialogCallbacks;
+import com.appsinventiv.ume.Models.Example;
+import com.appsinventiv.ume.Models.LangaugeModel;
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
@@ -45,12 +48,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.filter.Filter;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,25 +69,27 @@ public class EditProfile extends AppCompatActivity {
     EditText name;
     Button continuebtn;
     ArrayList<String> imageUrl = new ArrayList<>();
+    public static List<String> learningLanguages = new ArrayList<>();
+    public static List<String> interestList = new ArrayList<>();
     List<Uri> mSelected = new ArrayList<>();
     private static final int REQUEST_CODE_CHOOSE = 23;
     RadioGroup radioGender;
     RadioButton radioGenderButton;
-    RadioGroup radioInterest;
-    RadioButton radioInterestButton;
-    TextView chooseCountry, chooseLanguage, chooseBirthday,chooseLeaningLanguage;
-    public static String language = "English", country = "Pakistan";
+
+    TextView chooseCountry, chooseLanguage, chooseBirthday, chooseLeaningLanguage, chooseInterest, chooseCurrentLocation;
+    public static String language, country, currentLocation;
     String gender, interest;
     StorageReference mStorageRef;
     ProgressBar progress;
     private String dob;
     int yearr = 1990;
+    private int age;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_edit_profile);
         this.setTitle("Edit profile");
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -93,39 +101,21 @@ public class EditProfile extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
+        chooseCurrentLocation = findViewById(R.id.chooseCurrentLocation);
         chooseLeaningLanguage = findViewById(R.id.chooseLeaningLanguage);
+        chooseInterest = findViewById(R.id.chooseInterest);
         continuebtn = findViewById(R.id.continuebtn);
         chooseBirthday = findViewById(R.id.chooseBirthday);
         image = findViewById(R.id.image);
         name = findViewById(R.id.name);
         radioGender = findViewById(R.id.radioGender);
-        radioInterest = findViewById(R.id.radioInterest);
         chooseCountry = findViewById(R.id.chooseCountry);
         chooseLanguage = findViewById(R.id.chooseLanguage);
         progress = findViewById(R.id.progress);
         progress.setVisibility(View.VISIBLE);
         getUserDataFromDB();
-        ArrayList<String> countryList=new ArrayList<>();
-        countryList.add("Pakistan");
-        countryList.add("India");
-        countryList.add("USA");
-        countryList.add("China");
-        countryList.add("UAE");
-        countryList.add("Saudia");
-        countryList.add("Pakistan");
-        countryList.add("India");
-        countryList.add("USA");
-        countryList.add("China");
-        countryList.add("UAE");
-        countryList.add("Saudia");
-
-
-        chooseLeaningLanguage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BottomDialog.showLanguagesDialog(EditProfile.this,countryList);
-            }
-        });
+        setupLearningLangaue();
+        setupInterest();
 
         image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,13 +127,59 @@ public class EditProfile extends AppCompatActivity {
         chooseLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLanguageAlert();
+//                showLanguageAlert();
+                BottomDialog.showSpokenDialog(EditProfile.this, CommonUtils.languageList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseLanguage.setText("Language : " + language);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
             }
         });
         chooseCountry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCountryAlert();
+
+                String myJson = inputStreamToString(getResources().openRawResource(R.raw.countries));
+                Example myModel = new Gson().fromJson(myJson, Example.class);
+                BottomDialog.showCountiesDialog(EditProfile.this, myModel.getCountries(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseCountry.setText("Country: " + country);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+
+
+            }
+        });
+        chooseCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                BottomDialog.showCountiesDialog(EditProfile.this, CommonUtils.countryList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseCurrentLocation.setText("Current location: " + currentLocation);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+
+
             }
         });
 
@@ -155,6 +191,7 @@ public class EditProfile extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         yearr = year;
+                        age=2019-yearr;
                         dob = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year);
                         chooseBirthday.setText(String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year));
 
@@ -190,17 +227,73 @@ public class EditProfile extends AppCompatActivity {
                     } else {
                         gender = radioGenderButton.getText().toString();
                     }
-                    int interestId = radioInterest.getCheckedRadioButtonId();
-                    radioInterestButton = (RadioButton) findViewById(interestId);
-                    if (radioInterestButton == null) {
-                        CommonUtils.showToast("Choose Interest");
-                        return;
-                    } else {
-                        interest = radioInterestButton.getText().toString();
 
-                    }
                     takeUserToNextScreen();
                 }
+            }
+        });
+    }
+
+    public String inputStreamToString(InputStream inputStream) {
+        try {
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes, 0, bytes.length);
+            String json = new String(bytes);
+            return json;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private void setupLearningLangaue() {
+
+        chooseLeaningLanguage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showLanguagesDialog(EditProfile.this, CommonUtils.languageList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        if (learningLanguages.size() > 0) {
+                            chooseLeaningLanguage.setText("Learning languages: " + learningLanguages);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void setupInterest() {
+        ArrayList<String> inerests = new ArrayList<>();
+        inerests.add("Games");
+        inerests.add("Dating");
+        inerests.add("Food");
+        inerests.add("Movies");
+        inerests.add("Music");
+        inerests.add("Outdoor");
+        inerests.add("Driving");
+
+
+        chooseInterest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showInterestDialog(EditProfile.this, inerests, new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        if (interestList.size() > 0) {
+                            chooseInterest.setText("Interests: " + interestList);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
             }
         });
     }
@@ -263,36 +356,75 @@ public class EditProfile extends AppCompatActivity {
 
 
     }
+    private void takeUserToNextScreen() {
+        UserModel userModel = SharedPrefs.getUserModel();
+        userModel.setName(name.getText().toString());
+        userModel.setCountry(country);
+        userModel.setGender(gender);
+        userModel.setDob(dob);
+        userModel.setAge(age);
+        userModel.setCurrentLocation(currentLocation);
+        userModel.setInterests(interestList);
+        userModel.setLearningLanguage(learningLanguages);
+        userModel.setLanguage(language);
 
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(SharedPrefs.getUserModel().getUsername(), userModel);
 
+        mDatabase.child("Users").updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                CommonUtils.showToast("Updated");
+                startActivity(new Intent(EditProfile.this, MainActivity.class));
+                finish();
+            }
+        });
+    }
     private void getUserDataFromDB() {
         mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-
                     UserModel model = dataSnapshot.getValue(UserModel.class);
                     if (model != null) {
                         SharedPrefs.setUserModel(model);
                         country = model.getCountry();
+                        currentLocation = model.getCurrentLocation();
                         language = model.getLanguage();
                         dob = model.getDob();
                         name.setText(model.getName());
+                        age=model.getAge();
 
                         chooseBirthday.setText("DOB: " + (dob == null ? "" : dob));
                         chooseCountry.setText("Country: " + (country == null ? "" : country));
+                        chooseCurrentLocation.setText("Current: " + (currentLocation == null ? "" : currentLocation));
                         chooseLanguage.setText("Language: " + (language == null ? "" : language));
                         if (model.getPicUrl() != null) {
-                            Glide.with(EditProfile.this).load(model.getPicUrl()).into(image);
-                            progress.setVisibility(View.GONE);
+                            try {
+                                Glide.with(EditProfile.this).load(model.getPicUrl()).into(image);
+                                progress.setVisibility(View.GONE);
+                            } catch ( IllegalArgumentException e) {
+                                progress.setVisibility(View.GONE);
+                            }
 
                         }
-                        if(model.getGender().equalsIgnoreCase("male")) {
+                        if (model.getGender().equalsIgnoreCase("male")) {
                             ((RadioButton) radioGender.getChildAt(0)).setChecked(true);
-                        }else{
+                        } else {
                             ((RadioButton) radioGender.getChildAt(1)).setChecked(true);
 
                         }
+
+                        learningLanguages = model.getLearningLanguage();
+                        interestList = model.getInterests();
+                        if (interestList.size() > 0) {
+                            chooseInterest.setText("Interests: " + interestList);
+                        }
+                        if (learningLanguages.size() > 0) {
+                            chooseLeaningLanguage.setText("Learning languages: " + learningLanguages);
+                        }
+
+
                     }
                     progress.setVisibility(View.GONE);
                 } else {
@@ -312,7 +444,7 @@ public class EditProfile extends AppCompatActivity {
         Matisse.from(EditProfile.this)
                 .choose(MimeType.allOf())
                 .countable(true)
-                .maxSelectable(8)
+                .maxSelectable(1)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
                 .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -321,28 +453,6 @@ public class EditProfile extends AppCompatActivity {
                 .forResult(REQUEST_CODE_CHOOSE);
     }
 
-    private void takeUserToNextScreen() {
-        UserModel userModel = SharedPrefs.getUserModel();
-        userModel.setName(name.getText().toString());
-        userModel.setCountry(country);
-        userModel.setGender(gender);
-        userModel.setDob(dob);
-//        userModel.setInterest(interest);
-        userModel.setLanguage(language);
-
-        HashMap<String, Object> map = new HashMap<>();
-        map.put(SharedPrefs.getUserModel().getUsername(), userModel);
-
-        mDatabase.child("Users").updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                CommonUtils.showToast("Updated");
-                SharedPrefs.setSettingDone("yes");
-                startActivity(new Intent(EditProfile.this, MainActivity.class));
-                finish();
-            }
-        });
-    }
 
     private void getPermissions() {
         int PERMISSION_ALL = 1;
@@ -368,35 +478,35 @@ public class EditProfile extends AppCompatActivity {
         return true;
     }
 
-    private void showCountryAlert() {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(EditProfile.this);
-        builderSingle.setTitle("Select Country");
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(EditProfile.this, android.R.layout.simple_list_item_1);
-        arrayAdapter.add("Pakistan");
-        arrayAdapter.add("India");
-        arrayAdapter.add("Bangladesh");
-        arrayAdapter.add("UAE");
-        arrayAdapter.add("USA");
-
-
-        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                chooseCountry.setText("Country: " + arrayAdapter.getItem(which));
-                country = arrayAdapter.getItem(which);
-
-            }
-        });
-        builderSingle.show();
-    }
+//    private void showCountryAlert() {
+//        AlertDialog.Builder builderSingle = new AlertDialog.Builder(EditProfile.this);
+//        builderSingle.setTitle("Select Country");
+//
+//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(EditProfile.this, android.R.layout.simple_list_item_1);
+//        arrayAdapter.add("Pakistan");
+//        arrayAdapter.add("India");
+//        arrayAdapter.add("Bangladesh");
+//        arrayAdapter.add("UAE");
+//        arrayAdapter.add("USA");
+//
+//
+//        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                chooseCountry.setText("Country: " + arrayAdapter.getItem(which));
+//                country = arrayAdapter.getItem(which);
+//
+//            }
+//        });
+//        builderSingle.show();
+//    }
 
     private void showLanguageAlert() {
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(EditProfile.this);

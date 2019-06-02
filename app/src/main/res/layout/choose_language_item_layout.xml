@@ -5,19 +5,34 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp">
 
+    <ImageView
+        android:id="@+id/flag"
+        android:layout_width="40dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_flag" />
+
     <TextView
         android:id="@+id/countryName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_margin="10dp"
-        android:textColor="#000"
-        android:text="Country" />
+        android:layout_marginLeft="60dp"
+        android:text="Country"
+        android:textColor="#000" />
 
     <CheckBox
+        android:id="@+id/checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="#d2d2d2" />
 
 </RelativeLayout>

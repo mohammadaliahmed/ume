@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.appsinventiv.ume.Activities.ContactSelectionScreen;
 import com.appsinventiv.ume.Activities.EditProfile;
+import com.appsinventiv.ume.Activities.MainActivity;
 import com.appsinventiv.ume.Adapters.ChatListAdapter;
 import com.appsinventiv.ume.Adapters.SearchedUserListAdapter;
 import com.appsinventiv.ume.Adapters.UserListAdapter;
@@ -36,6 +37,7 @@ public class SearchActivity extends AppCompatActivity {
     ArrayList<UserModel> itemList = new ArrayList<>();
     SearchedUserListAdapter adapter;
     DatabaseReference mDatabase;
+    String country, gender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,11 @@ public class SearchActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        mDatabase=FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         this.setTitle("List of users");
+
+        gender = getIntent().getStringExtra("gender");
+        country = getIntent().getStringExtra("country");
 
         recyclerView = findViewById(R.id.recyclerview);
 
@@ -62,11 +67,46 @@ public class SearchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-        getDataFromDB();
+        if (gender == null) {
+            getDataFromDB();
+        } else {
+            getFilteredDataDrmDB();
+        }
 
 
     }
 
+    private void getFilteredDataDrmDB() {
+        mDatabase.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        UserModel model = snapshot.getValue(UserModel.class);
+                        if (model != null) {
+                            if (model.getName() != null) {
+//                                if (!model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                                if (model.getGender().equalsIgnoreCase(gender)) {
+                                    itemList.add(model);
+                                } else if (gender.equalsIgnoreCase("all")) {
+                                    itemList.add(model);
+                                }
+
+
+//                                }
+                            }
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
     private void getDataFromDB() {
@@ -98,16 +138,30 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_search, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
         if (item.getItemId() == android.R.id.home) {
 
 
             finish();
         }
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_filter) {
+            Intent i = new Intent(SearchActivity.this, Filters.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

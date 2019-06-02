@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        this.setTitle("U Me");
+        this.setTitle("U ME");
 
         newMessage.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -19,8 +19,13 @@
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.ContactSelectionScreen" />
         <activity android:name=".Activities.Search.SearchActivity" />
+        <activity
+            android:name=".Activities.Search.Filters"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Activities.ImageCrop.TempActivity" />
-        <activity android:name="com.yalantis.ucrop.UCropActivity" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.UserProfileScreen"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -37,6 +42,10 @@
             android:name=".Activities.Profile"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Activities.PhoneVerification">
+
+        </activity>
+        <activity android:name=".Activities.Splash"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

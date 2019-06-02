@@ -10,16 +10,17 @@ public class UserModel {
     String authId;
     boolean verified;
     String status;
-    String gender,language,country;
+    String gender,language,country,currentLocation;
     String dob;
 
     List<String> interests=new ArrayList<>();
+    List<String> learningLanguage=new ArrayList<>();
+
     List<String> confirmFriends=new ArrayList<>();
     List<String> requestSent=new ArrayList<>();
     List<String> requestReceived=new ArrayList<>();
     List<String> blockedUsers=new ArrayList<>();
-    List<String> learningLanguage=new ArrayList<>();
-
+    private int age;
 
 
     public UserModel() {
@@ -33,6 +34,14 @@ public class UserModel {
         this.authId = authId;
         this.verified = verified;
         this.status = status;
+    }
+
+    public String getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(String currentLocation) {
+        this.currentLocation = currentLocation;
     }
 
     public List<String> getRequestReceived() {
@@ -187,5 +196,13 @@ public class UserModel {
 
     public void setAuthId(String authId) {
         this.authId = authId;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age=age;
     }
 }

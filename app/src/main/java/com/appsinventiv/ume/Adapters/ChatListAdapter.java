@@ -52,13 +52,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         Glide.with(context).load(model.getMessage().getPicUrl()).into(holder.image);
 //        holder.message.setText(model.getText());
         if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
-            holder.message.setText("" + "\uD83D\uDCF7 Image");
+            holder.message.setText("" + "\uD83D\uDCF7  Image");
+        } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
+            holder.message.setText("" + "\uD83D\uDD37 Sticker");
         } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
             holder.message.setText("" + "\uD83C\uDFB5 Audio");
         } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
             holder.message.setText("" + "\uD83D\uDCC4 Document");
         } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             holder.message.setText(model.getMessage().getMessageText());
+        } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
+            holder.message.setText("Message deleted");
         }
 
 
@@ -84,6 +88,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView username, message, time, count;
         CircleImageView image;
+
         public ViewHolder(View itemView) {
             super(itemView);
             username = itemView.findViewById(R.id.username);

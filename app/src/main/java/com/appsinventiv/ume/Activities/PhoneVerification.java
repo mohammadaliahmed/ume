@@ -47,12 +47,13 @@ public class PhoneVerification extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_verification);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         prefManager = new PrefManager(this);
         if (!prefManager.isFirstTimeLaunch()) {
-            launchHomeScreen();
+//            launchHomeScreen();
             finish();
         }else {
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+
             this.setTitle("Verify your phone");
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setElevation(0);
@@ -70,8 +71,8 @@ public class PhoneVerification extends AppCompatActivity {
                         number.setError("Enter phone number");
                     } else {
                         progress.setVisibility(View.VISIBLE);
-                        checkUser();
-//                    sendVerifyCode(number.getText().toString());
+//                        checkUser();
+                    sendVerifyCode(number.getText().toString());
                     }
                 }
             });
@@ -182,13 +183,14 @@ public class PhoneVerification extends AppCompatActivity {
 
     private void launchHomeScreen() {
         prefManager.setFirstTimeLaunch(false);
+        prefManager.setIsFirstTimeLaunchWelcome(false);
+
         if (SharedPrefs.getSettingDone().equalsIgnoreCase("yes")) {
             startActivity(new Intent(PhoneVerification.this, MainActivity.class));
         } else {
             startActivity(new Intent(PhoneVerification.this, Profile.class));
         }
 
-        prefManager.setIsFirstTimeLaunchWelcome(false);
 
 
         finish();

@@ -16,6 +16,10 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,12 +30,14 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appsinventiv.ume.Adapters.InterestAdapter;
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
@@ -42,6 +48,7 @@ import com.appsinventiv.ume.Utils.NotificationAsync;
 import com.appsinventiv.ume.Utils.NotificationObserver;
 import com.appsinventiv.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -74,6 +81,11 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     CircleImageView userPic;
     private UserModel myUserModel;
     int abc = 0;
+    TextView name, username, country, language, learningLanguage, lastOnline, memberSince,currenLocation;
+    RecyclerView recyclerview;
+    private InterestAdapter adapter;
+
+    FlexboxLayout container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,16 +96,33 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         changeStatusBarColor();
+        container=findViewById(R.id.v_container);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         userId = getIntent().getStringExtra("userId");
 
+        recyclerview = findViewById(R.id.recyclerview);
+        name = findViewById(R.id.name);
+        username = findViewById(R.id.username);
+        country = findViewById(R.id.country);
+        language = findViewById(R.id.language);
+        learningLanguage = findViewById(R.id.learningLanguage);
+        lastOnline = findViewById(R.id.lastOnline);
+        memberSince = findViewById(R.id.memberSince);
+        currenLocation = findViewById(R.id.currenLocation);
         addAsFriend = findViewById(R.id.addAsFriend);
         titleName = findViewById(R.id.titleName);
         userName = findViewById(R.id.userName);
         back = findViewById(R.id.back);
         userPic = findViewById(R.id.userPic);
-
+        userPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(UserProfileScreen.this, ViewPictures.class);
+                i.putExtra("url", hisUserModel.getPicUrl());
+                startActivity(i);
+            }
+        });
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,6 +151,8 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
     }
 
+
+
     private void removeAsFriend() {
 
         myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
@@ -147,11 +178,25 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         hisUserModel.getRequestSent().remove(hisUserModel.getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
         mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestSent").setValue(hisUserModel.getRequestSent());
 
+        sendAcceptRequestNotification();
+
 
     }
 
+    private void sendAcceptRequestNotification() {
+        NotificationAsync notificationAsync = new NotificationAsync(UserProfileScreen.this);
+//                        String NotificationTitle = "New message in " + groupName;
+        String NotificationTitle = SharedPrefs.getUserModel().getName() + " accepted your friend request";
+        String NotificationMessage = "Click to view ";
+
+        notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
+                SharedPrefs.getUserModel().getUsername(),
+                "" + SharedPrefs.getUserModel().getUsername().length()
+        );
+    }
+
     private void getMyDataFromDB() {
-        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
@@ -171,7 +216,13 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                         addAsFriend.setText("Unfriend");
                         addAsFriend.setEnabled(true);
                         addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorRed));
+                    } else {
+                        abc = 0;
+                        addAsFriend.setText("Add as Friend");
+                        addAsFriend.setEnabled(true);
+                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }
+
                 }
             }
 
@@ -237,12 +288,13 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     }
 
     private void getDataFromDB() {
-        mDatabase.child("Users").child(userId).addValueEventListener(new ValueEventListener() {
+        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
                     hisUserModel = dataSnapshot.getValue(UserModel.class);
                     if (hisUserModel != null) {
+                        inflatelayout(hisUserModel.getInterests());
                         setUserProfileData(hisUserModel);
                     }
                 }
@@ -255,7 +307,38 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         });
     }
 
+    private void inflatelayout(List<String> interests) {
+        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        buttonLayoutParams.setMargins(5,5,5,5);
+        for(int i=0;i<interests.size();i++){
+            final TextView tv = new TextView(getApplicationContext());
+            tv.setText(interests.get(i));
+            tv.setHeight(100);
+            tv.setGravity(Gravity.CENTER);
+            tv.setTextColor(Color.parseColor("#FFFFFF"));
+            tv.setBackground(getResources().getDrawable(R.drawable.interest_bg));
+            tv.setId(i + 1);
+            tv.setLayoutParams(buttonLayoutParams);
+            tv.setTag(i);
+            tv.setPadding(20, 10, 20, 10);
+            container.addView(tv);
+        }
+
+
+    }
+
     private void setUserProfileData(UserModel user) {
+        name.setText(user.getName());
+        username.setText(user.getUsername());
+        language.setText(user.getLanguage());
+        learningLanguage.setText(user.getLearningLanguage() + "");
+        memberSince.setText(CommonUtils.getFormattedDate(user.getTime()));
+        currenLocation.setText(user.getCurrentLocation());
+        lastOnline.setText(hisUserModel.getStatus()
+                .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
+        );
+        country.setText(user.getCountry());
         if (user.getPicUrl() != null) {
             try {
                 Glide.with(UserProfileScreen.this).load(user.getPicUrl()).into(userPic);
