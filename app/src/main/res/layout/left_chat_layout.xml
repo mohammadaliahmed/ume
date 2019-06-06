@@ -69,7 +69,7 @@
                 android:layout_margin="10dp"
                 android:hint="asdasd"
                 android:inputType="textCapCharacters"
-                android:textColor="@color/colorGrey"
+                android:textColor="#000"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/name"
-                android:layout_marginLeft="15dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="5dp"
                 android:autoLink="web|phone|all"
                 android:hint="asddsfsd"
@@ -87,15 +87,31 @@
                 android:textColor="#000"
                 android:textIsSelectable="true"
                 android:visibility="gone" />
+            <ImageView
+                android:id="@+id/video"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_below="@id/name"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:padding="2dp"
+                android:visibility="gone"></ImageView>
+
 
             <ImageView
                 android:id="@+id/document"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_marginTop="20dp"
-                android:padding="10dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/curved_edges"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
                 android:src="@drawable/file"
                 android:visibility="gone" />
+
 
 
             <ImageView
@@ -158,7 +174,7 @@
                     android:layout_below="@id/seek"
                     android:layout_marginLeft="40dp"
                     android:hint="0:05"
-                    android:textColor="@color/colorGrey"
+                    android:textColor="#000"
                     android:textSize="10sp" />
             </RelativeLayout>
         </RelativeLayout>
@@ -173,7 +189,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:text="3:04pm"
-            android:textColor="@color/colorGrey"
+            android:textColor="#000"
             android:textSize="10sp" />
 
 

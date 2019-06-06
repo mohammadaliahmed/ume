@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.appsinventiv.ume.Activities.Search.SearchActivity;
 import com.appsinventiv.ume.Adapters.ChatListAdapter;
@@ -17,12 +18,14 @@ import com.appsinventiv.ume.Models.ChatListModel;
 import com.appsinventiv.ume.Models.ChatModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
+import com.appsinventiv.ume.Utils.CountryUtils;
 import com.appsinventiv.ume.Utils.SharedPrefs;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.Country;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,12 +38,14 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference mDatabase;
     ArrayList<ChatListModel> itemList = new ArrayList<>();
     ChatListAdapter adapter;
+    TextView noMsgs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerview = findViewById(R.id.recyclerview);
+        noMsgs = findViewById(R.id.noMsgs);
         newMessage = findViewById(R.id.newMessage);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setElevation(0);
@@ -69,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
     }
 
     private void getMessagesFromDB() {
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
+                    noMsgs.setVisibility(View.GONE);
 
                     itemList.clear();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -116,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
+                }else{
+                    noMsgs.setVisibility(View.VISIBLE);
                 }
             }
 

@@ -365,6 +365,7 @@ public class Profile extends AppCompatActivity {
         userModel.setInterests(interestList);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);
+        userModel.setCountryNameCode(SharedPrefs.getCountryCode());
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(SharedPrefs.getUserModel().getUsername(), userModel);
@@ -374,7 +375,9 @@ public class Profile extends AppCompatActivity {
             public void onSuccess(Void aVoid) {
                 CommonUtils.showToast("Updated");
                 SharedPrefs.setSettingDone("yes");
-                startActivity(new Intent(Profile.this, MainActivity.class));
+                Intent intent = new Intent(Profile.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 finish();
             }
         });
@@ -482,63 +485,6 @@ public class Profile extends AppCompatActivity {
         return true;
     }
 
-//    private void showCountryAlert() {
-//        AlertDialog.Builder builderSingle = new AlertDialog.Builder(Profile.this);
-//        builderSingle.setTitle("Select Country");
-//
-//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(Profile.this, android.R.layout.simple_list_item_1);
-//        arrayAdapter.add("Pakistan");
-//        arrayAdapter.add("India");
-//        arrayAdapter.add("Bangladesh");
-//        arrayAdapter.add("UAE");
-//        arrayAdapter.add("USA");
-//
-//
-//        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                chooseCountry.setText("Country: " + arrayAdapter.getItem(which));
-//                country = arrayAdapter.getItem(which);
-//
-//            }
-//        });
-//        builderSingle.show();
-//    }
-
-    private void showLanguageAlert() {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(Profile.this);
-        builderSingle.setTitle("Select Langauge");
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(Profile.this, android.R.layout.simple_list_item_1);
-        arrayAdapter.add("English");
-        arrayAdapter.add("Urdu");
-        arrayAdapter.add("Bangla");
-
-
-        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                chooseLanguage.setText("Language: " + arrayAdapter.getItem(which));
-                language = arrayAdapter.getItem(which);
-
-            }
-        });
-        builderSingle.show();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

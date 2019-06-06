@@ -17,7 +17,7 @@
         android:layout_below="@id/img"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:text="Welcome to U ME Social App"
+        android:text="Welcome to UME Social App"
         android:textSize="20sp" />
 
 </RelativeLayout>

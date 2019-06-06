@@ -66,7 +66,7 @@ public class Splash extends AppCompatActivity {
         if (SharedPrefs.getSettingDone().equalsIgnoreCase("yes")) {
             startActivity(new Intent(Splash.this, MainActivity.class));
         } else {
-            startActivity(new Intent(Splash.this, PhoneVerification.class));
+            startActivity(new Intent(Splash.this, Profile.class));
         }
     }
 }

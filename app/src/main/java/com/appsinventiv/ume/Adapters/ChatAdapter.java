@@ -15,10 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.appsinventiv.ume.Activities.ViewPictures;
 import com.appsinventiv.ume.Models.ChatModel;
@@ -90,15 +92,41 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final ChatModel model = chatList.get(position);
         if (getItemViewType(position) == RIGHT_CHAT) {
-            Glide.with(context).load(SharedPrefs.getUserModel().getPicUrl()).into(holder.profile_image);
+            if (SharedPrefs.getUserModel().getPicUrl() == null) {
+                Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.profile_image);
+
+            } else {
+                Glide.with(context).load(SharedPrefs.getUserModel().getPicUrl()).into(holder.profile_image);
+            }
         } else {
             if (hisUserModel != null) {
-                Glide.with(context).load(hisUserModel.getPicUrl()).into(holder.profile_image);
+                if (SharedPrefs.getUserModel().getPicUrl() == null) {
+                    Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.profile_image);
 
+                } else {
+                    Glide.with(context).load(hisUserModel.getPicUrl()).into(holder.profile_image);
+                }
             }
         }
 
-        if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
+        if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
+            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+            holder.msgtext.setVisibility(View.GONE);
+            holder.audio.setVisibility(View.GONE);
+            holder.name.setText(model.getName());
+            holder.document.setVisibility(View.GONE);
+            holder.image.setVisibility(View.GONE);
+            holder.image.setVisibility(View.GONE);
+            holder.sticker.setVisibility(View.GONE);
+            holder.imgProgress.setVisibility(View.GONE);
+            holder.balloon.setVisibility(View.VISIBLE);
+            holder.messageDeleted.setVisibility(View.GONE);
+            holder.video.setVisibility(View.VISIBLE);
+//            if(CommonUtils.getVideoPic(model.getVideoUrl())!=null){
+//               holder.video.setImageBitmap(CommonUtils.getVideoPic(model.getVideoUrl()));
+//            }
+
+        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
             holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
             holder.msgtext.setVisibility(View.GONE);
             holder.audio.setVisibility(View.GONE);
@@ -109,8 +137,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.sticker.setVisibility(View.GONE);
             holder.imgProgress.setVisibility(View.GONE);
             holder.balloon.setVisibility(View.GONE);
+            holder.video.setVisibility(View.GONE);
+
             holder.messageDeleted.setVisibility(View.VISIBLE);
-//            Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
 
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
             holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
@@ -122,6 +151,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.sticker.setVisibility(View.VISIBLE);
             holder.imgProgress.setVisibility(View.GONE);
             holder.balloon.setVisibility(View.GONE);
+            holder.video.setVisibility(View.GONE);
+
             Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
             holder.messageDeleted.setVisibility(View.GONE);
 
@@ -131,6 +162,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.audio.setVisibility(View.GONE);
             holder.name.setText(model.getName());
             holder.balloon.setVisibility(View.VISIBLE);
+            holder.video.setVisibility(View.GONE);
+
             holder.document.setVisibility(View.GONE);
             holder.sticker.setVisibility(View.GONE);
 
@@ -149,6 +182,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.msgtext.setVisibility(View.VISIBLE);
             holder.name.setText(model.getName());
             holder.audio.setVisibility(View.GONE);
+            holder.video.setVisibility(View.GONE);
+
             holder.sticker.setVisibility(View.GONE);
 
             holder.balloon.setVisibility(View.VISIBLE);
@@ -166,6 +201,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.sticker.setVisibility(View.GONE);
 
             holder.balloon.setVisibility(View.VISIBLE);
+            holder.video.setVisibility(View.GONE);
 
             holder.audio.setVisibility(View.GONE);
             holder.document.setVisibility(View.VISIBLE);
@@ -185,6 +221,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             holder.playPause.setVisibility(View.VISIBLE);
             holder.imgProgress.setVisibility(View.GONE);
             holder.image.setVisibility(View.GONE);
+            holder.video.setVisibility(View.GONE);
+
             holder.document.setVisibility(View.GONE);
             holder.sticker.setVisibility(View.GONE);
 
@@ -221,24 +259,24 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     context.startActivity(intent);
 
                 } else {
-//                    DownloadFile.fromUrl1(model.getDocumentUrl(), filename + model.getMediaType(), new FileDownloaded() {
-//                        @Override
-//                        public void onFileDownloaded(String filename) {
-//                            CommonUtils.showToast("downloaded");
-//                            File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
-//                                    Environment.DIRECTORY_DOWNLOADS) + "/" + filename);
-//                            Intent intent = new Intent();
-//                            intent.setAction(android.content.Intent.ACTION_VIEW);
-//
-//                            intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
-//                            context.startActivity(intent);
-//                        }
-//                    });
-//                    Intent intent = new Intent();
-//                    intent.setAction(android.content.Intent.ACTION_VIEW);
-//
-//                    intent.setDataAndType(Uri.fromFile(applictionFile),getMimeType(applictionFile.getAbsolutePath()));
-//                    context.startActivity(intent);
+                    DownloadFile.fromUrll(model.getDocumentUrl(), filename + model.getMediaType(), new DownloadFile.FileDownloaded() {
+                        @Override
+                        public void onFileDownloaded(String filename) {
+                            CommonUtils.showToast("downloaded");
+                            File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_DOWNLOADS) + "/" + filename);
+                            Intent intent = new Intent();
+                            intent.setAction(android.content.Intent.ACTION_VIEW);
+
+                            intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                            context.startActivity(intent);
+                        }
+                    });
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+
+                    intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                    context.startActivity(intent);
                 }
             }
         });
@@ -304,6 +342,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             }
         });
 
+//        if (model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_VIDEO)) {
+//            MediaController mc = new MediaController(context);
+//            mc.setAnchorView(holder.video);
+//            mc.setMediaPlayer(holder.video);
+//            Uri video = Uri.parse(model.getVideoUrl());
+//            holder.video.setMediaController(mc);
+//            holder.video.setVideoURI(video);
+//            holder.video.start();
+//        }
     }
 
     private void deleteMsg(UserModel hisUserModel, ChatModel model, int position) {
@@ -527,6 +574,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         RelativeLayout balloon;
         ImageView sticker;
         TextView messageDeleted;
+        ImageView  video;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -547,6 +595,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             balloon = itemView.findViewById(R.id.balloon);
             sticker = itemView.findViewById(R.id.sticker);
             messageDeleted = itemView.findViewById(R.id.messageDeleted);
+            video = itemView.findViewById(R.id.video);
 
 //            seekBar.setOnSeekBarChangeListener(this);
 

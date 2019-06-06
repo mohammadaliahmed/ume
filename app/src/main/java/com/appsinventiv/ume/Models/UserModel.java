@@ -22,6 +22,7 @@ public class UserModel {
     List<String> blockedUsers=new ArrayList<>();
     private int age;
 
+    String countryNameCode;
 
     public UserModel() {
     }
@@ -34,6 +35,14 @@ public class UserModel {
         this.authId = authId;
         this.verified = verified;
         this.status = status;
+    }
+
+    public String getCountryNameCode() {
+        return countryNameCode;
+    }
+
+    public void setCountryNameCode(String countryNameCode) {
+        this.countryNameCode = countryNameCode;
     }
 
     public String getCurrentLocation() {

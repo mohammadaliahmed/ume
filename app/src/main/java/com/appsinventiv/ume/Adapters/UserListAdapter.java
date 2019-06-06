@@ -47,6 +47,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             public void onClick(View v) {
                 Intent i=new Intent(context,SingleChattingScreen.class);
                 i.putExtra("userId",model.getUsername());
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
         });

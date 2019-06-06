@@ -264,7 +264,6 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived").setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        CommonUtils.showToast("");
                     }
                 });
 
@@ -342,6 +341,12 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         if (user.getPicUrl() != null) {
             try {
                 Glide.with(UserProfileScreen.this).load(user.getPicUrl()).into(userPic);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }else{
+            try {
+                Glide.with(UserProfileScreen.this).load(R.drawable.ic_profile_plc).into(userPic);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }

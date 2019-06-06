@@ -17,6 +17,7 @@ import com.appsinventiv.ume.Activities.ViewPictures;
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
+import com.appsinventiv.ume.Utils.CountryUtils;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -46,16 +47,24 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         UserModel model = itemList.get(i);
         holder.name.setText(model.getName());
-        holder.learningLanguage.setText(""+model.getLearningLanguage());
-        holder.speakingLanguage.setText(""+model.getLanguage());
+        holder.learningLanguage.setText("" + model.getLearningLanguage());
+        holder.speakingLanguage.setText("" + model.getLanguage());
+
+        if (model.getCountryNameCode() != null) {
+            holder.userFlag.setVisibility(View.VISIBLE);
+
+            Glide.with(context).load(CountryUtils.getFlagDrawableResId(model.getCountryNameCode())).into(holder.userFlag);
+        } else {
+            holder.userFlag.setVisibility(View.GONE);
+        }
 
         if (model.getPicUrl() != null) {
             Glide.with(context).load(model.getPicUrl()).into(holder.pic);
-            if (model.getGender().equalsIgnoreCase("male")) {
-                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorBlue));
-            } else if (model.getGender().equalsIgnoreCase("female")) {
-                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorPink));
-            }
+//            if (model.getGender().equalsIgnoreCase("male")) {
+//                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorBlue));
+//            } else if (model.getGender().equalsIgnoreCase("female")) {
+//                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorPink));
+//            }
         }
         holder.userStatus.setText(
                 model.getStatus()
@@ -86,7 +95,7 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, userStatus, speakingLanguage, learningLanguage;
-        CircleImageView pic;
+        ImageView pic, userFlag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +104,7 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             learningLanguage = itemView.findViewById(R.id.learningLanguage);
             speakingLanguage = itemView.findViewById(R.id.speakingLanguage);
             userStatus = itemView.findViewById(R.id.userStatus);
+            userFlag = itemView.findViewById(R.id.userFlag);
         }
     }
 

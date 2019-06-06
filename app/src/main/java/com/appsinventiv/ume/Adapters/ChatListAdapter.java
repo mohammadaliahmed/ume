@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.appsinventiv.ume.Activities.MainActivity;
 import com.appsinventiv.ume.Activities.SingleChattingScreen;
 import com.appsinventiv.ume.Models.ChatListModel;
 import com.appsinventiv.ume.R;
@@ -49,8 +50,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         final ChatListModel model = itemList.get(position);
 
         holder.username.setText(model.getMessage().getName());
-        Glide.with(context).load(model.getMessage().getPicUrl()).into(holder.image);
-//        holder.message.setText(model.getText());
+        if (model.getMessage().getPicUrl() == null) {
+            Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.image);
+        } else {
+            Glide.with(context).load(model.getMessage().getPicUrl()).into(holder.image);
+
+        }
         if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
             holder.message.setText("" + "\uD83D\uDCF7  Image");
         } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
@@ -73,6 +78,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             public void onClick(View view) {
                 Intent i = new Intent(context, SingleChattingScreen.class);
                 i.putExtra("userId", model.getMessage().getUsername());
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
         });

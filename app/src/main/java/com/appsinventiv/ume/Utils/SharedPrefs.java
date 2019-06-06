@@ -64,6 +64,14 @@ public class SharedPrefs {
         return preferenceGetter("phone");
     }
 
+    public static void setCountryCode(String value) {
+        preferenceSetter("getCountryCode", value);
+    }
+
+    public static String getCountryCode() {
+        return preferenceGetter("getCountryCode");
+    }
+
 
     public static void setIsLoggedIn(boolean value) {
         SharedPreferences pref = ApplicationClass.getInstance().getApplicationContext().getSharedPreferences("user", MODE_PRIVATE);

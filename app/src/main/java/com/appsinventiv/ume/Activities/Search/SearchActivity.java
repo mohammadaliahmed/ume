@@ -124,6 +124,16 @@ public class SearchActivity extends AppCompatActivity {
                             }
                         }
                     }
+                    Collections.sort(itemList, new Comparator<UserModel>() {
+                        @Override
+                        public int compare(UserModel listData, UserModel t1) {
+                            String ob1 = listData.getName();
+                            String ob2 = t1.getName();
+
+                            return ob1.compareTo(ob2);
+
+                        }
+                    });
                     adapter.notifyDataSetChanged();
                 }
             }

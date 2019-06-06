@@ -3,10 +3,12 @@ package com.appsinventiv.ume.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
@@ -24,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.Country;
+import com.rilixtech.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PhoneVerification extends AppCompatActivity {
     LinearLayout progress;
-    EditText number;
+    //    EditText number;
     Button sendCode;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = null;
     private String mVerificationId;
@@ -41,7 +45,10 @@ public class PhoneVerification extends AppCompatActivity {
     HashMap<String, UserModel> map = new HashMap<>();
     private PrefManager prefManager;
     PhoneAuthProvider phoneAuth;
-
+    CountryCodePicker ccp;
+    AppCompatEditText number;
+    String foneCode;
+    String finalNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +58,7 @@ public class PhoneVerification extends AppCompatActivity {
         if (!prefManager.isFirstTimeLaunch()) {
 //            launchHomeScreen();
             finish();
-        }else {
+        } else {
             mDatabase = FirebaseDatabase.getInstance().getReference();
 
             this.setTitle("Verify your phone");
@@ -60,19 +67,39 @@ public class PhoneVerification extends AppCompatActivity {
             }
             phoneAuth = PhoneAuthProvider.getInstance();
             sendCode = findViewById(R.id.sendCode);
-            number = findViewById(R.id.number);
+//            number = findViewById(R.id.number);
+            ccp = (CountryCodePicker) findViewById(R.id.ccp);
+
+            number = (AppCompatEditText) findViewById(R.id.number);
+            ccp.registerPhoneNumberTextView(number);
+
             progress = findViewById(R.id.progress);
             getListOfUsers();
+            foneCode = ccp.getDefaultCountryCode();
+            SharedPrefs.setCountryCode(ccp.getDefaultCountryNameCode().toLowerCase());
+            ccp.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
+                @Override
+                public void onCountrySelected(Country selectedCountry) {
+                    foneCode = selectedCountry.getPhoneCode();
+                    SharedPrefs.setCountryCode(ccp.getDefaultCountryNameCode().toLowerCase());
+                }
+            });
 
             sendCode.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (number.getText().length() == 0) {
                         number.setError("Enter phone number");
+                    } else if (foneCode == null) {
+                        CommonUtils.showToast("Select your country");
                     } else {
+//                        loginUser("03030448686");
+                        finalNumber="+"+foneCode+number.getText().toString();
+////                        CommonUtils.showToast(finalNumber);
+//
                         progress.setVisibility(View.VISIBLE);
-//                        checkUser();
-                    sendVerifyCode(number.getText().toString());
+////                        checkUser();
+                    sendVerifyCode(finalNumber);
                     }
                 }
             });
@@ -106,7 +133,7 @@ public class PhoneVerification extends AppCompatActivity {
     private void sendVerifyCode(String phoneNumber) {
 
         phoneAuth.verifyPhoneNumber(
-                number.getText().toString(),
+                finalNumber,
                 60,
                 TimeUnit.SECONDS,
                 this,
@@ -136,24 +163,16 @@ public class PhoneVerification extends AppCompatActivity {
                         CommonUtils.showToast("Time out");
                     }
                 }
-
         );
-
-
-//
     }
 
     private void checkUser() {
 
-        if (phoneNumbers.contains(number.getText().toString())) {
-
-            loginUser(number.getText().toString());
+        if (phoneNumbers.contains(finalNumber)) {
+            loginUser(finalNumber);
         } else {
             signupUser();
-
-//                CommonUtils.showToast("here");
         }
-//        signupUser();
     }
 
     private void loginUser(String num) {
@@ -163,16 +182,16 @@ public class PhoneVerification extends AppCompatActivity {
     }
 
     private void signupUser() {
-        SharedPrefs.setPhoneNumber(number.getText().toString());
-        final UserModel userModel = new UserModel(number.getText().toString(),
-                number.getText().toString(),
+        SharedPrefs.setPhoneNumber(finalNumber);
+        final UserModel userModel = new UserModel(finalNumber,
+                finalNumber,
                 SharedPrefs.getFcmKey(),
                 System.currentTimeMillis(),
                 mVerificationId
                 ,
                 true,
                 "Online");
-        mDatabase.child("Users").child(number.getText().toString()).setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+        mDatabase.child("Users").child(finalNumber).setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 SharedPrefs.setUserModel(userModel);
@@ -186,11 +205,13 @@ public class PhoneVerification extends AppCompatActivity {
         prefManager.setIsFirstTimeLaunchWelcome(false);
 
         if (SharedPrefs.getSettingDone().equalsIgnoreCase("yes")) {
-            startActivity(new Intent(PhoneVerification.this, MainActivity.class));
+
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         } else {
             startActivity(new Intent(PhoneVerification.this, Profile.class));
         }
-
 
 
         finish();

@@ -1,10 +1,12 @@
 package com.appsinventiv.ume.Activities;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -108,6 +110,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SingleChattingScreen extends AppCompatActivity implements NotificationObserver {
 
+    private static final int REQUEST_TAKE_GALLERY_VIDEO = 99;
     RecordView recordView;
     RecordButton recordButton;
     DatabaseReference mDatabase;
@@ -165,6 +168,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_chatting_screen);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         getPermissions();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -195,6 +199,20 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         userId = getIntent().getStringExtra("userId");
 
 
+        pickVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attachArea.setVisibility(View.GONE);
+                isAttachAreaVisible = false;
+                Intent intent = new Intent();
+                intent.setType("video/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Video"), REQUEST_TAKE_GALLERY_VIDEO);
+
+            }
+        });
+
+
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,6 +239,14 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
         recyclerView = findViewById(R.id.chats);
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                attachArea.setVisibility(View.GONE);
+                isAttachAreaVisible = false;
+                return false;
+            }
+        });
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new ChatAdapter(this, chatModelArrayList, new ChatAdapter.ChatScreenCallbacks() {
@@ -550,7 +576,15 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
         if (requestCode == REQUEST_CODE_FILE && data != null) {
             Uri Fpath = data.getData();
-            putDocument(Fpath);
+//            putDocument(Fpath);
+            sendDocumentMessageToServer(Constants.MESSAGE_TYPE_DOCUMENT, "" + Fpath, getMimeType(SingleChattingScreen.this, Fpath));
+        }
+        if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
+            Uri selectedImageUri = data.getData();
+
+            // OI FILE Manager
+            String filemanagerstring = selectedImageUri.getPath();
+            sendVideoMessageToServer(Constants.MESSAGE_TYPE_VIDEO, ""+selectedImageUri, getMimeType(SingleChattingScreen.this, selectedImageUri));
         }
 
 
@@ -627,6 +661,92 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         String k = mDatabase.push().getKey();
                         mDatabase.child("Stickers").child(k).setValue(new MediaModel(k, Constants.MESSAGE_TYPE_IMAGE, "" + downloadUrl, System.currentTimeMillis()));
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        CommonUtils.showToast(exception.getMessage() + "");
+
+                    }
+                });
+
+
+    }
+
+    public void putDocument(String path, ChatModel chatModel) {
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        final Uri file = Uri.parse(path);
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        StorageReference riversRef = mStorageRef.child("Documents").child(imgName);
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    @SuppressWarnings("VisibleForTests")
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        mDatabase.child("Documents").child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("documentUrl").setValue("" + downloadUrl);
+                        chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                        chatModel.setName(SharedPrefs.getUserModel().getName());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setDocumentUrl("" + downloadUrl);
+                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(chatModel);
+                        sendNotification(chatModel.getMessageType());
+
+                        String k = mDatabase.push().getKey();
+                        mDatabase.child("Documents").child(k).setValue(new MediaModel(k, Constants.MESSAGE_TYPE_DOCUMENT, "" + downloadUrl, System.currentTimeMillis()));
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        CommonUtils.showToast(exception.getMessage() + "");
+
+                    }
+                });
+
+
+    }
+
+    public void putVideo(String path, ChatModel chatModel) {
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        final Uri file = Uri.parse(path);
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        StorageReference riversRef = mStorageRef.child("Videos").child(imgName);
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    @SuppressWarnings("VisibleForTests")
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("videoUrl").setValue("" + downloadUrl);
+                        chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                        chatModel.setName(SharedPrefs.getUserModel().getName());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setVideoUrl("" + downloadUrl);
+                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(chatModel);
+                        sendNotification(chatModel.getMessageType());
+
+                        String k = mDatabase.push().getKey();
+                        mDatabase.child("Videos").child(k).setValue(new MediaModel(k, Constants.MESSAGE_TYPE_VIDEO, "" + downloadUrl, System.currentTimeMillis()));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -910,6 +1030,54 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+    private void sendVideoMessageToServer(final String type, final String url, String extension) {
+        message.setText(null);
+        messageId = mDatabase.push().getKey();
+        ChatModel chatModel = new ChatModel(
+                messageId,
+                msgText,
+                SharedPrefs.getUserModel().getUsername(),
+                type.equals(Constants.MESSAGE_TYPE_IMAGE) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_AUDIO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_VIDEO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_DOCUMENT) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_STICKER) ? url : "",
+                hisUserModel.getUsername(),
+                hisUserModel.getName(),
+                hisUserModel.getPicUrl(),
+                type,
+                "." + extension,
+                roomId,
+                System.currentTimeMillis(),
+                recordingTime
+        );
+
+        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
+                .setValue(chatModel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+//                        putPictures(url, chatModel);
+                        putVideo(url, chatModel);
+
+//                        sendNotification(type);
+
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+    }
+
     private void sendPictureMessageToServer(final String type, final String url, String extension) {
         message.setText(null);
         messageId = mDatabase.push().getKey();
@@ -941,6 +1109,54 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
 
                         putPictures(url, chatModel);
+
+//                        sendNotification(type);
+
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+    }
+
+    private void sendDocumentMessageToServer(final String type, final String url, String extension) {
+        message.setText(null);
+        messageId = mDatabase.push().getKey();
+        ChatModel chatModel = new ChatModel(
+                messageId,
+                msgText,
+                SharedPrefs.getUserModel().getUsername(),
+                type.equals(Constants.MESSAGE_TYPE_IMAGE) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_AUDIO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_VIDEO) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_DOCUMENT) ? url : "",
+                type.equals(Constants.MESSAGE_TYPE_STICKER) ? url : "",
+                hisUserModel.getUsername(),
+                hisUserModel.getName(),
+                hisUserModel.getPicUrl(),
+                type,
+                "." + extension,
+                roomId,
+                System.currentTimeMillis(),
+                recordingTime
+        );
+
+        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
+                .setValue(chatModel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+//                        putPictures(url, chatModel);
+                        putDocument(url, chatModel);
 
 //                        sendNotification(type);
 

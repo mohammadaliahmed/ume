@@ -2,6 +2,8 @@ package com.appsinventiv.ume.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -52,6 +55,14 @@ public class CommonUtils {
         }
 
 
+    }
+    public static Bitmap getVideoPic(String videoUrl){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        //give YourVideoUrl below
+        retriever.setDataSource(videoUrl, new HashMap<String, String>());
+// this gets frame at 2nd second
+        Bitmap image = retriever.getFrameAtTime(2000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        return  image;
     }
     public static List<Country> countryList(){
         String myJson = inputStreamToString(ApplicationClass.getInstance().getApplicationContext().getResources().openRawResource(R.raw.countries));
