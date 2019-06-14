@@ -36,8 +36,8 @@
 
     <ImageView
         android:id="@+id/sticker"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="100dp"
@@ -73,6 +73,38 @@
                 android:textStyle="bold"
                 android:visibility="gone" />
 
+            <LinearLayout
+                android:id="@+id/translation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+
+                android:layout_marginRight="10dp"
+                android:background="@drawable/curved_edges_empty"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:padding="5dp"
+                    android:id="@+id/translatedText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ededed"
+                    android:text="fsdfsdfsdfsd" />
+
+                <TextView
+                    android:id="@+id/originalText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:padding="5dp"
+                    android:text="fsdfsdfsdfsd" />
+
+            </LinearLayout>
+
+
+
             <TextView
                 android:id="@+id/msgtext"
                 android:layout_width="wrap_content"
@@ -87,30 +119,89 @@
                 android:textColor="#000"
                 android:textIsSelectable="true"
                 android:visibility="gone" />
-            <ImageView
+            <RelativeLayout
                 android:id="@+id/video"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_below="@id/name"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:padding="2dp"
-                android:visibility="gone"></ImageView>
-
-
-            <ImageView
-                android:id="@+id/document"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginLeft="15dp"
+                android:layout_marginLeft="12dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginRight="5dp"
+
+                android:visibility="gone">
+
+
+                <ImageView
+                    android:id="@+id/videoImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+
+                <ImageView
+                    android:id="@+id/videoPlayBtn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_centerInParent="true"
+                    android:padding="5dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/video_play"
+                    android:visibility="visible" />
+
+                <ProgressBar
+                    android:id="@+id/videoProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:layout_centerInParent="true"
+                    android:indeterminateTint="@color/colorWhite" />
+
+            </RelativeLayout>
+
+
+
+
+            <RelativeLayout
+                android:id="@+id/document"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
                 android:background="@drawable/curved_edges"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:src="@drawable/file"
-                android:visibility="gone" />
+
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_doc_black" />
+
+                <TextView
+                    android:id="@+id/documentType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="18dp"
+                    android:text=""
+                    android:textColor="#fff"
+                    android:textSize="8sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/documentName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginRight="20dp"
+                    android:lines="1"
+                    android:text=""
+                    android:textSize="12sp" />
+            </RelativeLayout>
 
 
 
@@ -121,6 +212,7 @@
                 android:layout_below="@id/name"
                 android:layout_marginLeft="8dp"
                 android:padding="2dp"
+                android:layout_marginTop="2dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
@@ -191,6 +283,13 @@
             android:text="3:04pm"
             android:textColor="#000"
             android:textSize="10sp" />
+        <ImageView
+            android:id="@+id/msgStatus"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+           android:visibility="gone"
+            android:src="@drawable/ic_sent" />
+
 
 
     </RelativeLayout>

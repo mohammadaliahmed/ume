@@ -9,12 +9,14 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -22,12 +24,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.appsinventiv.ume.Activities.PlayVideo;
 import com.appsinventiv.ume.Activities.ViewPictures;
 import com.appsinventiv.ume.Models.ChatModel;
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.Constants;
+import com.appsinventiv.ume.Utils.CountryUtils;
 import com.appsinventiv.ume.Utils.DownloadFile;
 import com.appsinventiv.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
@@ -108,149 +112,212 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 }
             }
         }
-
-        if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.msgtext.setVisibility(View.GONE);
-            holder.audio.setVisibility(View.GONE);
-            holder.name.setText(model.getName());
-            holder.document.setVisibility(View.GONE);
-            holder.image.setVisibility(View.GONE);
-            holder.image.setVisibility(View.GONE);
-            holder.sticker.setVisibility(View.GONE);
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.balloon.setVisibility(View.VISIBLE);
-            holder.messageDeleted.setVisibility(View.GONE);
-            holder.video.setVisibility(View.VISIBLE);
-//            if(CommonUtils.getVideoPic(model.getVideoUrl())!=null){
-//               holder.video.setImageBitmap(CommonUtils.getVideoPic(model.getVideoUrl()));
-//            }
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.msgtext.setVisibility(View.GONE);
-            holder.audio.setVisibility(View.GONE);
-            holder.name.setText(model.getName());
-            holder.document.setVisibility(View.GONE);
-            holder.image.setVisibility(View.GONE);
-            holder.image.setVisibility(View.GONE);
-            holder.sticker.setVisibility(View.GONE);
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.balloon.setVisibility(View.GONE);
-            holder.video.setVisibility(View.GONE);
-
-            holder.messageDeleted.setVisibility(View.VISIBLE);
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.msgtext.setVisibility(View.GONE);
-            holder.audio.setVisibility(View.GONE);
-            holder.name.setText(model.getName());
-            holder.document.setVisibility(View.GONE);
-            holder.image.setVisibility(View.VISIBLE);
-            holder.sticker.setVisibility(View.VISIBLE);
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.balloon.setVisibility(View.GONE);
-            holder.video.setVisibility(View.GONE);
-
-            Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
-            holder.messageDeleted.setVisibility(View.GONE);
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.msgtext.setVisibility(View.GONE);
-            holder.audio.setVisibility(View.GONE);
-            holder.name.setText(model.getName());
-            holder.balloon.setVisibility(View.VISIBLE);
-            holder.video.setVisibility(View.GONE);
-
-            holder.document.setVisibility(View.GONE);
-            holder.sticker.setVisibility(View.GONE);
-
-            holder.image.setVisibility(View.VISIBLE);
-            holder.imgProgress.setVisibility(View.GONE);
-            Glide.with(context).load(model.getImageUrl()).into(holder.image);
-            if (model.getImageUrl().startsWith("/storage/em")) {
-                holder.imgProgress.setVisibility(View.VISIBLE);
+        if (model.getMessageStatus() != null) {
+            if (model.getMessageStatus().equalsIgnoreCase("read")) {
+                Glide.with(context).load(R.drawable.ic_read).into(holder.msgStatus);
+            } else if (model.getMessageStatus().equalsIgnoreCase("delivered")) {
+                Glide.with(context).load(R.drawable.ic_delivered).into(holder.msgStatus);
             } else {
-                holder.imgProgress.setVisibility(View.GONE);
+                Glide.with(context).load(R.drawable.ic_sent).into(holder.msgStatus);
             }
-            holder.messageDeleted.setVisibility(View.GONE);
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
-            holder.image.setVisibility(View.GONE);
-            holder.msgtext.setVisibility(View.VISIBLE);
-            holder.name.setText(model.getName());
-            holder.audio.setVisibility(View.GONE);
-            holder.video.setVisibility(View.GONE);
-
-            holder.sticker.setVisibility(View.GONE);
-
-            holder.balloon.setVisibility(View.VISIBLE);
-
-            holder.document.setVisibility(View.GONE);
-            holder.msgtext.setText(model.getMessageText());
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.messageDeleted.setVisibility(View.GONE);
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
-            holder.image.setVisibility(View.GONE);
-            holder.name.setText(model.getName());
-            holder.msgtext.setVisibility(View.GONE);
-            holder.sticker.setVisibility(View.GONE);
-
-            holder.balloon.setVisibility(View.VISIBLE);
-            holder.video.setVisibility(View.GONE);
-
-            holder.audio.setVisibility(View.GONE);
-            holder.document.setVisibility(View.VISIBLE);
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.msgtext.setText(model.getMessageText());
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            holder.messageDeleted.setVisibility(View.GONE);
-
-        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
-            if (model.getAudioUrl().equalsIgnoreCase("")) {
-                holder.audioProgress.setVisibility(View.VISIBLE);
-                holder.playPause.setVisibility(View.GONE);
-            } else {
-                holder.playPause.setVisibility(View.VISIBLE);
-                holder.audioProgress.setVisibility(View.GONE);
-            }
-            holder.playPause.setVisibility(View.VISIBLE);
-            holder.imgProgress.setVisibility(View.GONE);
-            holder.image.setVisibility(View.GONE);
-            holder.video.setVisibility(View.GONE);
-
-            holder.document.setVisibility(View.GONE);
-            holder.sticker.setVisibility(View.GONE);
-
-            holder.name.setText(model.getName());
-            holder.balloon.setVisibility(View.VISIBLE);
-
-            holder.msgtext.setVisibility(View.GONE);
-            holder.audio.setVisibility(View.VISIBLE);
-
-            holder.audioTime.setText(CommonUtils.getDuration(model.getMediaTime()));
-            holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
-            if (position == mPlayingPosition) {
-                mAudioPlayingHolder = holder;
-                updatePlayingView();
-            } else {
-                updateInitialPlayerView(holder);
-            }
-            holder.messageDeleted.setVisibility(View.GONE);
 
         }
+        if (model.getMessageType() != null) {
 
+            if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.document.setVisibility(View.GONE);
+                holder.image.setVisibility(View.GONE);
+                holder.image.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.video.setVisibility(View.VISIBLE);
+                holder.videoPlayBtn.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                Glide.with(context).load(model.getVideoImgUrl()).into(holder.videoImg);
+                if (getItemViewType(position) == LEFT_CHAT) {
+                    holder.videoProgress.setVisibility(View.GONE);
+                    holder.videoPlayBtn.setVisibility(View.VISIBLE);
+                } else {
+                    if (model.isVideoUploaded()) {
+                        holder.videoPlayBtn.setVisibility(View.VISIBLE);
+                        holder.videoProgress.setVisibility(View.GONE);
+                    } else {
+                        holder.videoProgress.setVisibility(View.VISIBLE);
+                    }
+                }
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.document.setVisibility(View.GONE);
+                holder.image.setVisibility(View.GONE);
+                holder.image.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.balloon.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.messageDeleted.setVisibility(View.VISIBLE);
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.document.setVisibility(View.GONE);
+                holder.image.setVisibility(View.VISIBLE);
+                holder.sticker.setVisibility(View.VISIBLE);
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.balloon.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
+                holder.messageDeleted.setVisibility(View.GONE);
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.image.setVisibility(View.VISIBLE);
+                holder.imgProgress.setVisibility(View.GONE);
+                Glide.with(context).load(model.getImageUrl()).into(holder.image);
+                if (model.getImageUrl().startsWith("/storage/em")) {
+                    holder.imgProgress.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imgProgress.setVisibility(View.GONE);
+                }
+                holder.messageDeleted.setVisibility(View.GONE);
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
+                holder.image.setVisibility(View.GONE);
+                holder.msgtext.setVisibility(View.VISIBLE);
+                holder.name.setText(model.getName());
+                holder.audio.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.sticker.setVisibility(View.GONE);
+
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.msgtext.setText(model.getMessageText());
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.messageDeleted.setVisibility(View.GONE);
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
+                holder.image.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.msgtext.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.video.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.audio.setVisibility(View.GONE);
+                holder.document.setVisibility(View.VISIBLE);
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.msgtext.setText(model.getMessageText());
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.messageDeleted.setVisibility(View.GONE);
+                if (model.getDocumentFileName() != null) {
+                    holder.documentName.setText(model.getDocumentFileName());
+                }
+                holder.documentType.setText(model.getMediaType().replace(".", ""));
+
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
+                holder.image.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.msgtext.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.audio.setVisibility(View.GONE);
+                holder.document.setVisibility(View.GONE);
+                holder.imgProgress.setVisibility(View.GONE);
+//                holder.msgtext.setText(model.getMessageText());
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.VISIBLE);
+                holder.translatedText.setText(model.getTranslatedText());
+//                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0,CountryUtils.getFlagDrawableResId(model.getLanguage()),0,0);
+                holder.originalText.setText(model.getOriginalText());
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
+                if (getItemViewType(position) == RIGHT_CHAT) {
+                    if (model.isAudioUploaded()) {
+
+                        holder.playPause.setVisibility(View.VISIBLE);
+                        holder.audioProgress.setVisibility(View.GONE);
+
+
+                    } else {
+                        holder.audioProgress.setVisibility(View.VISIBLE);
+                        holder.playPause.setVisibility(View.GONE);
+                    }
+                } else {
+                    holder.audioProgress.setVisibility(View.GONE);
+                    holder.playPause.setVisibility(View.VISIBLE);
+                }
+//                holder.playPause.setVisibility(View.VISIBLE);
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.image.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.name.setText(model.getName());
+                holder.balloon.setVisibility(View.VISIBLE);
+
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.VISIBLE);
+
+                holder.audioTime.setText(CommonUtils.getDuration(model.getMediaTime()));
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                if (position == mPlayingPosition) {
+                    mAudioPlayingHolder = holder;
+                    updatePlayingView();
+                } else {
+                    updateInitialPlayerView(holder);
+                }
+                holder.messageDeleted.setVisibility(View.GONE);
+
+            }
+
+        }
         holder.document.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                DownloadFile.fromUrl1(model.getDocumentUrl());
-                String filename = "" + model.getDocumentUrl().substring(model.getDocumentUrl().length() - 7, model.getDocumentUrl().length());
+//                String filename = "" + model.getDocumentUrl().substring(model.getDocumentUrl().length() - 7, model.getDocumentUrl().length());
+                String filename = model.getDocumentFileName();
                 File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS) + "/" + filename + model.getMediaType());
+                        Environment.DIRECTORY_DOWNLOADS) + "/" + filename);
 
                 if (applictionFile != null && applictionFile.exists()) {
                     Intent intent = new Intent();
@@ -259,7 +326,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     context.startActivity(intent);
 
                 } else {
-                    DownloadFile.fromUrll(model.getDocumentUrl(), filename + model.getMediaType(), new DownloadFile.FileDownloaded() {
+                    DownloadFile.fromUrll(model.getDocumentUrl(), filename, new DownloadFile.FileDownloaded() {
                         @Override
                         public void onFileDownloaded(String filename) {
                             CommonUtils.showToast("downloaded");
@@ -278,6 +345,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
                     context.startActivity(intent);
                 }
+
             }
         });
 
@@ -307,6 +375,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
 
             }
 
+        });
+
+
+        holder.video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, PlayVideo.class);
+                i.putExtra("url", model.getVideoUrl());
+                context.startActivity(i);
+            }
         });
 
         holder.itemView.setOnLongClickListener(v -> {
@@ -487,11 +565,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     @Override
     public int getItemViewType(int position) {
         ChatModel model = chatList.get(position);
-        if (model.getMessageBy().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
-            return RIGHT_CHAT;
-        } else {
-            return LEFT_CHAT;
+        if (model.getMessageBy() != null) {
+            if (model.getMessageBy().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                return RIGHT_CHAT;
+            } else {
+                return LEFT_CHAT;
+            }
         }
+        return -1;
 
     }
 
@@ -565,7 +646,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     public class ViewHolder extends RecyclerView.ViewHolder implements SeekBar.OnSeekBarChangeListener {
         TextView msgtext, time, name, audioTime;
         CircleImageView profile_image;
-        ImageView image, playPause, document;
+        ImageView image, playPause;
+        RelativeLayout document;
         RelativeLayout audio;
         SeekBar seekBar;
         ProgressBar audioProgress, attachmentProgress;
@@ -574,7 +656,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         RelativeLayout balloon;
         ImageView sticker;
         TextView messageDeleted;
-        ImageView  video;
+        RelativeLayout video;
+        ImageView videoImg, videoPlayBtn, msgStatus;
+        ProgressBar videoProgress;
+        TextView documentName, documentType;
+        TextView translatedText, originalText;
+        LinearLayout translation;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -596,6 +683,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             sticker = itemView.findViewById(R.id.sticker);
             messageDeleted = itemView.findViewById(R.id.messageDeleted);
             video = itemView.findViewById(R.id.video);
+            videoImg = itemView.findViewById(R.id.videoImg);
+            videoProgress = itemView.findViewById(R.id.videoProgress);
+            videoPlayBtn = itemView.findViewById(R.id.videoPlayBtn);
+            msgStatus = itemView.findViewById(R.id.msgStatus);
+            documentName = itemView.findViewById(R.id.documentName);
+            documentType = itemView.findViewById(R.id.documentType);
+            translation = itemView.findViewById(R.id.translation);
+            originalText = itemView.findViewById(R.id.originalText);
+            translatedText = itemView.findViewById(R.id.translatedText);
 
 //            seekBar.setOnSeekBarChangeListener(this);
 

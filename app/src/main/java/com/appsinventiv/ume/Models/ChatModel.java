@@ -2,17 +2,46 @@ package com.appsinventiv.ume.Models;
 
 public class ChatModel {
 
-    String id,messageText,messageBy,imageUrl,audioUrl,videoUrl,documentUrl;
-    String username,name,picUrl;
-    String messageType,mediaType;
+    String id, messageText, messageBy, imageUrl, audioUrl, videoUrl, documentUrl;
+    String username, name, picUrl;
+    String messageType, mediaType;
     String roomId;
     long time;
     long mediaTime;
     String stickerUrl;
+    String videoImgUrl;
+    boolean videoUploaded;
+    String messageStatus;
+    boolean audioUploaded;
+    String documentFileName;
+    String translatedText, language,originalText;
+
+
+    public ChatModel(String id, String messageText, String messageBy,
+                     String username, String name, String picUrl, String messageType,
+                     long time, String messageStatus, String translatedText,String originalText, String language
+
+    ) {
+        this.id = id;
+        this.messageText = messageText;
+        this.messageBy = messageBy;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.time = time;
+        this.messageStatus = messageStatus;
+        this.translatedText = translatedText;
+        this.originalText = originalText;
+        this.language = language;
+    }
 
     public ChatModel(String id, String messageText, String messageBy, String imageUrl, String audioUrl, String videoUrl, String documentUrl,
                      String stickerUrl,
-                     String username, String name, String picUrl, String messageType, String mediaType, String roomId, long time, long mediaTime) {
+                     String username, String name, String picUrl, String messageType, String mediaType, String roomId,
+                     long time, long mediaTime, String messageStatus
+
+    ) {
         this.id = id;
         this.messageText = messageText;
         this.messageBy = messageBy;
@@ -28,12 +57,77 @@ public class ChatModel {
         this.roomId = roomId;
         this.time = time;
         this.mediaTime = mediaTime;
-        this.stickerUrl=stickerUrl;
+        this.stickerUrl = stickerUrl;
+        this.messageStatus = messageStatus;
     }
 
     public ChatModel() {
     }
 
+
+    public String getOriginalText() {
+        return originalText;
+    }
+
+    public void setOriginalText(String originalText) {
+        this.originalText = originalText;
+    }
+
+    public String getTranslatedText() {
+        return translatedText;
+    }
+
+    public void setTranslatedText(String translatedText) {
+        this.translatedText = translatedText;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getDocumentFileName() {
+        return documentFileName;
+    }
+
+    public void setDocumentFileName(String documentFileName) {
+        this.documentFileName = documentFileName;
+    }
+
+    public boolean isAudioUploaded() {
+        return audioUploaded;
+    }
+
+    public void setAudioUploaded(boolean audioUploaded) {
+        this.audioUploaded = audioUploaded;
+    }
+
+    public String getMessageStatus() {
+        return messageStatus;
+    }
+
+    public void setMessageStatus(String messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public boolean isVideoUploaded() {
+        return videoUploaded;
+    }
+
+    public void setVideoUploaded(boolean videoUploaded) {
+        this.videoUploaded = videoUploaded;
+    }
+
+    public String getVideoImgUrl() {
+        return videoImgUrl;
+    }
+
+    public void setVideoImgUrl(String videoImgUrl) {
+        this.videoImgUrl = videoImgUrl;
+    }
 
     public String getStickerUrl() {
         return stickerUrl;

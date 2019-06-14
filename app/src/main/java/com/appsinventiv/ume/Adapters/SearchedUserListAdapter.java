@@ -47,8 +47,11 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         UserModel model = itemList.get(i);
         holder.name.setText(model.getName());
+        if(model.getLearningLanguage().contains("any")){
+            model.getLearningLanguage().remove(model.getLearningLanguage().indexOf("any"));
+        }
         holder.learningLanguage.setText("" + model.getLearningLanguage());
-        holder.speakingLanguage.setText("" + model.getLanguage());
+        holder.speakingLanguage.setText("" + model.getLanguage().replace("any",""));
 
         if (model.getCountryNameCode() != null) {
             holder.userFlag.setVisibility(View.VISIBLE);
@@ -56,6 +59,16 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             Glide.with(context).load(CountryUtils.getFlagDrawableResId(model.getCountryNameCode())).into(holder.userFlag);
         } else {
             holder.userFlag.setVisibility(View.GONE);
+        }
+
+        if (model.getGender().replace("Any","").equalsIgnoreCase("female")) {
+            Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
+        } else {
+            Glide.with(context).load(R.drawable.ic_male).into(holder.gender);
+        }
+
+        if(model.getAge()!=0){
+            holder.age.setText(""+model.getAge());
         }
 
         if (model.getPicUrl() != null) {
@@ -94,8 +107,8 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, userStatus, speakingLanguage, learningLanguage;
-        ImageView pic, userFlag;
+        TextView name, userStatus, speakingLanguage, learningLanguage, age;
+        ImageView pic, userFlag, gender;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -105,6 +118,8 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             speakingLanguage = itemView.findViewById(R.id.speakingLanguage);
             userStatus = itemView.findViewById(R.id.userStatus);
             userFlag = itemView.findViewById(R.id.userFlag);
+            age = itemView.findViewById(R.id.age);
+            gender = itemView.findViewById(R.id.gender);
         }
     }
 

@@ -57,7 +57,7 @@
                 android:gravity="center"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="All"
+                android:text="Any"
                 android:textColor="@color/radio_flat_text_selector" />
 
             <RadioButton

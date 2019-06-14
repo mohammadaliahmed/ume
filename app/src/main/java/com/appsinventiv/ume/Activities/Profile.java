@@ -63,7 +63,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Profile extends AppCompatActivity {
+public class
+Profile extends AppCompatActivity {
     DatabaseReference mDatabase;
     CircleImageView image;
     EditText name;

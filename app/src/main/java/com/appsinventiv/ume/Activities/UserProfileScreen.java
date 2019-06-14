@@ -38,11 +38,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appsinventiv.ume.Adapters.InterestAdapter;
+import com.appsinventiv.ume.Models.NotificationModel;
 import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.CompressImage;
 import com.appsinventiv.ume.Utils.Constants;
+import com.appsinventiv.ume.Utils.CountryUtils;
 import com.appsinventiv.ume.Utils.GifSizeFilter;
 import com.appsinventiv.ume.Utils.NotificationAsync;
 import com.appsinventiv.ume.Utils.NotificationObserver;
@@ -81,11 +83,13 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     CircleImageView userPic;
     private UserModel myUserModel;
     int abc = 0;
-    TextView name, username, country, language, learningLanguage, lastOnline, memberSince,currenLocation;
+    TextView name, username, country, language, learningLanguage, lastOnline, memberSince, currenLocation;
     RecyclerView recyclerview;
     private InterestAdapter adapter;
 
     FlexboxLayout container;
+    TextView gender;
+    ImageView flag, genderPic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +100,14 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         changeStatusBarColor();
-        container=findViewById(R.id.v_container);
+        container = findViewById(R.id.v_container);
+        flag = findViewById(R.id.flag);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         userId = getIntent().getStringExtra("userId");
 
+        gender = findViewById(R.id.gender);
+        genderPic = findViewById(R.id.genderPic);
         recyclerview = findViewById(R.id.recyclerview);
         name = findViewById(R.id.name);
         username = findViewById(R.id.username);
@@ -152,7 +159,6 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     }
 
 
-
     private void removeAsFriend() {
 
         myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
@@ -193,6 +199,18 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 SharedPrefs.getUserModel().getUsername(),
                 "" + SharedPrefs.getUserModel().getUsername().length()
         );
+        String key = mDatabase.push().getKey();
+        NotificationModel model = new NotificationModel(
+                key, hisUserModel.getUsername(),
+                SharedPrefs.getUserModel().getUsername(),
+                SharedPrefs.getUserModel().getPicUrl(),
+                SharedPrefs.getUserModel().getName() + " accepted your friend request",
+                "requestAccept",
+                System.currentTimeMillis()
+        );
+
+
+        mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
 
     private void getMyDataFromDB() {
@@ -283,8 +301,21 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 SharedPrefs.getUserModel().getUsername(),
                 "" + SharedPrefs.getUserModel().getUsername().length()
         );
+        String key = mDatabase.push().getKey();
+        NotificationModel model = new NotificationModel(
+                key, hisUserModel.getUsername(),
+                SharedPrefs.getUserModel().getUsername(),
+                SharedPrefs.getUserModel().getPicUrl(),
+                SharedPrefs.getUserModel().getName() + " sent you friend request",
+                "newRequest",
+                System.currentTimeMillis()
+        );
 
+
+        mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
+
+
 
     private void getDataFromDB() {
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -309,8 +340,8 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     private void inflatelayout(List<String> interests) {
         LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        buttonLayoutParams.setMargins(5,5,5,5);
-        for(int i=0;i<interests.size();i++){
+        buttonLayoutParams.setMargins(5, 5, 5, 5);
+        for (int i = 0; i < interests.size(); i++) {
             final TextView tv = new TextView(getApplicationContext());
             tv.setText(interests.get(i));
             tv.setHeight(100);
@@ -334,6 +365,21 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         learningLanguage.setText(user.getLearningLanguage() + "");
         memberSince.setText(CommonUtils.getFormattedDate(user.getTime()));
         currenLocation.setText(user.getCurrentLocation());
+        if (user.getCountryNameCode() != null) {
+            flag.setVisibility(View.VISIBLE);
+
+            Glide.with(UserProfileScreen.this).load(CountryUtils.getFlagDrawableResId(user.getCountryNameCode())).into(flag);
+        } else {
+            flag.setVisibility(View.GONE);
+        }
+        if (user.getGender() != null) {
+            gender.setText(user.getGender());
+            if (user.getGender().equalsIgnoreCase("female")) {
+                Glide.with(this).load(R.drawable.ic_female).into(genderPic);
+            } else {
+                Glide.with(this).load(R.drawable.ic_male).into(genderPic);
+            }
+        }
         lastOnline.setText(hisUserModel.getStatus()
                 .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
         );
@@ -344,7 +390,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             try {
                 Glide.with(UserProfileScreen.this).load(R.drawable.ic_profile_plc).into(userPic);
             } catch (IllegalArgumentException e) {

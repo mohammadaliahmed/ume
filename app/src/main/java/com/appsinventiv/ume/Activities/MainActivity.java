@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.appsinventiv.ume.Activities.Search.Filters;
 import com.appsinventiv.ume.Activities.Search.SearchActivity;
 import com.appsinventiv.ume.Adapters.ChatListAdapter;
 import com.appsinventiv.ume.Models.ChatListModel;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        this.setTitle("U ME");
+        this.setTitle("UME");
 
         newMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         getMessagesFromDB();
-        if(SharedPrefs.getUserModel().getUsername()!=null){
-            if(SharedPrefs.getFcmKey()!=null){
+        if (SharedPrefs.getUserModel().getUsername() != null) {
+            if (SharedPrefs.getFcmKey() != null) {
                 mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("fcmKey").setValue(SharedPrefs.getFcmKey());
             }
         }
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
-                }else{
+                } else {
                     noMsgs.setVisibility(View.VISIBLE);
                 }
             }
@@ -140,7 +141,8 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
-        @Override
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -149,11 +151,15 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-            Intent i = new Intent(MainActivity.this, SearchActivity.class);
+            Intent i = new Intent(MainActivity.this, Filters.class);
             startActivity(i);
         }
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, EditProfile.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_notifications) {
+            Intent i = new Intent(MainActivity.this, NotificationsList.class);
             startActivity(i);
         }
 

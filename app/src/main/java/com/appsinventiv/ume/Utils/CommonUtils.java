@@ -2,11 +2,16 @@ package com.appsinventiv.ume.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
@@ -25,6 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -56,25 +62,77 @@ public class CommonUtils {
 
 
     }
-    public static Bitmap getVideoPic(String videoUrl){
+
+    public static Uri getVideoPic(String videoUrl) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         //give YourVideoUrl below
         retriever.setDataSource(videoUrl, new HashMap<String, String>());
 // this gets frame at 2nd second
         Bitmap image = retriever.getFrameAtTime(2000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-        return  image;
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 50, bytes);
+            String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, "Title", null);
+            return Uri.parse(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Uri.parse("");
+        }
     }
-    public static List<Country> countryList(){
+    public static Uri getVideoPiac(Uri uri) {
+
+        Bitmap image = ThumbnailUtils.createVideoThumbnail( getRealPathFromURI(uri) , MediaStore.Images.Thumbnails.MINI_KIND );
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 50, bytes);
+            String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, "Title", null);
+            return Uri.parse(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Uri.parse("");
+        }
+    }
+    public static String uri2filename(Uri uri) {
+
+        String ret = null;
+        String scheme = uri.getScheme();
+
+        if (scheme.equals("file")) {
+            ret = uri.getLastPathSegment();
+        }
+        else if (scheme.equals("content")) {
+            Cursor cursor = ApplicationClass.getInstance().getApplicationContext().getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                ret = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            }
+        }
+        return ret;
+    }
+    public static String getRealPathFromURI(Uri contentUri) {
+        String res = null;
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = ApplicationClass.getInstance().getApplicationContext().getContentResolver().query(contentUri, proj, null, null, null);
+        if(cursor.moveToFirst()){
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            res = cursor.getString(column_index);
+        }
+        cursor.close();
+        return res;
+    }
+    public static List<Country> countryList() {
         String myJson = inputStreamToString(ApplicationClass.getInstance().getApplicationContext().getResources().openRawResource(R.raw.countries));
         Example myModel = new Gson().fromJson(myJson, Example.class);
         return myModel.getCountries();
 
-    }  public static List<LangaugeModel> languageList(){
+    }
+
+    public static List<LangaugeModel> languageList() {
         String myJson = inputStreamToString(ApplicationClass.getInstance().getApplicationContext().getResources().openRawResource(R.raw.langaugeslist));
         ExampleLanguage myModel = new Gson().fromJson(myJson, ExampleLanguage.class);
         return myModel.getLanguages();
 
     }
+
     public static String inputStreamToString(InputStream inputStream) {
         try {
             byte[] bytes = new byte[inputStream.available()];

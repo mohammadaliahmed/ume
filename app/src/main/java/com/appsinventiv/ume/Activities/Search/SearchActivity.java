@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -37,7 +38,8 @@ public class SearchActivity extends AppCompatActivity {
     ArrayList<UserModel> itemList = new ArrayList<>();
     SearchedUserListAdapter adapter;
     DatabaseReference mDatabase;
-    String country, gender;
+    String country, gender, currentLocation, language, interest,learnLanguage;
+    int startAge = 0, endAge = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,14 @@ public class SearchActivity extends AppCompatActivity {
         this.setTitle("List of users");
 
         gender = getIntent().getStringExtra("gender");
+
         country = getIntent().getStringExtra("country");
+        currentLocation = getIntent().getStringExtra("currentLocation");
+        language = getIntent().getStringExtra("language");
+        learnLanguage = getIntent().getStringExtra("learnLanguage");
+        interest = getIntent().getStringExtra("interest");
+        startAge = getIntent().getIntExtra("startAge", 0);
+        endAge = getIntent().getIntExtra("endAge", 99);
 
         recyclerView = findViewById(R.id.recyclerview);
 
@@ -85,15 +94,32 @@ public class SearchActivity extends AppCompatActivity {
                         UserModel model = snapshot.getValue(UserModel.class);
                         if (model != null) {
                             if (model.getName() != null) {
-//                                if (!model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
-                                if (model.getGender().equalsIgnoreCase(gender)) {
-                                    itemList.add(model);
-                                } else if (gender.equalsIgnoreCase("all")) {
+//                                itemList.add(model);
+                                List<String> inter = model.getInterests();
+                                inter.add("any");
+                                List<String> larn = model.getLearningLanguage();
+                                larn.add("any");
+                                model.setGender(model.getGender() + "Any");
+                                model.setLanguage(model.getLanguage() + "any");
+                                model.setCountry(model.getCountry() + "any");
+                                model.setInterests(inter);
+                                model.setLearningLanguage(larn);
+                                model.setCurrentLocation(model.getCurrentLocation() + "any");
+
+                                if (
+                                        model.getCurrentLocation().contains(currentLocation) &&
+                                                model.getCountry().contains(country) &&
+                                                model.getGender().contains(gender) &&
+                                                model.getLanguage().contains(language) &&
+                                                model.getInterests().contains(interest) &&
+                                                model.getLearningLanguage().contains(learnLanguage) &&
+                                                model.getAge() >= startAge && model.getAge() <= endAge&&
+                                                !model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())
+                                        ) {
+
                                     itemList.add(model);
                                 }
 
-
-//                                }
                             }
                         }
                     }

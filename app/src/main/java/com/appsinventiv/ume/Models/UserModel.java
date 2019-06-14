@@ -27,6 +27,16 @@ public class UserModel {
     public UserModel() {
     }
 
+    public UserModel(String gender, String language, String country, String currentLocation,
+                     List<String> interests, List<String> learningLanguage) {
+        this.gender = gender;
+        this.language = language;
+        this.country = country;
+        this.currentLocation = currentLocation;
+        this.interests = interests;
+        this.learningLanguage = learningLanguage;
+    }
+
     public UserModel(String username, String phone, String fcmKey, long time, String authId, boolean verified, String status) {
         this.username = username;
         this.phone = phone;

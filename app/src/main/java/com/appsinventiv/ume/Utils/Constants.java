@@ -13,8 +13,9 @@ public class Constants {
     public static String MESSAGE_TYPE_DOCUMENT="DOCUMENT";
     public static String MESSAGE_TYPE_STICKER="STICKER";
     public static String MESSAGE_TYPE_DELETED="MESSAGE_DELETED";
+    public static String MESSAGE_TYPE_TRANSLATED="MESSAGE_TRANSLATION";
 
-
+    public static final String API_KEY = "AIzaSyC80CrRlGZBMvWM0C-hWkmvj0Kkv9iExb4";
 
     public static long DELETED_MSG_TIME=600000;
 

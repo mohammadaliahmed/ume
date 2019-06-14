@@ -12,9 +12,30 @@ public class LangaugeModel {
     @Expose
     String picUrl;
 
-    public LangaugeModel(String languageName, String picUrl) {
+    String langCode;
+
+    int picDrawable;
+
+    public LangaugeModel(String languageName, String langCode, int picDrawable) {
         this.languageName = languageName;
-        this.picUrl = picUrl;
+        this.langCode = langCode;
+        this.picDrawable = picDrawable;
+    }
+
+    public String getLangCode() {
+        return langCode;
+    }
+
+    public int getPicDrawable() {
+        return picDrawable;
+    }
+
+    public void setPicDrawable(int picDrawable) {
+        this.picDrawable = picDrawable;
+    }
+
+    public void setLangCode(String langCode) {
+        this.langCode = langCode;
     }
 
     public String getLanguageName() {

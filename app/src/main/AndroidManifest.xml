@@ -36,7 +36,16 @@
             android:name=".Activities.ViewPictures"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Activities.PlayVideo"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Activities.EditProfile"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Activities.NotificationsList"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Activities.TestTranslation"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".Activities.Profile"
@@ -44,7 +53,8 @@
         <activity android:name=".Activities.PhoneVerification">
 
         </activity>
-        <activity android:name=".Activities.Splash"
+        <activity
+            android:name=".Activities.Splash"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,6 +73,16 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name=".provider.GenericFileProvider"
+            android:authorities="com.appsinventiv.ume.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

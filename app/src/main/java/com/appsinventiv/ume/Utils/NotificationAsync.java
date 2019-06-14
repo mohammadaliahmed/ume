@@ -25,6 +25,11 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
     Context context;
 
     NotificationObserver observer;
+    String msgId;
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
+    }
 
     public final static String AUTH_KEY_FCM_LIVE = "AAAA4TFdtB4:APA91bGcAwZE7jFu9L6iybE9zNAzsoftp0iFcMnwie48nLMiPM6znSl94UgtTCtiesT01lEG1Ouv1h5l0_h7OqG6hOfyu1StcNCZ6ShgzIymzGHRC6epYsHtooZjLY8gYMI3HnKIF4H_";
     public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
@@ -99,7 +104,7 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
                 JSONObject jsonObject1= new JSONObject(output);
                 String abc=jsonObject1.getString("success");
                 if(abc.equals("1")){
-                    observer.onSuccess(Id);
+                    observer.onSuccess(msgId);
                 }
 
             }
