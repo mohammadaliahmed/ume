@@ -47,6 +47,30 @@
         android:src="@drawable/placeholder"
         android:visibility="gone" />
 
+    <ImageView
+        android:id="@+id/msgStatus"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_below="@id/balloon"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="3dp"
+        android:layout_marginRight="28dp"
+        android:layout_marginBottom="3dp"
+        android:src="@drawable/ic_sent" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/balloon"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="3dp"
+        android:layout_toLeftOf="@id/msgStatus"
+        android:text="3:04pm"
+        android:textSize="10sp" />
+
+
     <RelativeLayout
         android:id="@+id/balloon"
         android:layout_width="wrap_content"
@@ -57,21 +81,19 @@
         android:layout_marginRight="30dp"
         android:layout_toLeftOf="@id/profile_image"
         android:background="@drawable/balloon_outgoing_normal"
-        android:padding="1dp"
         android:visibility="visible">
 
         <RelativeLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp">
+
+            android:layout_height="wrap_content">
 
 
             <TextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
                 android:inputType="textCapCharacters"
                 android:text="Me"
                 android:textColor="@color/colorPrimary"
@@ -82,13 +104,11 @@
                 android:id="@+id/msgtext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
                 android:autoLink="web|phone|all"
                 android:hint="asddsfsd"
                 android:maxWidth="200dp"
                 android:text=""
-                android:textColor="@color/colorWhite"
+                android:textColor="#000"
                 android:textIsSelectable="true"
                 android:visibility="gone" />
 
@@ -96,20 +116,17 @@
                 android:id="@+id/translation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
                 android:background="@drawable/curved_edges_empty"
                 android:orientation="vertical"
                 android:visibility="gone">
 
 
                 <TextView
-                    android:padding="5dp"
                     android:id="@+id/translatedText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#ededed"
+                    android:padding="5dp"
                     android:text="" />
 
                 <TextView
@@ -127,8 +144,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
                 android:background="@drawable/curved_edges"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
@@ -171,9 +186,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_below="@id/name"
-                android:layout_marginLeft="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="5dp"
 
                 android:visibility="gone">
 
@@ -207,10 +219,6 @@
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:layout_below="@id/name"
-                android:layout_marginTop="2dp"
-                android:layout_marginRight="3dp"
-                android:padding="2dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone"></ImageView>
 
@@ -234,8 +242,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginLeft="5dp"
-                    android:layout_marginTop="5dp"
-                    android:indeterminateTint="@color/colorYellow" />
+                    android:layout_marginTop="5dp" />
 
                 <ImageView
                     android:id="@+id/playPause"
@@ -263,34 +270,11 @@
                     android:layout_below="@id/seek"
                     android:layout_marginLeft="40dp"
                     android:text="0.5"
-                    android:textColor="@color/colorWhite"
+                    android:textColor="#000"
                     android:textSize="10sp" />
             </RelativeLayout>
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/content"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="1dp"
-            android:layout_marginRight="35dp"
-            android:layout_marginBottom="3dp"
-            android:text="3:04pm"
-            android:textColor="@color/colorWhite"
-            android:textSize="10sp" />
-
-        <ImageView
-            android:id="@+id/msgStatus"
-            android:layout_width="11dp"
-            android:layout_height="11dp"
-            android:layout_below="@id/content"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="3dp"
-            android:layout_marginRight="18dp"
-            android:layout_marginBottom="3dp"
-            android:src="@drawable/ic_sent" />
 
     </RelativeLayout>
 

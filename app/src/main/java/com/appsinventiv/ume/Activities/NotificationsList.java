@@ -61,6 +61,7 @@ public class NotificationsList extends AppCompatActivity {
         recyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerview.setAdapter(adapter);
         getDataFromDB();
+        SharedPrefs.setNotificationCount("0");
 
     }
 

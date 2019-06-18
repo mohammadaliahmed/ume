@@ -90,6 +90,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     FlexboxLayout container;
     TextView gender;
     ImageView flag, genderPic;
+    Button startChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +123,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         userName = findViewById(R.id.userName);
         back = findViewById(R.id.back);
         userPic = findViewById(R.id.userPic);
+        startChat = findViewById(R.id.startChat);
         userPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,6 +132,25 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 startActivity(i);
             }
         });
+
+        startChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (myUserModel.getConfirmFriends().contains(userId)) {
+                    Intent i = new Intent(UserProfileScreen.this, SingleChattingScreen.class);
+                    i.putExtra("userId", userId);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                } else if (myUserModel.getRequestReceived().contains(userId)) {
+                    CommonUtils.showToast("Please accept request first");
+                } else if (myUserModel.getRequestSent().contains(userId)) {
+                    CommonUtils.showToast("Wait for request to be accepted");
+                }else{
+                    CommonUtils.showToast("Please add as friends first");
+                }
+            }
+        });
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -314,7 +335,6 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
-
 
 
     private void getDataFromDB() {

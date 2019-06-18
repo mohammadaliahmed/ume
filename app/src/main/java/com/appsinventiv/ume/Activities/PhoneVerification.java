@@ -98,8 +98,8 @@ public class PhoneVerification extends AppCompatActivity {
 ////                        CommonUtils.showToast(finalNumber);
 //
                         progress.setVisibility(View.VISIBLE);
-////                        checkUser();
-                    sendVerifyCode(finalNumber);
+                        checkUser();
+//                    sendVerifyCode(finalNumber);
                     }
                 }
             });

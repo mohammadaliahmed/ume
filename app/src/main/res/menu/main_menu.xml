@@ -8,11 +8,13 @@
         android:orderInCategory="100"
         android:title="Search"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/action_notifications"
-        android:icon="@drawable/ic_notification"
-        android:orderInCategory="100"
-        android:title="Notifications"
+        android:title="Cart"
+        android:orderInCategory="200"
+        app:actionLayout="@layout/cart_white_count_layout"
+
         app:showAsAction="always" />
     <item
         android:id="@+id/action_settings"

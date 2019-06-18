@@ -45,11 +45,32 @@ public class Filters extends AppCompatActivity {
     private RadioButton radioButton;
 
     EditText search;
-    String word;
+    String word="";
     private String ageGroup;
     public static String learnLanguage = "any",
             country = "any", currentLocation = "any",
             language = "any", interest = "any", startAge = "18", endAge = "70", gender = "any";
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        learnLanguage = "any";
+        country = "any";
+        currentLocation = "any";
+        language = "any";
+        interest = "any";
+        startAge = "18";
+        endAge = "70";
+        gender = "any";
+        chooseCountry.setText("Any");
+        chooseLearningLanguage.setText("Any");
+        chooseSpokenLanguage.setText("Any");
+        chooseInterest.setText("Any");
+        chooseAge.setText("Any");
+        chooseCurrent.setText("Any");
+        search.setText("");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +84,7 @@ public class Filters extends AppCompatActivity {
         reset = findViewById(R.id.reset);
         ok = findViewById(R.id.ok);
         radioGender = findViewById(R.id.radioGender);
+        search = findViewById(R.id.search);
         chooseCurrent = findViewById(R.id.chooseCurrent);
         chooseAge = findViewById(R.id.chooseAge);
         chooseLearningLanguage = findViewById(R.id.chooseLearningLanguage);
@@ -73,6 +95,7 @@ public class Filters extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                word=search.getText().toString();
                 int selectedId = radioGender.getCheckedRadioButtonId();
                 radioButton = (RadioButton) findViewById(selectedId);
                 gender = radioButton.getText().toString();
@@ -87,6 +110,7 @@ public class Filters extends AppCompatActivity {
                 i.putExtra("startAge", Integer.parseInt(startAge));
                 i.putExtra("endAge", Integer.parseInt(endAge));
                 i.putExtra("gender", gender);
+                i.putExtra("word", word);
 
                 startActivity(i);
             }
@@ -109,6 +133,7 @@ public class Filters extends AppCompatActivity {
                 chooseInterest.setText("Any");
                 chooseAge.setText("Any");
                 chooseCurrent.setText("Any");
+                search.setText("");
             }
         });
 

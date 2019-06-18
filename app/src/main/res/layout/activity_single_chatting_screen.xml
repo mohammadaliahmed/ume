@@ -5,20 +5,20 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ch_bg"
+    android:background="#fff"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/ThemeOverlay.AppCompat.Light">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorWhite"
             app:contentInsetLeft="0dp"
             app:contentInsetStart="0dp"
             app:contentInsetStartWithNavigation="0dp"
@@ -52,7 +52,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text=""
-                            android:textColor="#fff"
+                            android:textColor="@color/colorGreyDark"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
@@ -61,7 +61,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text=""
-                            android:textColor="#fff"
+                            android:textColor="@color/colorGreyDark"
                             android:textSize="10sp" />
 
                     </LinearLayout>
@@ -73,19 +73,19 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentRight="true"
-
                     android:layout_centerVertical="true"
                     android:layout_marginRight="10dp"
-                    android:src="@drawable/ic_phone" />
+                    android:src="@drawable/ic_phone"
+                    android:visibility="gone" />
 
                 <ImageView
-
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="60dp"
-                    android:src="@drawable/ic_video_call" />
+                    android:src="@drawable/ic_video_call"
+                    android:visibility="gone" />
             </RelativeLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
@@ -105,10 +105,10 @@
 
     <RelativeLayout
         android:id="@+id/recordingArea"
-        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="9dp">
+        android:layout_marginBottom="9dp"
+        android:visibility="visible">
 
         <com.devlomi.record_view.RecordView
             android:id="@+id/record_view"
@@ -227,12 +227,12 @@
         android:layout_margin="10dp"
         android:visibility="gone"
         app:cardCornerRadius="10dp"
-        app:cardElevation="0dp">
+        app:cardElevation="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#fff"
+            android:background="#fdfdfd"
             android:orientation="horizontal"
             android:padding="15dp"
             android:weightSum="3">

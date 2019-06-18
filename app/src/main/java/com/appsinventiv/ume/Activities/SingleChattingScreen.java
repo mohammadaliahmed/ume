@@ -12,7 +12,9 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -120,8 +122,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -202,6 +206,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     Menu menu;
     ImageView camera;
     private String languageCode = "en";
+    private String countryCode = "us";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -322,6 +327,11 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //                        CommonUtils.showToast("Updated");
                     }
                 });
+            }
+
+            @Override
+            public void setTranslateMsg(ChatModel model) {
+                showTranslteOptionAlert(model);
             }
         });
 
@@ -501,16 +511,63 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+    private void showTranslteOptionAlert(ChatModel model) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(SingleChattingScreen.this);
+        builder.setTitle("Choose Option");
+        AlertDialog alert = builder.create();
+
+
+        builder.setItems(new CharSequence[]
+                        {"Delete message", "Translate"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(model.getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        CommonUtils.showToast("Message deleted");
+                                    }
+                                });
+                                break;
+                            case 1:
+                                translateLeftText(model);
+
+                                break;
+
+                        }
+                    }
+                });
+        alert = builder.create();
+        alert.show();
+    }
+
     private void showLanguagePickerDialog(ImageView translateTo, TextView languageName) {
         LayoutInflater factory = LayoutInflater.from(this);
         final View languageDialogView = factory.inflate(R.layout.dialog_language_pick, null);
         final AlertDialog dialog = new AlertDialog.Builder(this).create();
         dialog.setView(languageDialogView);
         ArrayList<LangaugeModel> itemList = new ArrayList<>();
-        itemList.add(new LangaugeModel("English", "en", R.drawable.flag_united_states_of_america));
-        itemList.add(new LangaugeModel("Spanish", "es", R.drawable.flag_spain));
-        itemList.add(new LangaugeModel("German", "de", R.drawable.flag_germany));
-        itemList.add(new LangaugeModel("French", "fr", R.drawable.flag_france));
+        itemList.add(new LangaugeModel("English", "en", "en", R.drawable.flag_united_states_of_america));
+        itemList.add(new LangaugeModel("Spanish", "es", "es", R.drawable.flag_spain));
+        itemList.add(new LangaugeModel("German", "de", "de", R.drawable.flag_germany));
+        itemList.add(new LangaugeModel("French", "fr", "fr", R.drawable.flag_france));
+
+        itemList.add(new LangaugeModel("Chinese Mandarin", "zh-CN", "cn", R.drawable.flag_china));
+        itemList.add(new LangaugeModel("Japanese", "jp", "jp", R.drawable.flag_japan));
+        itemList.add(new LangaugeModel("Korean", "ko", "kr", R.drawable.flag_south_korea));
+        itemList.add(new LangaugeModel("Hindi", "hi", "in", R.drawable.flag_india));
+        itemList.add(new LangaugeModel("Urdu", "ur", "pk", R.drawable.flag_pakistan));
+
+
+        itemList.add(new LangaugeModel("Romanian", "ro", "ro", R.drawable.flag_romania));
+        itemList.add(new LangaugeModel("Arabic", "ar", "sa", R.drawable.flag_saudi_arabia));
+        itemList.add(new LangaugeModel("Turkish", "tr", "tr", R.drawable.flag_turkey));
+        itemList.add(new LangaugeModel("Indonesian", "id", "id", R.drawable.flag_indonesia));
+        itemList.add(new LangaugeModel("Italian", "it", "it", R.drawable.flag_italy));
         RecyclerView recycler = languageDialogView.findViewById(R.id.recycler);
         Button cancel = languageDialogView.findViewById(R.id.cancel);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -523,6 +580,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 Glide.with(SingleChattingScreen.this).load(model.getPicDrawable()).into(translateTo);
                 languageName.setText(model.getLanguageName());
                 languageCode = model.getLangCode();
+                countryCode = model.getCountryCode();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -542,6 +600,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         final AlertDialog deleteDialog = new AlertDialog.Builder(this).create();
 
         deleteDialog.setView(translteDialogView);
+        deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
         EditText text;
         ImageView translateTo;
         TextView languageName;
@@ -571,7 +631,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             public void onClick(View v) {
                 deleteDialog.dismiss();
                 sendTranslatedMessageToServer(Constants.MESSAGE_TYPE_TRANSLATED,
-                        translatedText.getText().toString(), text.getText().toString(), languageCode);
+                        translatedText.getText().toString(), text.getText().toString(), countryCode);
 
             }
         });
@@ -660,10 +720,55 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+    private void translateLeftText(ChatModel model) {
+        final Handler textViewHandler = new Handler();
+
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                TranslateOptions options = TranslateOptions.newBuilder()
+                        .setApiKey(Constants.API_KEY)
+                        .build();
+                Translate translate = options.getService();
+                final Translation translation =
+                        translate.translate(model.getMessageText(),
+                                Translate.TranslateOption.targetLanguage("en"));
+                String textt = translation.getTranslatedText();
+
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+//                        sendTranslatedMessageToServer(Constants.MESSAGE_TYPE_TRANSLATED,
+//                                translatedText.getText().toString(), text.getText().toString(), countryCode);
+
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("translatedText", translation.getTranslatedText());
+                        map.put("originalText", model.getMessageText());
+                        map.put("language", "us");
+                        map.put("messageType", Constants.MESSAGE_TYPE_TRANSLATED);
+
+                        mDatabase.child("Chats").
+                                child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).
+                                child(model.getId())
+                                .updateChildren(map);
+
+//                        if (translatedText != null) {
+//                            translatedText.setText(translation.getTranslatedText());
+//                        }
+                    }
+                });
+                return null;
+            }
+        }.execute();
+
+    }
+
     private void markAsRead() {
         if (chatModelArrayList.size() > 0 && hisUserModel != null) {
             for (ChatModel msg : chatModelArrayList) {
-                if (msg.getId() != null) {
+                if (msg.getId() != null && msg.getMessageBy()!=null && msg.getMessageType()!=null) {
                     mDatabase
                             .child("Chats")
                             .child(hisUserModel.getUsername())
@@ -1402,7 +1507,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDD37 Sticker";
         } else if (type.equals(Constants.MESSAGE_TYPE_VIDEO)) {
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCFD Video";
-        }else if (type.equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
+        } else if (type.equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83C\uDE02 Translation";
         }
         notificationAsync.setMsgId(messageId);

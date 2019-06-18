@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.appsinventiv.ume.Activities.SingleChattingScreen;
@@ -47,11 +48,11 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         UserModel model = itemList.get(i);
         holder.name.setText(model.getName());
-        if(model.getLearningLanguage().contains("any")){
+        if (model.getLearningLanguage().contains("any")) {
             model.getLearningLanguage().remove(model.getLearningLanguage().indexOf("any"));
         }
         holder.learningLanguage.setText("" + model.getLearningLanguage());
-        holder.speakingLanguage.setText("" + model.getLanguage().replace("any",""));
+        holder.speakingLanguage.setText("" + model.getLanguage().replace("any", ""));
 
         if (model.getCountryNameCode() != null) {
             holder.userFlag.setVisibility(View.VISIBLE);
@@ -61,14 +62,17 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             holder.userFlag.setVisibility(View.GONE);
         }
 
-        if (model.getGender().replace("Any","").equalsIgnoreCase("female")) {
+        if (model.getGender().replace("Any", "").equalsIgnoreCase("female")) {
             Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
+            holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_pink));
         } else {
             Glide.with(context).load(R.drawable.ic_male).into(holder.gender);
+            holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_blue));
+
         }
 
-        if(model.getAge()!=0){
-            holder.age.setText(""+model.getAge());
+        if (model.getAge() != 0) {
+            holder.age.setText("" + model.getAge());
         }
 
         if (model.getPicUrl() != null) {
@@ -83,6 +87,11 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
                 model.getStatus()
                         .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(model.getStatus()))
         );
+        if(model.getStatus().equalsIgnoreCase("Online")){
+            holder.onlineDot.setVisibility(View.VISIBLE);
+        }else{
+            holder.onlineDot.setVisibility(View.GONE);
+        }
 
 
         holder.itemView.setOnClickListener(v -> {
@@ -108,7 +117,8 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, userStatus, speakingLanguage, learningLanguage, age;
-        ImageView pic, userFlag, gender;
+        ImageView pic, userFlag, gender,onlineDot;
+        RelativeLayout genderBg;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -120,6 +130,8 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             userFlag = itemView.findViewById(R.id.userFlag);
             age = itemView.findViewById(R.id.age);
             gender = itemView.findViewById(R.id.gender);
+            genderBg = itemView.findViewById(R.id.genderBg);
+            onlineDot = itemView.findViewById(R.id.onlineDot);
         }
     }
 

@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.appsinventiv.ume.Activities.ContactSelectionScreen;
 import com.appsinventiv.ume.Activities.EditProfile;
@@ -38,8 +40,10 @@ public class SearchActivity extends AppCompatActivity {
     ArrayList<UserModel> itemList = new ArrayList<>();
     SearchedUserListAdapter adapter;
     DatabaseReference mDatabase;
-    String country, gender, currentLocation, language, interest,learnLanguage;
+    String country, gender, currentLocation, language, interest, learnLanguage, word;
     int startAge = 0, endAge = 99;
+    ProgressBar progress;
+    TextView noResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,8 @@ public class SearchActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         this.setTitle("List of users");
 
+        noResults = findViewById(R.id.noResults);
+        progress = findViewById(R.id.progress);
         gender = getIntent().getStringExtra("gender");
 
         country = getIntent().getStringExtra("country");
@@ -59,6 +65,7 @@ public class SearchActivity extends AppCompatActivity {
         language = getIntent().getStringExtra("language");
         learnLanguage = getIntent().getStringExtra("learnLanguage");
         interest = getIntent().getStringExtra("interest");
+        word = getIntent().getStringExtra("word");
         startAge = getIntent().getIntExtra("startAge", 0);
         endAge = getIntent().getIntExtra("endAge", 99);
 
@@ -90,6 +97,9 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
+                    noResults.setVisibility(View.GONE);
+                    progress.setVisibility(View.VISIBLE);
+
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         UserModel model = snapshot.getValue(UserModel.class);
                         if (model != null) {
@@ -112,18 +122,29 @@ public class SearchActivity extends AppCompatActivity {
                                                 model.getGender().contains(gender) &&
                                                 model.getLanguage().contains(language) &&
                                                 model.getInterests().contains(interest) &&
+                                                model.getName().contains(word) &&
                                                 model.getLearningLanguage().contains(learnLanguage) &&
-                                                model.getAge() >= startAge && model.getAge() <= endAge&&
+                                                model.getAge() >= startAge && model.getAge() <= endAge &&
                                                 !model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())
                                         ) {
 
                                     itemList.add(model);
                                 }
+                                if(itemList.size()>0){
+                                    noResults.setVisibility(View.GONE);
+                                }else{
+                                    noResults.setVisibility(View.VISIBLE);
+                                }
 
                             }
                         }
                     }
+                    progress.setVisibility(View.GONE);
+
                     adapter.notifyDataSetChanged();
+                } else {
+                    progress.setVisibility(View.GONE);
+                    noResults.setVisibility(View.VISIBLE);
                 }
             }
 

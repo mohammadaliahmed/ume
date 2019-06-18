@@ -508,7 +508,7 @@
             android:layout_weight="1"
             android:background="@color/colorPrimary"
             android:inputType="text"
-            android:text="Start chat"
+            android:text="Chat"
             android:textColor="#fff" />
 
         <View

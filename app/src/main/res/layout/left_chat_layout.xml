@@ -17,17 +17,28 @@
         app:civ_border_width="1dp" />
 
     <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/balloon"
+        android:layout_marginLeft="200dp"
+        android:layout_marginTop="1dp"
+        android:text="3:04pm"
+        android:textColor="#000"
+        android:textSize="10sp" />
+
+    <TextView
         android:id="@+id/messageDeleted"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="30dp"
         android:layout_toRightOf="@id/profile_image"
         android:background="@drawable/deleted_msg_bg"
         android:paddingLeft="10dp"
         android:paddingTop="5dp"
         android:paddingRight="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
         android:paddingBottom="5dp"
         android:text="Message was deleted"
         android:textColor="#fff"
@@ -59,6 +70,7 @@
 
         <RelativeLayout
             android:id="@+id/content"
+            android:paddingBottom="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -86,11 +98,11 @@
                 android:visibility="gone">
 
                 <TextView
-                    android:padding="5dp"
                     android:id="@+id/translatedText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#ededed"
+                    android:padding="5dp"
                     android:text="fsdfsdfsdfsd" />
 
                 <TextView
@@ -102,7 +114,6 @@
                     android:text="fsdfsdfsdfsd" />
 
             </LinearLayout>
-
 
 
             <TextView
@@ -119,6 +130,7 @@
                 android:textColor="#000"
                 android:textIsSelectable="true"
                 android:visibility="gone" />
+
             <RelativeLayout
                 android:id="@+id/video"
                 android:layout_width="match_parent"
@@ -151,13 +163,11 @@
                     android:id="@+id/videoProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
                     android:layout_centerInParent="true"
-                    android:indeterminateTint="@color/colorWhite" />
+                    android:indeterminateTint="@color/colorWhite"
+                    android:visibility="gone" />
 
             </RelativeLayout>
-
-
 
 
             <RelativeLayout
@@ -171,7 +181,7 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
 
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -204,15 +214,16 @@
             </RelativeLayout>
 
 
-
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_below="@id/name"
-                android:layout_marginLeft="8dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
                 android:padding="2dp"
-                android:layout_marginTop="2dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
@@ -271,25 +282,13 @@
             </RelativeLayout>
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/content"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="1dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="3dp"
-            android:text="3:04pm"
-            android:textColor="#000"
-            android:textSize="10sp" />
+
         <ImageView
             android:id="@+id/msgStatus"
             android:layout_width="10dp"
             android:layout_height="10dp"
-           android:visibility="gone"
-            android:src="@drawable/ic_sent" />
-
+            android:src="@drawable/ic_sent"
+            android:visibility="gone" />
 
 
     </RelativeLayout>

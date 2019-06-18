@@ -46,7 +46,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             message = map.get("Message");
             title = map.get("Title");
-            ChannelId = Integer.parseInt(map.get("ChannelId")==null?""+System.currentTimeMillis():map.get("ChannelId"));
+            ChannelId = Integer.parseInt(map.get("ChannelId") == null ? "" + System.currentTimeMillis() : map.get("ChannelId"));
             type = map.get("Type");
 //            username = map.get("Username");
             Id = map.get("Id");
@@ -76,8 +76,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //            SharedPrefs.setNewMsg("1");
             resultIntent = new Intent(this, SingleChattingScreen.class);
             resultIntent.putExtra("userId", Id);
-        }else  if (type.equalsIgnoreCase("friendRequest")) {
-//            SharedPrefs.setNewMsg("1");
+        } else if (type.equalsIgnoreCase("friendRequest")) {
+            if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
+
+                int co = Integer.parseInt(SharedPrefs.getNotificationCount());
+                SharedPrefs.setNotificationCount("" + (co + 1));
+            }
+
             resultIntent = new Intent(this, UserProfileScreen.class);
             resultIntent.putExtra("userId", Id);
         }

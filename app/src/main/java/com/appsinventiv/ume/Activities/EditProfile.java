@@ -27,6 +27,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appsinventiv.ume.Activities.ImageCrop.PickerBuilder;
 import com.appsinventiv.ume.BottomDialogs.BottomDialog;
 import com.appsinventiv.ume.BottomDialogs.DialogCallbacks;
 import com.appsinventiv.ume.Models.Example;
@@ -35,6 +36,7 @@ import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.CompressImage;
+import com.appsinventiv.ume.Utils.Constants;
 import com.appsinventiv.ume.Utils.GifSizeFilter;
 import com.appsinventiv.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
@@ -120,7 +122,8 @@ public class EditProfile extends AppCompatActivity {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initMatisse();
+//                initMatisse();
+                startGallery();
             }
         });
 
@@ -191,7 +194,7 @@ public class EditProfile extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         yearr = year;
-                        age=2019-yearr;
+                        age = 2019 - yearr;
                         dob = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year);
                         chooseBirthday.setText(String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year));
 
@@ -232,6 +235,29 @@ public class EditProfile extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void startGallery() {
+
+        imageUrl.clear();
+        new PickerBuilder(EditProfile.this, PickerBuilder.SELECT_FROM_GALLERY)
+                .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
+                    @Override
+                    public void onImageReceived(Uri imageUri) {
+                        mSelected = new ArrayList<>();
+                        mSelected.add(imageUri);
+                        progress.setVisibility(View.VISIBLE);
+                        for (Uri img :
+                                mSelected) {
+                            CompressImage compressImage = new CompressImage(EditProfile.this);
+                            imageUrl.add(compressImage.compressImage("" + img));
+                        }
+                        Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
+                        putPictures(imageUrl.get(0));
+
+                    }
+                })
+                .start();
     }
 
     public String inputStreamToString(InputStream inputStream) {
@@ -356,6 +382,7 @@ public class EditProfile extends AppCompatActivity {
 
 
     }
+
     private void takeUserToNextScreen() {
         UserModel userModel = SharedPrefs.getUserModel();
         userModel.setName(name.getText().toString());
@@ -380,6 +407,7 @@ public class EditProfile extends AppCompatActivity {
             }
         });
     }
+
     private void getUserDataFromDB() {
         mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -393,7 +421,7 @@ public class EditProfile extends AppCompatActivity {
                         language = model.getLanguage();
                         dob = model.getDob();
                         name.setText(model.getName());
-                        age=model.getAge();
+                        age = model.getAge();
 
                         chooseBirthday.setText("DOB: " + (dob == null ? "" : dob));
                         chooseCountry.setText("Country: " + (country == null ? "" : country));
@@ -403,7 +431,7 @@ public class EditProfile extends AppCompatActivity {
                             try {
                                 Glide.with(EditProfile.this).load(model.getPicUrl()).into(image);
                                 progress.setVisibility(View.GONE);
-                            } catch ( IllegalArgumentException e) {
+                            } catch (IllegalArgumentException e) {
                                 progress.setVisibility(View.GONE);
                             }
 

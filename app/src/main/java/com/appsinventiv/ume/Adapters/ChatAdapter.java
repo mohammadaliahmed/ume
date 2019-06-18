@@ -153,7 +153,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     }
                 }
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
-                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.time.setVisibility(View.GONE);
                 holder.msgtext.setVisibility(View.GONE);
                 holder.audio.setVisibility(View.GONE);
                 holder.name.setText(model.getName());
@@ -263,7 +263,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.VISIBLE);
                 holder.translatedText.setText(model.getTranslatedText());
-//                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0,CountryUtils.getFlagDrawableResId(model.getLanguage()),0,0);
+                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0, CountryUtils.getFlagDrawableResId(model.getLanguage()), 0, 0);
                 holder.originalText.setText(model.getOriginalText());
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
@@ -388,9 +388,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         });
 
         holder.itemView.setOnLongClickListener(v -> {
-            deleteMsg(hisUserModel, model, position);
+            if (getItemViewType(position) == LEFT_CHAT && model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_TEXT)) {
+//                CommonUtils.showToast("Transalte this");
+                callbacks.setTranslateMsg(model);
+            } else {
+                deleteMsg(hisUserModel, model, position);
 
-
+            }
             return false;
         });
         holder.document.setOnLongClickListener(v -> {
@@ -481,6 +485,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel);
 
         public void setAudioDownloadUrl(ChatModel model, String newAudioUrl);
+        public void setTranslateMsg(ChatModel model);
 
     }
 

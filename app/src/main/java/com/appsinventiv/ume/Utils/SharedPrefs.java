@@ -102,4 +102,13 @@ public class SharedPrefs {
         value = pref.getString(key, "");
         return value;
     }
+
+    public static void setNotificationCount(String count) {
+        preferenceSetter("setChatCount", count);
+    }
+
+    public static String getNotificationCount() {
+        return preferenceGetter("setChatCount");
+    }
+
 }

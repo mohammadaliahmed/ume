@@ -1,121 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#fff">
 
-    <ImageView
-        android:id="@+id/cancel"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/ic_cancel" />
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/abc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="Translate:" />
 
-    <EditText
-        android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_below="@id/abc"
-        android:layout_margin="10dp"
-        android:background="@drawable/edit_text_background"
-        android:gravity="top|start"
-        android:padding="5dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@id/translateTo"
-        android:text="Translate to:" />
-
-    <ImageView
-        android:id="@+id/translateTo"
-        android:layout_width="35dp"
-        android:layout_height="25dp"
-        android:layout_below="@id/text"
-
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/flag_united_states_of_america" />
-
-    <TextView
-        android:id="@+id/languageName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="2dp"
-        android:layout_toRightOf="@id/translateTo"
-        android:text="English" />
-
-    <LinearLayout
-        android:id="@+id/transBtns"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/translateTo"
+        android:background="@drawable/dialog_bg"
+        android:layout_margin="10dp">
 
-        android:visibility="visible"
-        android:weightSum="2">
 
-        <Button
-            android:id="@+id/clear"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="@color/colorPrimary"
-            android:inputType="text"
-            android:text="Clear"
-            android:textColor="#fff" />
+        <TextView
+            android:id="@+id/abc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Translate:" />
 
-        <Button
-            android:id="@+id/translate"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:inputType="text"
-            android:text="Translte"
-            android:textColor="#fff" />
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/aaaaa"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_translate" />
 
-    <LinearLayout
-        android:id="@+id/translatedLay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_below="@id/transBtns"
-        android:orientation="vertical"
-        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/aaaaa"
+            android:text="Auto Detect" />
 
         <EditText
-            android:id="@+id/translatedText"
+            android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="100dp"
+            android:layout_below="@id/abc"
+            android:inputType="textCapSentences"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background"
-            android:enabled="false"
-            android:focusable="false"
             android:gravity="top|start"
             android:padding="5dp" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/sendMsg"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_margin="5dp"
-            android:src="@drawable/ic_message_send" />
+            android:layout_below="@id/text"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/translateTo"
+            android:text="Translate to:" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/translateTo"
+            android:layout_width="35dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/text"
 
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/flag_united_states_of_america" />
+
+        <TextView
+            android:id="@+id/languageName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="2dp"
+            android:layout_toRightOf="@id/translateTo"
+            android:text="English" />
+
+        <LinearLayout
+            android:id="@+id/transBtns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/translateTo"
+
+            android:visibility="visible"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/clear"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@color/colorPrimary"
+                android:inputType="text"
+                android:text="Clear"
+                android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/translate"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:inputType="text"
+                android:text="Translte"
+                android:textColor="#fff" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/translatedLay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_below="@id/transBtns"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/translatedText"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/edit_text_background"
+                android:enabled="false"
+                android:focusable="false"
+                android:gravity="top|start"
+                android:padding="5dp" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/sendMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_margin="5dp"
+                android:src="@drawable/ic_message_send" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/cancel"
+        android:layout_width="25dp"
+        android:layout_margin="5dp"
+        android:layout_height="25dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_cancel" />
 
 </RelativeLayout>

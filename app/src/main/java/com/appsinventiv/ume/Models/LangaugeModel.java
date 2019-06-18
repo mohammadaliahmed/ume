@@ -13,13 +13,23 @@ public class LangaugeModel {
     String picUrl;
 
     String langCode;
+    String countryCode;
 
     int picDrawable;
 
-    public LangaugeModel(String languageName, String langCode, int picDrawable) {
+    public LangaugeModel(String languageName, String langCode, String countryCode,int picDrawable) {
         this.languageName = languageName;
         this.langCode = langCode;
         this.picDrawable = picDrawable;
+        this.countryCode = countryCode;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public String getLangCode() {

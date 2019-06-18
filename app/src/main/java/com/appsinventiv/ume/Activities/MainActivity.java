@@ -2,6 +2,7 @@ package com.appsinventiv.ume.Activities;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ChatListModel> itemList = new ArrayList<>();
     ChatListAdapter adapter;
     TextView noMsgs;
+    private TextView textCartItemCount;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         noMsgs = findViewById(R.id.noMsgs);
         newMessage = findViewById(R.id.newMessage);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setElevation(0);
+//            getSupportActionBar().setElevation(0);
         }
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -77,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+    }
+
     private void getMessagesFromDB() {
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -96,7 +106,9 @@ public class MainActivity extends AppCompatActivity {
                                         if (snapshot1 != null) {
                                             ChatModel model = snapshot1.getValue(ChatModel.class);
                                             if (model != null) {
-                                                itemList.add(new ChatListModel(abc, model));
+                                                if (!itemList.contains(abc)) {
+                                                    itemList.add(new ChatListModel(abc, model));
+                                                }
                                             }
                                         }
                                     }
@@ -139,6 +151,27 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        final MenuItem menuItem = menu.findItem(R.id.action_notifications);
+
+        View actionView = MenuItemCompat.getActionView(menuItem);
+        textCartItemCount = (TextView) actionView.findViewById(R.id.cart_badge);
+        if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
+            if (Integer.parseInt(SharedPrefs.getNotificationCount()) > 0) {
+                textCartItemCount.setText(SharedPrefs.getNotificationCount());
+            } else {
+                textCartItemCount.setVisibility(View.GONE);
+            }
+
+        } else {
+            textCartItemCount.setVisibility(View.GONE);
+        }
+        actionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onOptionsItemSelected(menuItem);
+            }
+        });
+
         return true;
     }
 
