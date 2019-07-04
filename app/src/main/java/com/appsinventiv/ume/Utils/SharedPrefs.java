@@ -2,14 +2,12 @@ package com.appsinventiv.ume.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.appsinventiv.ume.ApplicationClass;
+import com.appsinventiv.ume.Models.PhoneContactModel;
 import com.appsinventiv.ume.Models.UserModel;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -25,6 +23,9 @@ public class SharedPrefs {
     private SharedPrefs() {
 
     }
+
+
+
 
     public static void setUserModel(UserModel model) {
 
@@ -109,6 +110,12 @@ public class SharedPrefs {
 
     public static String getNotificationCount() {
         return preferenceGetter("setChatCount");
+    }
+    public static void logout() {
+        SharedPreferences pref = ApplicationClass.getInstance().getApplicationContext().getSharedPreferences("user", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.apply();
     }
 
 }

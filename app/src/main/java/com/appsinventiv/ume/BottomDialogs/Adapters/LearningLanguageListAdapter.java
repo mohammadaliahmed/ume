@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.appsinventiv.ume.Activities.EditProfile;
 import com.appsinventiv.ume.Activities.Profile;
+import com.appsinventiv.ume.Adapters.ChooseCountryAdapter;
 import com.appsinventiv.ume.Models.LangaugeModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
@@ -22,16 +23,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class LearningLanguageListAdapter extends RecyclerView.Adapter<LearningLanguageListAdapter.ViewHolder> {
     Context context;
     List<LangaugeModel> itemList;
     private List<LangaugeModel> arrayList;
+    List<String> learningLanguage;
 
+    public static final int SECTION_VIEW = 0;
+    public static final int CONTENT_VIEW = 1;
 
-    public LearningLanguageListAdapter(Context context, List<LangaugeModel> itemList) {
+    public LearningLanguageListAdapter(Context context, List<LangaugeModel> itemList, List<String> learningLanguage) {
         this.context = context;
         this.itemList = itemList;
         this.arrayList = new ArrayList<>(itemList);
+        this.learningLanguage = learningLanguage;
 
     }
 
@@ -60,18 +67,52 @@ public class LearningLanguageListAdapter extends RecyclerView.Adapter<LearningLa
 
         notifyDataSetChanged();
     }
+    @Override
+    public int getItemViewType(int position) {
+//        return super.getItemViewType(position);
+        if (itemList.get(position).isSection()) {
+            return SECTION_VIEW;
+        } else {
+            return CONTENT_VIEW;
+        }
+    }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.choose_language_item_layout, viewGroup, false);
-        LearningLanguageListAdapter.ViewHolder viewHolder = new LearningLanguageListAdapter.ViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(context).inflate(R.layout.choose_language_item_layout, viewGroup, false);
+//        LearningLanguageListAdapter.ViewHolder viewHolder = new LearningLanguageListAdapter.ViewHolder(view);
+//        return viewHolder;
+        LearningLanguageListAdapter.ViewHolder viewHolder;
+        if (viewType == SECTION_VIEW) {
+            View view = LayoutInflater.from(context).inflate(R.layout.lang_header_title, parent, false);
+            viewHolder = new LearningLanguageListAdapter.ViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.choose_language_item_layout, parent, false);
+            viewHolder = new LearningLanguageListAdapter.ViewHolder(view);
+        }
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         LangaugeModel langaugeModel = itemList.get(i);
+        viewHolder.headerTitleTextview.setText(String.valueOf(langaugeModel.getLanguageName().charAt(0)).toUpperCase());
+
+        boolean flag = false;
+        for (int j = 0; j < learningLanguage.size(); j++) {
+            if (langaugeModel.getLanguageName().equalsIgnoreCase(learningLanguage.get(j))) {
+                flag = true;
+            }
+        }
+
+        if (flag) {
+            viewHolder.checkbox.setChecked(true);
+        } else {
+            viewHolder.checkbox.setChecked(false);
+        }
+
+
         viewHolder.countryName.setText(langaugeModel.getLanguageName());
         Glide.with(context).load(langaugeModel.getPicUrl()).into(viewHolder.flag);
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -118,9 +159,9 @@ public class LearningLanguageListAdapter extends RecyclerView.Adapter<LearningLa
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView countryName;
+        TextView countryName, headerTitleTextview;
         CheckBox checkbox;
-        ImageView flag;
+        CircleImageView flag;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -128,6 +169,8 @@ public class LearningLanguageListAdapter extends RecyclerView.Adapter<LearningLa
             flag = itemView.findViewById(R.id.flag);
             countryName = itemView.findViewById(R.id.countryName);
             checkbox = itemView.findViewById(R.id.checkbox);
+            headerTitleTextview = itemView.findViewById(R.id.headerTitleTextview);
+
         }
     }
 

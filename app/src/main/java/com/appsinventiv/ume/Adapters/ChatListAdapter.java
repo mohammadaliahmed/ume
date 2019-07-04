@@ -14,13 +14,17 @@ import android.widget.TextView;
 import com.appsinventiv.ume.Activities.MainActivity;
 import com.appsinventiv.ume.Activities.SingleChattingScreen;
 import com.appsinventiv.ume.Models.ChatListModel;
+import com.appsinventiv.ume.Models.ChatModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.Constants;
+import com.appsinventiv.ume.Utils.CountryUtils;
+import com.appsinventiv.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -29,13 +33,26 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     Context context;
     ArrayList<ChatListModel> itemList;
+    HashMap<String, Integer> unreadCount = new HashMap<>();
+    HashMap<Integer, ChatListModel> map;
+
+//    public ChatListAdapter(Context context, HashMap<Integer, ChatListModel> map) {
+//        this.context = context;
+//        this.map = map;
+//    }
 
 
-    public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList) {
+        public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList) {
         this.context = context;
         this.itemList = itemList;
 
     }
+
+    public void setUnreadCount(HashMap<String, Integer> unreadCount) {
+        this.unreadCount = unreadCount;
+        notifyDataSetChanged();
+    }
+
 
     @NonNull
     @Override
@@ -49,6 +66,24 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final ChatListModel model = itemList.get(position);
 
+
+        if (unreadCount != null && unreadCount.size() > 0) {
+            if (unreadCount.get(model.getMessage().getMessageBy()) != null) {
+                if (unreadCount.get(model.getMessage().getMessageBy()) == 0) {
+                    holder.count.setVisibility(View.GONE);
+                } else {
+                    holder.count.setVisibility(View.VISIBLE);
+                    holder.count.setText("" + unreadCount.get(model.getMessage().getMessageBy()));
+
+                }
+
+            } else {
+                holder.count.setVisibility(View.GONE);
+            }
+        } else {
+            holder.count.setVisibility(View.GONE);
+        }
+
         holder.username.setText(model.getMessage().getName());
         if (model.getMessage().getPicUrl() == null) {
             Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.image);
@@ -56,7 +91,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             Glide.with(context).load(model.getMessage().getPicUrl()).into(holder.image);
 
         }
-        if(model.getMessage().getMessageType()!=null) {
+        if (model.getMessage().getMessageType() != null) {
             if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
                 holder.message.setText("" + "\uD83D\uDCF7  Image");
             } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
@@ -71,9 +106,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.message.setText(model.getMessage().getMessageText());
             } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
                 holder.message.setText("Message deleted");
-            }else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
+            } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
                 holder.message.setText("\uD83C\uDE02 Translation");
+            } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
+                holder.message.setText("\uD83D\uDCCD Location");
+            } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
+                holder.message.setText("☎ Contact");
             }
+
 
         }
 
@@ -89,6 +129,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             }
         });
 
+        if (model.getMessage().getCountryCode() != null) {
+            holder.flag.setVisibility(View.VISIBLE);
+            Glide.with(context).load(CountryUtils.getFlagDrawableResId(model.getMessage().getCountryCode())).into(holder.flag);
+        } else {
+            holder.flag.setVisibility(View.GONE);
+        }
+
 
     }
 
@@ -99,7 +146,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView username, message, time, count;
-        CircleImageView image;
+        ImageView image;
+        CircleImageView flag;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -108,6 +156,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             time = itemView.findViewById(R.id.time);
             count = itemView.findViewById(R.id.count);
             image = itemView.findViewById(R.id.image);
+            flag = itemView.findViewById(R.id.flag);
 
         }
     }

@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,6 +92,11 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     TextView gender;
     ImageView flag, genderPic;
     Button startChat;
+    RelativeLayout genderBg;
+
+    TextView localTime;
+    TextView about;
+    TextView age;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +113,10 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         mDatabase = FirebaseDatabase.getInstance().getReference();
         userId = getIntent().getStringExtra("userId");
 
+
+        genderBg = findViewById(R.id.genderBg);
+        age = findViewById(R.id.age);
+        about = findViewById(R.id.about);
         gender = findViewById(R.id.gender);
         genderPic = findViewById(R.id.genderPic);
         recyclerview = findViewById(R.id.recyclerview);
@@ -124,6 +134,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         back = findViewById(R.id.back);
         userPic = findViewById(R.id.userPic);
         startChat = findViewById(R.id.startChat);
+        localTime = findViewById(R.id.localTime);
         userPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,18 +147,12 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         startChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (myUserModel.getConfirmFriends().contains(userId)) {
-                    Intent i = new Intent(UserProfileScreen.this, SingleChattingScreen.class);
-                    i.putExtra("userId", userId);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(i);
-                } else if (myUserModel.getRequestReceived().contains(userId)) {
-                    CommonUtils.showToast("Please accept request first");
-                } else if (myUserModel.getRequestSent().contains(userId)) {
-                    CommonUtils.showToast("Wait for request to be accepted");
-                }else{
-                    CommonUtils.showToast("Please add as friends first");
-                }
+
+                Intent i = new Intent(UserProfileScreen.this, SingleChattingScreen.class);
+                i.putExtra("userId", userId);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+
             }
         });
 
@@ -181,13 +186,41 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
 
     private void removeAsFriend() {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(UserProfileScreen.this);
+        builder1.setTitle("Are you sure");
+        builder1.setMessage("Remove as friend?");
+        builder1.setCancelable(true);
 
-        myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
-        hisUserModel.getConfirmFriends().remove(hisUserModel.getConfirmFriends().indexOf(SharedPrefs.getUserModel().getUsername()));
+        builder1.setPositiveButton(
+                "Yes",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
+                        hisUserModel.getConfirmFriends().remove(hisUserModel.getConfirmFriends().indexOf(SharedPrefs.getUserModel().getUsername()));
 
 
-        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(myUserModel.getConfirmFriends());
-        mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends());
+                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(myUserModel.getConfirmFriends());
+                        mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                CommonUtils.showToast("Removed from friends");
+                            }
+                        });
+                        dialog.cancel();
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+
     }
 
     private void acceptRequest() {
@@ -381,6 +414,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     private void setUserProfileData(UserModel user) {
         name.setText(user.getName());
         username.setText(user.getUsername());
+        age.setText("" + user.getAge());
         language.setText(user.getLanguage());
         learningLanguage.setText(user.getLearningLanguage() + "");
         memberSince.setText(CommonUtils.getFormattedDate(user.getTime()));
@@ -396,13 +430,20 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
             gender.setText(user.getGender());
             if (user.getGender().equalsIgnoreCase("female")) {
                 Glide.with(this).load(R.drawable.ic_female).into(genderPic);
+                genderBg.setBackground(UserProfileScreen.this.getResources().getDrawable(R.drawable.custom_corners_pink));
             } else {
                 Glide.with(this).load(R.drawable.ic_male).into(genderPic);
+                genderBg.setBackground(UserProfileScreen.this.getResources().getDrawable(R.drawable.custom_corners_blue));
+
             }
         }
         lastOnline.setText(hisUserModel.getStatus()
                 .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
         );
+
+        localTime.setText(CountryUtils.getGMT(user.getCountryNameCode()) + " " + CommonUtils.getLocalTime(System.currentTimeMillis(), CountryUtils.getGMT(user.getCountryNameCode())));
+
+
         country.setText(user.getCountry());
         if (user.getPicUrl() != null) {
             try {
@@ -419,6 +460,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         }
         titleName.setText(user.getName());
         userName.setText(user.getName());
+        about.setText(user.getAbout());
     }
 
     private void changeStatusBarColor() {

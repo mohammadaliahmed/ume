@@ -20,6 +20,7 @@ import android.widget.VideoView;
 
 import com.appsinventiv.ume.Adapters.NotificationsListAdapter;
 import com.appsinventiv.ume.Models.NotificationModel;
+import com.appsinventiv.ume.Models.UserModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 import com.appsinventiv.ume.Utils.SharedPrefs;
@@ -31,6 +32,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class NotificationsList extends AppCompatActivity {
@@ -79,6 +82,16 @@ public class NotificationsList extends AppCompatActivity {
                             itemList.add(model);
                         }
                     }
+                    Collections.sort(itemList, new Comparator<NotificationModel>() {
+                        @Override
+                        public int compare(NotificationModel listData, NotificationModel t1) {
+                            Long ob1 = listData.getTime();
+                            Long ob2 = t1.getTime();
+
+                            return ob2.compareTo(ob1);
+
+                        }
+                    });
                     adapter.notifyDataSetChanged();
                 } else {
                     itemList.clear();

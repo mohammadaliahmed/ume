@@ -82,6 +82,8 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 //            } else if (model.getGender().equalsIgnoreCase("female")) {
 //                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorPink));
 //            }
+        }else{
+            Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.pic);
         }
         holder.userStatus.setText(
                 model.getStatus()
@@ -117,8 +119,9 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, userStatus, speakingLanguage, learningLanguage, age;
-        ImageView pic, userFlag, gender,onlineDot;
+        ImageView  gender,onlineDot;
         RelativeLayout genderBg;
+        CircleImageView pic, userFlag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

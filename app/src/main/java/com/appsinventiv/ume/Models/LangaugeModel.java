@@ -4,24 +4,44 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class LangaugeModel {
-    @SerializedName("languageName")
-    @Expose
+
     String languageName;
 
-    @SerializedName("picUrl")
-    @Expose
-    String picUrl;
+
+    int picUrl;
 
     String langCode;
     String countryCode;
 
     int picDrawable;
+    boolean section;
 
-    public LangaugeModel(String languageName, String langCode, String countryCode,int picDrawable) {
+    public LangaugeModel(String languageName, int picUrl) {
+        this.languageName = languageName;
+        this.picUrl = picUrl;
+    }
+
+    public LangaugeModel(String languageName, String langCode, String countryCode, int picDrawable) {
         this.languageName = languageName;
         this.langCode = langCode;
         this.picDrawable = picDrawable;
         this.countryCode = countryCode;
+    }
+
+    public LangaugeModel(String languageName, String langCode, String countryCode, int picDrawable,boolean section) {
+        this.languageName = languageName;
+        this.langCode = langCode;
+        this.picDrawable = picDrawable;
+        this.countryCode = countryCode;
+        this.section=section;
+    }
+
+    public boolean isSection() {
+        return section;
+    }
+
+    public void setSection(boolean section) {
+        this.section = section;
     }
 
     public String getCountryCode() {
@@ -56,11 +76,11 @@ public class LangaugeModel {
         this.languageName = languageName;
     }
 
-    public String getPicUrl() {
+    public int getPicUrl() {
         return picUrl;
     }
 
-    public void setPicUrl(String picUrl) {
+    public void setPicUrl(int picUrl) {
         this.picUrl = picUrl;
     }
 }

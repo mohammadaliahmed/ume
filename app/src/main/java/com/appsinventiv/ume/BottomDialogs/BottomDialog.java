@@ -6,6 +6,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +25,11 @@ import com.appsinventiv.ume.Models.Country;
 import com.appsinventiv.ume.Models.LangaugeModel;
 import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
+import com.appsinventiv.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class BottomDialog {
@@ -45,9 +49,38 @@ public class BottomDialog {
         RecyclerView recyclerview = customView.findViewById(R.id.recyclerview);
         Button cancel = customView.findViewById(R.id.cancel);
         Button ok = customView.findViewById(R.id.ok);
+        ArrayList<LangaugeModel> langaugeModelList=new ArrayList<>();
+
+
+
+        Collections.sort(languageList, new Comparator<LangaugeModel>() {
+            @Override
+            public int compare(LangaugeModel user1, LangaugeModel user2) {
+                return String.valueOf(user1.getLanguageName().charAt(0)).toUpperCase().compareTo(String.valueOf(user2.getLanguageName().charAt(0)).toUpperCase());
+            }
+        });
+        String lastHeader = "";
+        for (int i = 0; i < CommonUtils.languageListForTranslation().size(); i++) {
+
+            LangaugeModel langaugeModel = languageList.get(i);
+            String header = String.valueOf(langaugeModel.getLanguageName().charAt(0)).toUpperCase();
+
+            if (!lastHeader.equalsIgnoreCase(header)) {
+                lastHeader = header;
+                langaugeModelList.add(new LangaugeModel(
+                        langaugeModel.getLanguageName(),
+                        langaugeModel.getLangCode(),
+                        langaugeModel.getCountryCode(),
+                        langaugeModel.getPicDrawable(), true));
+            }
+
+
+            langaugeModelList.add(langaugeModel);
+        }
+
 
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        SpokenLanguageListAdapter adapter = new SpokenLanguageListAdapter(context, languageList, new SpokenLanguageListAdapter.onitemClick() {
+        SpokenLanguageListAdapter adapter = new SpokenLanguageListAdapter(context,langaugeModelList, new SpokenLanguageListAdapter.onitemClick() {
             @Override
             public void onItemClicked(LangaugeModel langaugeModel) {
                 dialog.dismiss();
@@ -55,7 +88,7 @@ public class BottomDialog {
             }
         });
         recyclerview.setAdapter(adapter);
-        adapter.updateList(languageList);
+        adapter.updateList(langaugeModelList);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -142,6 +175,7 @@ public class BottomDialog {
     }
 
     public static void showLanguagesDialog(Context context, List<LangaugeModel> languageList, DialogCallbacks callbacks) {
+        List<LangaugeModel> langaugeModelList = new ArrayList<>();
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View customView = inflater.inflate(R.layout.languages_bottom_sheet_option, null);
@@ -155,10 +189,36 @@ public class BottomDialog {
         Button cancel = customView.findViewById(R.id.cancel);
         Button ok = customView.findViewById(R.id.ok);
 
+
+        Collections.sort(languageList, new Comparator<LangaugeModel>() {
+            @Override
+            public int compare(LangaugeModel user1, LangaugeModel user2) {
+                return String.valueOf(user1.getLanguageName().charAt(0)).toUpperCase().compareTo(String.valueOf(user2.getLanguageName().charAt(0)).toUpperCase());
+            }
+        });
+        String lastHeader = "";
+        for (int i = 0; i < languageList.size(); i++) {
+
+            LangaugeModel langaugeModel = languageList.get(i);
+            String header = String.valueOf(langaugeModel.getLanguageName().charAt(0)).toUpperCase();
+
+            if (!lastHeader.equalsIgnoreCase(header)) {
+                lastHeader = header;
+                langaugeModelList.add(new LangaugeModel(
+                        langaugeModel.getLanguageName(),
+                        langaugeModel.getLangCode(),
+                        langaugeModel.getCountryCode(),
+                        langaugeModel.getPicDrawable(), true));
+            }
+
+
+            langaugeModelList.add(langaugeModel);
+        }
+
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        LearningLanguageListAdapter adapter = new LearningLanguageListAdapter(context, languageList);
+        LearningLanguageListAdapter adapter = new LearningLanguageListAdapter(context, langaugeModelList, SharedPrefs.getUserModel().getLearningLanguage());
         recyclerview.setAdapter(adapter);
-        adapter.updateList(languageList);
+        adapter.updateList(langaugeModelList);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -198,7 +258,7 @@ public class BottomDialog {
     }
 
     public static void showCountiesDialog(Context context, List<Country> countyList, DialogCallbacks callbacks) {
-
+        List<Country> newCountryList = new ArrayList<>();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View customView = inflater.inflate(R.layout.country_bottom_sheet_option, null);
         final Dialog dialog = new Dialog(context, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen
@@ -211,8 +271,29 @@ public class BottomDialog {
         Button cancel = customView.findViewById(R.id.cancel);
         Button ok = customView.findViewById(R.id.ok);
 
+        Collections.sort(countyList, new Comparator<Country>() {
+            @Override
+            public int compare(Country user1, Country user2) {
+                return String.valueOf(user1.getCountryName().charAt(0)).toUpperCase().compareTo(String.valueOf(user2.getCountryName().charAt(0)).toUpperCase());
+            }
+        });
+        String lastHeader = "";
+        for (int i = 0; i < countyList.size(); i++) {
+
+            Country country = countyList.get(i);
+            String header = String.valueOf(country.getCountryName().charAt(0)).toUpperCase();
+
+            if (!lastHeader.equalsIgnoreCase(header)) {
+                lastHeader = header;
+                newCountryList.add(new Country(country.getCountryName(), country.getPicUrl(), country.getCountryCode(), true));
+            }
+
+
+            newCountryList.add(country);
+        }
+
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        ChooseCountryAdapter adapter = new ChooseCountryAdapter(context, countyList, new ChooseCountryAdapter.onitemClick() {
+        ChooseCountryAdapter adapter = new ChooseCountryAdapter(context, newCountryList, new ChooseCountryAdapter.onitemClick() {
             @Override
             public void onItemClicked(Country country) {
                 dialog.dismiss();
@@ -220,7 +301,7 @@ public class BottomDialog {
             }
         });
         recyclerview.setAdapter(adapter);
-        adapter.updateList(countyList);
+        adapter.updateList(newCountryList);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -252,7 +333,7 @@ public class BottomDialog {
 
     }
 
-    public static void showInterestDialog(Context context, ArrayList<String> interestList, DialogCallbacks callbacks) {
+    public static void showInterestDialog(Context context, ArrayList<String> interestList, List<String> userInterest, DialogCallbacks callbacks) {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View customView = inflater.inflate(R.layout.interest_bottom_sheet_option, null);
@@ -267,7 +348,7 @@ public class BottomDialog {
         Button ok = customView.findViewById(R.id.ok);
 
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        ChooseInterestListAdapter adapter = new ChooseInterestListAdapter(context, interestList);
+        ChooseInterestListAdapter adapter = new ChooseInterestListAdapter(context, interestList, userInterest);
         recyclerview.setAdapter(adapter);
         adapter.updateList(interestList);
 

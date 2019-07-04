@@ -86,6 +86,7 @@ public class EditProfile extends AppCompatActivity {
     private String dob;
     int yearr = 1990;
     private int age;
+    EditText about;
 
 
     @Override
@@ -103,6 +104,7 @@ public class EditProfile extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
+        about = findViewById(R.id.about);
         chooseCurrentLocation = findViewById(R.id.chooseCurrentLocation);
         chooseLeaningLanguage = findViewById(R.id.chooseLeaningLanguage);
         chooseInterest = findViewById(R.id.chooseInterest);
@@ -148,9 +150,8 @@ public class EditProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String myJson = inputStreamToString(getResources().openRawResource(R.raw.countries));
-                Example myModel = new Gson().fromJson(myJson, Example.class);
-                BottomDialog.showCountiesDialog(EditProfile.this, myModel.getCountries(), new DialogCallbacks() {
+
+                BottomDialog.showCountiesDialog(EditProfile.this, CommonUtils.countryList(), new DialogCallbacks() {
                     @Override
                     public void onOkPressed() {
                         chooseCountry.setText("Country: " + country);
@@ -294,20 +295,13 @@ public class EditProfile extends AppCompatActivity {
     }
 
     private void setupInterest() {
-        ArrayList<String> inerests = new ArrayList<>();
-        inerests.add("Games");
-        inerests.add("Dating");
-        inerests.add("Food");
-        inerests.add("Movies");
-        inerests.add("Music");
-        inerests.add("Outdoor");
-        inerests.add("Driving");
+
 
 
         chooseInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BottomDialog.showInterestDialog(EditProfile.this, inerests, new DialogCallbacks() {
+                BottomDialog.showInterestDialog(EditProfile.this, CommonUtils.interestList(),SharedPrefs.getUserModel().getInterests(), new DialogCallbacks() {
                     @Override
                     public void onOkPressed() {
                         if (interestList.size() > 0) {
@@ -394,6 +388,7 @@ public class EditProfile extends AppCompatActivity {
         userModel.setInterests(interestList);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);
+        userModel.setAbout(about.getText().toString());
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(SharedPrefs.getUserModel().getUsername(), userModel);
@@ -401,6 +396,7 @@ public class EditProfile extends AppCompatActivity {
         mDatabase.child("Users").updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+
                 CommonUtils.showToast("Updated");
                 startActivity(new Intent(EditProfile.this, MainActivity.class));
                 finish();
@@ -421,6 +417,7 @@ public class EditProfile extends AppCompatActivity {
                         language = model.getLanguage();
                         dob = model.getDob();
                         name.setText(model.getName());
+                        about.setText(model.getAbout());
                         age = model.getAge();
 
                         chooseBirthday.setText("DOB: " + (dob == null ? "" : dob));

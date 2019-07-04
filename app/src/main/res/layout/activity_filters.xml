@@ -25,12 +25,12 @@
             android:hint="Search"
             android:inputType="textCapWords"
             android:padding="10dp"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="38dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="50dp"
             android:background="#aaa" />
@@ -92,53 +92,60 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
-            android:layout_marginRight="50dp"
+            android:layout_marginRight="20dp"
             android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/chooseSpoken"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="20dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
-
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_speak" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="38dp"
                     android:layout_weight="3"
-                    android:text="Spoken Language:" />
+
+                    android:text="Spoken Language:"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseSpokenLanguage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="150dp"
                     android:layout_weight="1"
-                    android:text="Any"
-                    android:textColor="@color/colorPrimary" />
-            </LinearLayout>
 
-            <LinearLayout
+                    android:gravity="right"
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseLearning"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="20dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:padding="5dp"
@@ -147,65 +154,84 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="38dp"
                     android:layout_weight="3"
-                    android:text="Leaning Language:" />
+                    android:text="Leaning Language:"
+
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseLearningLanguage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="150dp"
                     android:layout_weight="1"
-                    android:text="Any"
-                    android:textColor="@color/colorPrimary" />
-            </LinearLayout>
+                    android:gravity="right"
 
-            <LinearLayout
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseCountryr"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
+                    android:layout_centerVertical="true"
+
                     android:padding="2dp"
                     android:src="@drawable/ic_flag" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+
                     android:layout_gravity="center_vertical"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="38dp"
                     android:layout_weight="3"
-                    android:text="Country:" />
+                    android:text="Country:"
+
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseCountry"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Any"
-                    android:textColor="@color/colorPrimary" />
-            </LinearLayout>
+                    android:layout_marginLeft="150dp"
 
-            <LinearLayout
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseCurrentLocation"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
+
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:padding="2dp"
@@ -214,33 +240,43 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="38dp"
+
                     android:layout_weight="3"
-                    android:text="Current Location:" />
+                    android:text="Current Location:"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseCurrent"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="150dp"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="right"
                     android:text="Any"
-                    android:textColor="@color/colorPrimary" />
-            </LinearLayout>
 
-            <LinearLayout
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseAgeRel"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
+
 
                     android:layout_weight="1"
                     android:src="@drawable/ic_age" />
@@ -248,58 +284,76 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="38dp"
+
                     android:layout_weight="3"
-                    android:text="Age group:" />
+
+                    android:text="Age group:"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseAge"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="150dp"
                     android:layout_weight="1"
-                    android:gravity="center"
+
+                    android:gravity="right"
                     android:text="Any"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
 
 
-            </LinearLayout>
+            </RelativeLayout>
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/chooseInterestRel"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:weightSum="5">
 
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:padding="2dp"
 
                     android:src="@drawable/ic_heart" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="38dp"
+
                     android:layout_weight="3"
-                    android:text="Interests:" />
+
+                    android:text="Interests:"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/chooseInterest"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
+                    android:layout_marginLeft="150dp"
+                    android:gravity="right"
+
                     android:text="Any"
-                    android:textColor="@color/colorPrimary" />
-            </LinearLayout>
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
         </LinearLayout>
 
 

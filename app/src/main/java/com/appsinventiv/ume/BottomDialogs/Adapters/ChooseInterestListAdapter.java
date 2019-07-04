@@ -16,18 +16,20 @@ import com.appsinventiv.ume.R;
 import com.appsinventiv.ume.Utils.CommonUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class ChooseInterestListAdapter extends RecyclerView.Adapter<ChooseInterestListAdapter.ViewHolder> {
     Context context;
     ArrayList<String> itemList;
     private ArrayList<String> arrayList;
+    List<String> userInterest;
 
-
-    public ChooseInterestListAdapter(Context context, ArrayList<String> itemList) {
+    public ChooseInterestListAdapter(Context context, ArrayList<String> itemList, List<String> userInterest) {
         this.context = context;
         this.itemList = itemList;
         this.arrayList = new ArrayList<>(itemList);
+        this.userInterest = userInterest;
 
     }
 
@@ -69,6 +71,18 @@ public class ChooseInterestListAdapter extends RecyclerView.Adapter<ChooseIntere
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         String name = itemList.get(i);
         viewHolder.countryName.setText(name);
+        boolean flag=false;
+        for (int j = 0; j < userInterest.size(); j++) {
+            if (name.equalsIgnoreCase(userInterest.get(j))) {
+                flag=true;
+            }
+        }
+
+        if(flag){
+            viewHolder.checkbox.setChecked(true);
+        }else{
+            viewHolder.checkbox.setChecked(false);
+        }
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

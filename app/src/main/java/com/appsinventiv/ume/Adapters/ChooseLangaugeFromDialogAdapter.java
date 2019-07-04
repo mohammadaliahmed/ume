@@ -15,6 +15,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ChooseLangaugeFromDialogAdapter extends RecyclerView.Adapter<ChooseLangaugeFromDialogAdapter.ViewHolder> {
     Context context;
     List<LangaugeModel> itemList;
@@ -56,7 +58,7 @@ public class ChooseLangaugeFromDialogAdapter extends RecyclerView.Adapter<Choose
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView countryName;
-        ImageView flag;
+        CircleImageView flag;
 
 
         public ViewHolder(@NonNull View itemView) {

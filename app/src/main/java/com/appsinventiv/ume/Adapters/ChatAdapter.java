@@ -1,5 +1,7 @@
 package com.appsinventiv.ume.Adapters;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -8,6 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.RecyclerView;
@@ -139,6 +142,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.video.setVisibility(View.VISIBLE);
                 holder.videoPlayBtn.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 Glide.with(context).load(model.getVideoImgUrl()).into(holder.videoImg);
                 if (getItemViewType(position) == LEFT_CHAT) {
@@ -152,6 +156,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                         holder.videoProgress.setVisibility(View.VISIBLE);
                     }
                 }
+                holder.contact.setVisibility(View.GONE);
+
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
                 holder.time.setVisibility(View.GONE);
                 holder.msgtext.setVisibility(View.GONE);
@@ -165,8 +171,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.balloon.setVisibility(View.GONE);
                 holder.video.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.GONE);
-
+                holder.time.setVisibility(View.GONE);
+                holder.msgStatus.setVisibility(View.GONE);
                 holder.messageDeleted.setVisibility(View.VISIBLE);
+                holder.map.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
@@ -180,9 +190,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.balloon.setVisibility(View.GONE);
                 holder.video.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
                 holder.messageDeleted.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
@@ -195,6 +207,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.document.setVisibility(View.GONE);
                 holder.sticker.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 holder.image.setVisibility(View.VISIBLE);
                 holder.imgProgress.setVisibility(View.GONE);
@@ -205,9 +218,57 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     holder.imgProgress.setVisibility(View.GONE);
                 }
                 holder.messageDeleted.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
+                holder.image.setVisibility(View.GONE);
+                holder.map.setVisibility(View.VISIBLE);
+                holder.msgtext.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.audio.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.sticker.setVisibility(View.GONE);
+
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.msgtext.setText(model.getMessageText());
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
+
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
+                holder.contact.setVisibility(View.VISIBLE);
+                holder.image.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
+                holder.msgtext.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.audio.setVisibility(View.GONE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.sticker.setVisibility(View.GONE);
+
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.translation.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.msgtext.setText(model.getMessageText());
+                holder.imgProgress.setVisibility(View.GONE);
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.phoneName.setText(model.getPhoneName());
+                holder.phoneNumber.setText(model.getPhoneNumber());
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
+                holder.contact.setVisibility(View.GONE);
+
                 holder.image.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
+
                 holder.msgtext.setVisibility(View.VISIBLE);
                 holder.name.setText(model.getName());
                 holder.audio.setVisibility(View.GONE);
@@ -225,10 +286,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.messageDeleted.setVisibility(View.GONE);
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
+                holder.contact.setVisibility(View.GONE);
+
                 holder.image.setVisibility(View.GONE);
                 holder.name.setText(model.getName());
                 holder.msgtext.setVisibility(View.GONE);
                 holder.sticker.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 holder.balloon.setVisibility(View.VISIBLE);
                 holder.video.setVisibility(View.GONE);
@@ -247,10 +311,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
+                holder.contact.setVisibility(View.GONE);
+
                 holder.image.setVisibility(View.GONE);
                 holder.name.setText(model.getName());
                 holder.msgtext.setVisibility(View.GONE);
                 holder.sticker.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 holder.balloon.setVisibility(View.VISIBLE);
                 holder.video.setVisibility(View.GONE);
@@ -263,10 +330,19 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.translation.setVisibility(View.VISIBLE);
                 holder.translatedText.setText(model.getTranslatedText());
-                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0, CountryUtils.getFlagDrawableResId(model.getLanguage()), 0, 0);
+                holder.translationName.setText(model.getLanguage());
+                Glide.with(context).load(CountryUtils.getFlagDrawableResId(model.getLanguage())).into(holder.translationFlag);
+                if (model.getLanguageName() != null) {
+                    holder.translationName.setText(model.getLanguageName());
+                } else {
+                    holder.translationName.setText("");
+                }
+//                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0, CountryUtils.getFlagDrawableResId(model.getLanguage()), 0, 0);
                 holder.originalText.setText(model.getOriginalText());
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
+                holder.contact.setVisibility(View.GONE);
+
                 if (getItemViewType(position) == RIGHT_CHAT) {
                     if (model.isAudioUploaded()) {
 
@@ -286,6 +362,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.imgProgress.setVisibility(View.GONE);
                 holder.image.setVisibility(View.GONE);
                 holder.video.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
 
                 holder.document.setVisibility(View.GONE);
                 holder.sticker.setVisibility(View.GONE);
@@ -310,9 +387,43 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             }
 
         }
+
+
+        holder.contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent contactIntent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                contactIntent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+
+                contactIntent
+                        .putExtra(ContactsContract.Intents.Insert.NAME, model.getPhoneName())
+                        .putExtra(ContactsContract.Intents.Insert.PHONE, model.getPhoneNumber());
+
+                context.startActivity(contactIntent);
+
+
+            }
+        });
+
+        holder.map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                CommonUtils.showToast("Location");
+
+
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + model.getLat() + "," + model.getLon());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
+                    context.startActivity(mapIntent);
+                }
+            }
+        });
         holder.document.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
 //                DownloadFile.fromUrl1(model.getDocumentUrl());
 //                String filename = "" + model.getDocumentUrl().substring(model.getDocumentUrl().length() - 7, model.getDocumentUrl().length());
                 String filename = model.getDocumentFileName();
@@ -353,6 +464,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         holder.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 Intent i = new Intent(context, ViewPictures.class);
                 i.putExtra("url", model.getImageUrl());
                 context.startActivity(i);
@@ -381,13 +494,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         holder.video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 Intent i = new Intent(context, PlayVideo.class);
                 i.putExtra("url", model.getVideoUrl());
                 context.startActivity(i);
             }
         });
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+
         holder.itemView.setOnLongClickListener(v -> {
+
+
             if (getItemViewType(position) == LEFT_CHAT && model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_TEXT)) {
 //                CommonUtils.showToast("Transalte this");
                 callbacks.setTranslateMsg(model);
@@ -398,14 +523,20 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             return false;
         });
         holder.document.setOnLongClickListener(v -> {
+
+
             deleteMsg(hisUserModel, model, position);
             return false;
         });
         holder.audio.setOnLongClickListener(v -> {
+
+
             deleteMsg(hisUserModel, model, position);
             return false;
         });
         holder.image.setOnLongClickListener(v -> {
+
+
             deleteMsg(hisUserModel, model, position);
             return false;
         });
@@ -414,6 +545,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         holder.playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 if (getItemViewType(position) == LEFT_CHAT) {
                     if (model.getAudioUrl().contains("https://firebasestorage"))
                         downloadAudio(model);
@@ -434,6 +567,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
 //            holder.video.start();
 //        }
     }
+
 
     private void deleteMsg(UserModel hisUserModel, ChatModel model, int position) {
         if (!model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_DELETED)) {
@@ -485,6 +619,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel);
 
         public void setAudioDownloadUrl(ChatModel model, String newAudioUrl);
+
         public void setTranslateMsg(ChatModel model);
 
     }
@@ -651,7 +786,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     public class ViewHolder extends RecyclerView.ViewHolder implements SeekBar.OnSeekBarChangeListener {
         TextView msgtext, time, name, audioTime;
         CircleImageView profile_image;
-        ImageView image, playPause;
+        ImageView image, playPause, map;
         RelativeLayout document;
         RelativeLayout audio;
         SeekBar seekBar;
@@ -667,6 +802,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         TextView documentName, documentType;
         TextView translatedText, originalText;
         LinearLayout translation;
+        TextView phoneNumber, phoneName;
+        LinearLayout contact;
+        CircleImageView translationFlag;
+        TextView translationName;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -697,6 +836,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             translation = itemView.findViewById(R.id.translation);
             originalText = itemView.findViewById(R.id.originalText);
             translatedText = itemView.findViewById(R.id.translatedText);
+            contact = itemView.findViewById(R.id.contact);
+            phoneName = itemView.findViewById(R.id.phoneName);
+            phoneNumber = itemView.findViewById(R.id.phoneNumber);
+            map = itemView.findViewById(R.id.map);
+            translationFlag = itemView.findViewById(R.id.translationFlag);
+            translationName = itemView.findViewById(R.id.translationName);
 
 //            seekBar.setOnSeekBarChangeListener(this);
 

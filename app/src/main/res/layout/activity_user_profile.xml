@@ -134,6 +134,7 @@
                             android:layout_alignParentBottom="true"
                             android:background="#ccc" />
                     </RelativeLayout>
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -157,12 +158,68 @@
                             android:layout_marginRight="10dp"
                             android:lines="1"
                             android:text="" />
-                        <ImageView
-                            android:id="@+id/genderPic"
+
+                        <RelativeLayout
+                            android:id="@+id/genderBg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_toRightOf="@id/gender"
-                            android:layout_width="12dp"
-                            android:layout_height="12dp" />
+                            android:background="@drawable/custom_corners_blue"
+                            android:padding="3dp">
+
+                            <ImageView
+                                android:id="@+id/genderPic"
+                                android:layout_centerVertical="true"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:src="@drawable/ic_male" />
+
+
+                            <TextView
+                                android:id="@+id/age"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="5dp"
+                                android:layout_toRightOf="@id/genderPic"
+                                android:text="22"
+                                android:textColor="#fff"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
+
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="#ccc" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="#fff">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_margin="10dp"
+                            android:text="About"
+                            android:textColor="#000"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/about"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="180dp"
+                            android:layout_marginRight="10dp"
+                            android:lines="1"
+                            android:text="" />
+
 
                         <View
                             android:layout_width="match_parent"
@@ -251,8 +308,7 @@
                             android:layout_width="30dp"
                             android:layout_height="20dp"
                             android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/country"
-                             />
+                            android:layout_toRightOf="@id/country" />
 
                         <View
                             android:layout_width="match_parent"
@@ -422,6 +478,38 @@
                             android:layout_alignParentBottom="true"
                             android:background="#ccc" />
                     </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="#fff">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_margin="10dp"
+                            android:text="Local TIme"
+                            android:textColor="#000"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/localTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="180dp"
+                            android:layout_marginRight="10dp"
+                            android:lines="1"
+                            android:text="" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="#ccc" />
+                    </RelativeLayout>
+
 
                     <RelativeLayout
                         android:layout_width="match_parent"

@@ -5,12 +5,12 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/flag"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_flag" />
+        android:src="@drawable/flag_pakistan" />
 
     <TextView
         android:id="@+id/countryName"

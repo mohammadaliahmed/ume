@@ -24,6 +24,10 @@ public class UserModel {
 
     String countryNameCode;
 
+    String about;
+
+    double latitude,longitude;
+
     public UserModel() {
     }
 
@@ -45,6 +49,31 @@ public class UserModel {
         this.authId = authId;
         this.verified = verified;
         this.status = status;
+    }
+
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
     }
 
     public String getCountryNameCode() {

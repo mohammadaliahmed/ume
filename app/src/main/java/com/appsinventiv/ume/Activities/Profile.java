@@ -28,6 +28,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appsinventiv.ume.Activities.ImageCrop.PickerBuilder;
 import com.appsinventiv.ume.BottomDialogs.BottomDialog;
 import com.appsinventiv.ume.BottomDialogs.DialogCallbacks;
 import com.appsinventiv.ume.Models.Example;
@@ -118,7 +119,8 @@ Profile extends AppCompatActivity {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initMatisse();
+                startGallery();
+//                initMatisse();
             }
         });
 
@@ -143,9 +145,7 @@ Profile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String myJson = inputStreamToString(getResources().openRawResource(R.raw.countries));
-                Example myModel = new Gson().fromJson(myJson, Example.class);
-                BottomDialog.showCountiesDialog(Profile.this, myModel.getCountries(), new DialogCallbacks() {
+                BottomDialog.showCountiesDialog(Profile.this, CommonUtils.countryList(), new DialogCallbacks() {
                     @Override
                     public void onOkPressed() {
                         chooseCountry.setText("Country: " + country);
@@ -232,6 +232,29 @@ Profile extends AppCompatActivity {
         });
     }
 
+    private void startGallery() {
+
+        imageUrl.clear();
+        new PickerBuilder(Profile.this, PickerBuilder.SELECT_FROM_GALLERY)
+                .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
+                    @Override
+                    public void onImageReceived(Uri imageUri) {
+                        mSelected = new ArrayList<>();
+                        mSelected.add(imageUri);
+                        progress.setVisibility(View.VISIBLE);
+                        for (Uri img :
+                                mSelected) {
+                            CompressImage compressImage = new CompressImage(Profile.this);
+                            imageUrl.add(compressImage.compressImage("" + img));
+                        }
+                        Glide.with(Profile.this).load(mSelected.get(0)).into(image);
+                        putPictures(imageUrl.get(0));
+
+                    }
+                })
+                .start();
+    }
+
     public String inputStreamToString(InputStream inputStream) {
         try {
             byte[] bytes = new byte[inputStream.available()];
@@ -266,20 +289,12 @@ Profile extends AppCompatActivity {
     }
 
     private void setupInterest() {
-        ArrayList<String> inerests = new ArrayList<>();
-        inerests.add("Games");
-        inerests.add("Dating");
-        inerests.add("Food");
-        inerests.add("Movies");
-        inerests.add("Music");
-        inerests.add("Outdoor");
-        inerests.add("Driving");
 
 
         chooseInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BottomDialog.showInterestDialog(Profile.this, inerests, new DialogCallbacks() {
+                BottomDialog.showInterestDialog(Profile.this, CommonUtils.interestList(), SharedPrefs.getUserModel().getInterests(),new DialogCallbacks() {
                     @Override
                     public void onOkPressed() {
                         if (interestList.size() > 0) {

@@ -14,12 +14,49 @@ public class ChatModel {
     String messageStatus;
     boolean audioUploaded;
     String documentFileName;
-    String translatedText, language,originalText;
+    String translatedText, language, originalText;
+    String countryCode;
+    double lat, lon;
+    String phoneName,phoneNumber;
+    String languageName;
 
+    //for location
+    public ChatModel(String id, String messageBy, String username, String name, String picUrl,
+                     String messageType, long time, double lat, double lon, String messageStatus, String countryCode) {
+        this.id = id;
+        this.messageBy = messageBy;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.time = time;
+        this.lat = lat;
+        this.lon = lon;
+        this.messageStatus = messageStatus;
+        this.countryCode = countryCode;
+    }
 
+    //for contact
+    public ChatModel(String id, String messageBy, String username, String name, String picUrl,
+                     String messageType, long time, String messageStatus,String phoneName,String phoneNumber, String countryCode) {
+        this.id = id;
+        this.messageBy = messageBy;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.time = time;
+        this.phoneName=phoneName;
+        this.phoneNumber=phoneNumber;
+        this.messageStatus = messageStatus;
+        this.countryCode = countryCode;
+    }
+
+    //for translation
     public ChatModel(String id, String messageText, String messageBy,
                      String username, String name, String picUrl, String messageType,
-                     long time, String messageStatus, String translatedText,String originalText, String language
+                     long time, String messageStatus, String translatedText, String originalText, String language
+            , String countryCode,String languageName
 
     ) {
         this.id = id;
@@ -34,12 +71,15 @@ public class ChatModel {
         this.translatedText = translatedText;
         this.originalText = originalText;
         this.language = language;
+        this.countryCode = countryCode;
+        this.languageName = languageName;
     }
+
 
     public ChatModel(String id, String messageText, String messageBy, String imageUrl, String audioUrl, String videoUrl, String documentUrl,
                      String stickerUrl,
                      String username, String name, String picUrl, String messageType, String mediaType, String roomId,
-                     long time, long mediaTime, String messageStatus
+                     long time, long mediaTime, String messageStatus, String countryCode
 
     ) {
         this.id = id;
@@ -59,11 +99,102 @@ public class ChatModel {
         this.mediaTime = mediaTime;
         this.stickerUrl = stickerUrl;
         this.messageStatus = messageStatus;
+        this.countryCode = countryCode;
+    }
+
+
+    public ChatModel(String id,
+                     String messageText,
+                     String messageBy,
+                     String imageUrl,
+                     String audioUrl,
+                     String videoUrl,
+                     String documentUrl,
+                     String stickerUrl,
+                     String username,
+                     String name,
+                     String picUrl,
+                     String messageType,
+                     String mediaType,
+                     String roomId,
+                     long time,
+                     long mediaTime,
+                     String messageStatus,
+                     String documentFileName,
+                     String countryCode
+
+    ) {
+        this.id = id;
+        this.messageText = messageText;
+        this.messageBy = messageBy;
+        this.imageUrl = imageUrl;
+        this.audioUrl = audioUrl;
+        this.videoUrl = videoUrl;
+        this.documentUrl = documentUrl;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.mediaType = mediaType;
+        this.roomId = roomId;
+        this.time = time;
+        this.mediaTime = mediaTime;
+        this.stickerUrl = stickerUrl;
+        this.messageStatus = messageStatus;
+        this.documentFileName = documentFileName;
+        this.countryCode = countryCode;
+    }
+
+    public String getPhoneName() {
+        return phoneName;
+    }
+
+    public void setPhoneName(String phoneName) {
+        this.phoneName = phoneName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public ChatModel() {
     }
 
+    public String getLanguageName() {
+        return languageName;
+    }
+
+    public void setLanguageName(String languageName) {
+        this.languageName = languageName;
+    }
 
     public String getOriginalText() {
         return originalText;

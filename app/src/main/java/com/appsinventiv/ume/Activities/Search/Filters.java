@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,9 +44,10 @@ public class Filters extends AppCompatActivity {
     Button ok, reset;
     RadioGroup radioGender;
     private RadioButton radioButton;
+    RelativeLayout chooseSpoken, chooseLearning, chooseCountryr, chooseCurrentLocation, chooseInterestRel, chooseAgeRel;
 
     EditText search;
-    String word="";
+    String word = "";
     private String ageGroup;
     public static String learnLanguage = "any",
             country = "any", currentLocation = "any",
@@ -91,11 +93,26 @@ public class Filters extends AppCompatActivity {
         chooseSpokenLanguage = findViewById(R.id.chooseSpokenLanguage);
         chooseInterest = findViewById(R.id.chooseInterest);
         chooseCountry = findViewById(R.id.chooseCountry);
+
+
+        chooseSpoken = findViewById(R.id.chooseSpoken);
+        chooseLearning = findViewById(R.id.chooseLearning);
+        chooseCountryr = findViewById(R.id.chooseCountryr);
+        chooseCurrentLocation = findViewById(R.id.chooseCurrentLocation);
+        chooseInterestRel = findViewById(R.id.chooseInterestRel);
+        chooseAgeRel= findViewById(R.id.chooseAgeRel);
+
+
+
+
+
+
+
         ((RadioButton) radioGender.getChildAt(0)).setChecked(true);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                word=search.getText().toString();
+                word = search.getText().toString();
                 int selectedId = radioGender.getCheckedRadioButtonId();
                 radioButton = (RadioButton) findViewById(selectedId);
                 gender = radioButton.getText().toString();
@@ -188,16 +205,9 @@ public class Filters extends AppCompatActivity {
         chooseInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> inerests = new ArrayList<>();
-                inerests.add("Games");
-                inerests.add("Dating");
-                inerests.add("Food");
-                inerests.add("Movies");
-                inerests.add("Music");
-                inerests.add("Outdoor");
-                inerests.add("Driving");
 
-                BottomDialog.showSingleInterestDialog(Filters.this, inerests, new DialogCallbacks() {
+
+                BottomDialog.showSingleInterestDialog(Filters.this,  CommonUtils.interestList(), new DialogCallbacks() {
                     @Override
                     public void onOkPressed() {
                         chooseInterest.setText(interest);
@@ -229,6 +239,112 @@ public class Filters extends AppCompatActivity {
 
 
         chooseAge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showAgeRangePicker(Filters.this, new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseAge.setText(startAge + " - " + endAge);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+
+
+
+
+
+
+
+        chooseCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showCountiesDialog(Filters.this, CommonUtils.countryList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseCurrent.setText(country);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+        chooseCountryr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showCountiesDialog(Filters.this, CommonUtils.countryList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseCountry.setText(country);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+        chooseLearning.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showSpokenDialog(Filters.this, CommonUtils.languageList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseLearningLanguage.setText(language);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+        chooseInterestRel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                BottomDialog.showSingleInterestDialog(Filters.this,  CommonUtils.interestList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseInterest.setText(interest);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+        chooseSpoken.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomDialog.showSpokenDialog(Filters.this, CommonUtils.languageList(), new DialogCallbacks() {
+                    @Override
+                    public void onOkPressed() {
+                        chooseSpokenLanguage.setText(language);
+                    }
+
+                    @Override
+                    public void onCancelled() {
+
+                    }
+                });
+            }
+        });
+
+
+        chooseAgeRel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BottomDialog.showAgeRangePicker(Filters.this, new DialogCallbacks() {

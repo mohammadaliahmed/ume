@@ -25,12 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class SpokenLanguageListAdapter extends RecyclerView.Adapter<SpokenLanguageListAdapter.ViewHolder> {
     Context context;
     List<LangaugeModel> itemList;
     private List<LangaugeModel> arrayList;
 
     onitemClick click;
+    public static final int SECTION_VIEW = 0;
+    public static final int CONTENT_VIEW = 1;
 
     public SpokenLanguageListAdapter(Context context, List<LangaugeModel> itemList, onitemClick click) {
         this.context = context;
@@ -66,11 +70,30 @@ public class SpokenLanguageListAdapter extends RecyclerView.Adapter<SpokenLangua
         notifyDataSetChanged();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+//        return super.getItemViewType(position);
+        if (itemList.get(position).isSection()) {
+            return SECTION_VIEW;
+        } else {
+            return CONTENT_VIEW;
+        }
+    }
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.choose_country_item_layout, viewGroup, false);
-        SpokenLanguageListAdapter.ViewHolder viewHolder = new SpokenLanguageListAdapter.ViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(context).inflate(R.layout.choose_country_item_layout, viewGroup, false);
+//        SpokenLanguageListAdapter.ViewHolder viewHolder = new SpokenLanguageListAdapter.ViewHolder(view);
+//        return viewHolder;
+        SpokenLanguageListAdapter.ViewHolder viewHolder;
+        if (viewType == SECTION_VIEW) {
+            View view = LayoutInflater.from(context).inflate(R.layout.spok_lang_header_title, parent, false);
+            viewHolder = new SpokenLanguageListAdapter.ViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.choose_country_item_layout, parent, false);
+            viewHolder = new SpokenLanguageListAdapter.ViewHolder(view);
+        }
         return viewHolder;
     }
 
@@ -79,6 +102,8 @@ public class SpokenLanguageListAdapter extends RecyclerView.Adapter<SpokenLangua
         LangaugeModel langaugeModel = itemList.get(i);
         viewHolder.countryName.setText(langaugeModel.getLanguageName());
         Glide.with(context).load(langaugeModel.getPicUrl()).into(viewHolder.flag);
+        viewHolder.headerTitleTextview.setText(String.valueOf(langaugeModel.getLanguageName().charAt(0)).toUpperCase());
+
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,14 +124,15 @@ public class SpokenLanguageListAdapter extends RecyclerView.Adapter<SpokenLangua
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView countryName;
-        ImageView flag;
+        TextView countryName,headerTitleTextview;
+        CircleImageView flag;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             flag = itemView.findViewById(R.id.flag);
             countryName = itemView.findViewById(R.id.countryName);
+            headerTitleTextview = itemView.findViewById(R.id.headerTitleTextview);
         }
     }
 

@@ -1,9 +1,21 @@
 package com.appsinventiv.ume.Models;
 
 
-import java.util.Objects;
+import com.appsinventiv.ume.Activities.MainActivity;
 
-public class ChatListModel {
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
+
+public class ChatListModel implements Comparable{
     String username;
     ChatModel message;
 
@@ -29,22 +41,9 @@ public class ChatListModel {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ChatListModel product = (ChatListModel) o;
-        if (username != null && product.username != null) {
-            if (username.equalsIgnoreCase(product.username)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-
-        }
-//        return id != null ? !id.equals(product.id) : product.id != null;
+    public int compareTo(Object obj) {
+        obj=(ChatListModel) obj;
+        return Long.compare(this.message.getTime(),((((ChatListModel) obj).getMessage().getTime())));
     }
 
 }

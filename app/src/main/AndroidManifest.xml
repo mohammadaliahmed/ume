@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <application
         android:name=".ApplicationClass"
@@ -16,8 +19,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.ContactSelectionScreen" />
+        <activity android:name=".Activities.ForwardContactSelectionScreen" />
+        <activity android:name=".Activities.PhoneContacts" />
+        <activity
+            android:name=".Activities.GPSTrackerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.Search.SearchActivity" />
         <activity
             android:name=".Activities.Search.Filters"
@@ -50,7 +60,12 @@
         <activity
             android:name=".Activities.Profile"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".Activities.PhoneVerification">
+        <activity
+            android:name=".Activities.Location.NearbyPeople"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Activities.PhoneVerification"
+            android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity

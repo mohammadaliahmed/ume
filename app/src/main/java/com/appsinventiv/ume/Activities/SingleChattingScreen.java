@@ -69,6 +69,7 @@ import com.appsinventiv.ume.Activities.ImageCrop.PickerBuilder;
 import com.appsinventiv.ume.Adapters.ChatAdapter;
 import com.appsinventiv.ume.Adapters.ChooseLangaugeFromDialogAdapter;
 import com.appsinventiv.ume.ApplicationClass;
+import com.appsinventiv.ume.Interface.ChatCallbacks;
 import com.appsinventiv.ume.Models.ChatModel;
 import com.appsinventiv.ume.Models.LangaugeModel;
 import com.appsinventiv.ume.Models.MediaModel;
@@ -108,6 +109,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import com.google.gson.Gson;
+import com.google.type.LatLng;
 import com.googlecode.mp4parser.authoring.Edit;
 import com.iceteck.silicompressorr.SiliCompressor;
 import com.zhihu.matisse.Matisse;
@@ -130,7 +133,7 @@ import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SingleChattingScreen extends AppCompatActivity implements NotificationObserver {
+public class SingleChattingScreen extends AppCompatActivity implements NotificationObserver, ChatCallbacks {
 
 
     ImageView translate;
@@ -143,6 +146,9 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     private static final int REQUEST_TAKE_VIDEO = 200;
     private static final int TYPE_IMAGE = 1;
     private static final int TYPE_VIDEO = 2;
+
+
+    boolean activityAcitve = false;
 
     String mCurrentPhotoPath;
     Uri capturedUri = null;
@@ -167,7 +173,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     ArrayList<ChatModel> chatModelArrayList = new ArrayList<>();
     int soundId;
     SoundPool sp;
-    ImageView pickImg, pickVideo, pickDocument;
+    ImageView pickImg, pickVideo, pickDocument, pickLocation, pickContact, pickAudio;
     List<Uri> mSelected = new ArrayList<>();
     ArrayList<String> imageUrl = new ArrayList<>();
     StorageReference mStorageRef;
@@ -207,13 +213,16 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     ImageView camera;
     private String languageCode = "en";
     private String countryCode = "us";
+    ChatCallbacks chatCallbacks;
+    private double lng, lat;
+    String msg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_chatting_screen);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-
+        chatCallbacks = (ChatCallbacks) this;
         setSupportActionBar(toolbar);
         getPermissions();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -234,6 +243,9 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         pickDocument = findViewById(R.id.pickDocument);
         pickVideo = findViewById(R.id.pickVideo);
         toolbarImage = findViewById(R.id.toolbarImage);
+        pickLocation = findViewById(R.id.pickLocation);
+        pickAudio = findViewById(R.id.pickAudio);
+        pickContact = findViewById(R.id.pickContact);
         camera = findViewById(R.id.camera);
 
         recordView = (RecordView) findViewById(R.id.record_view);
@@ -244,6 +256,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         roomId = getIntent().getStringExtra("roomId");
         userId = getIntent().getStringExtra("userId");
 
+
         translate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,6 +264,29 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             }
         });
 
+
+        pickAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attachArea.setVisibility(View.GONE);
+                isAttachAreaVisible = false;
+                Intent intent_upload = new Intent();
+                intent_upload.setType("audio/*");
+                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent_upload, 500);
+//                Intent audioIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+//                startActivityForResult(audioIntent,500);
+            }
+        });
+        pickContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attachArea.setVisibility(View.GONE);
+                isAttachAreaVisible = false;
+                Intent i = new Intent(SingleChattingScreen.this, PhoneContacts.class);
+                startActivityForResult(i, 50);
+            }
+        });
 
         pickVideo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -310,12 +346,17 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         adapter = new ChatAdapter(this, chatModelArrayList, new ChatAdapter.ChatScreenCallbacks() {
             @Override
             public void deleteMessage(UserModel otherUser, ChatModel chatModel) {
-                showDeleteAlert(otherUser.getUsername(), chatModel.getId());
+                showDeleteAlert(otherUser.getUsername(), chatModel);
+//                Intent i = new Intent(SingleChattingScreen.this, ForwardContactSelectionScreen.class);
+//                Gson gson = new Gson();
+//                String json = gson.toJson(chatModel);
+//                i.putExtra("msg", json);
+//                startActivity(i);
             }
 
             @Override
             public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel) {
-                showDeleteForAllAlert(otherUser.getUsername(), chatModel.getId());
+                showDeleteForAllAlert(otherUser.getUsername(), chatModel);
             }
 
             @Override
@@ -356,6 +397,15 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 attachArea.setVisibility(View.GONE);
                 isAttachAreaVisible = false;
                 openFile(REQUEST_CODE_FILE);
+            }
+        });
+        pickLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attachArea.setVisibility(View.GONE);
+                isAttachAreaVisible = false;
+                Intent intent = new Intent(SingleChattingScreen.this, GPSTrackerActivity.class);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -519,7 +569,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
         builder.setItems(new CharSequence[]
-                        {"Delete message", "Translate"},
+                        {"Delete message", "Translate", "Translate to other Language"},
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
@@ -537,6 +587,11 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 translateLeftText(model);
 
                                 break;
+                            case 2:
+                                showTranslateLanguagePickerDialog(model);
+
+
+                                break;
 
                         }
                     }
@@ -545,35 +600,52 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         alert.show();
     }
 
-    private void showLanguagePickerDialog(ImageView translateTo, TextView languageName) {
+
+    private void showTranslateLanguagePickerDialog(ChatModel chatModel) {
         LayoutInflater factory = LayoutInflater.from(this);
         final View languageDialogView = factory.inflate(R.layout.dialog_language_pick, null);
         final AlertDialog dialog = new AlertDialog.Builder(this).create();
         dialog.setView(languageDialogView);
-        ArrayList<LangaugeModel> itemList = new ArrayList<>();
-        itemList.add(new LangaugeModel("English", "en", "en", R.drawable.flag_united_states_of_america));
-        itemList.add(new LangaugeModel("Spanish", "es", "es", R.drawable.flag_spain));
-        itemList.add(new LangaugeModel("German", "de", "de", R.drawable.flag_germany));
-        itemList.add(new LangaugeModel("French", "fr", "fr", R.drawable.flag_france));
 
-        itemList.add(new LangaugeModel("Chinese Mandarin", "zh-CN", "cn", R.drawable.flag_china));
-        itemList.add(new LangaugeModel("Japanese", "jp", "jp", R.drawable.flag_japan));
-        itemList.add(new LangaugeModel("Korean", "ko", "kr", R.drawable.flag_south_korea));
-        itemList.add(new LangaugeModel("Hindi", "hi", "in", R.drawable.flag_india));
-        itemList.add(new LangaugeModel("Urdu", "ur", "pk", R.drawable.flag_pakistan));
-
-
-        itemList.add(new LangaugeModel("Romanian", "ro", "ro", R.drawable.flag_romania));
-        itemList.add(new LangaugeModel("Arabic", "ar", "sa", R.drawable.flag_saudi_arabia));
-        itemList.add(new LangaugeModel("Turkish", "tr", "tr", R.drawable.flag_turkey));
-        itemList.add(new LangaugeModel("Indonesian", "id", "id", R.drawable.flag_indonesia));
-        itemList.add(new LangaugeModel("Italian", "it", "it", R.drawable.flag_italy));
         RecyclerView recycler = languageDialogView.findViewById(R.id.recycler);
         Button cancel = languageDialogView.findViewById(R.id.cancel);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
 
-        ChooseLangaugeFromDialogAdapter ada = new ChooseLangaugeFromDialogAdapter(this, itemList, new ChooseLangaugeFromDialogAdapter.Callbacks() {
+        ChooseLangaugeFromDialogAdapter ada = new ChooseLangaugeFromDialogAdapter(this, CommonUtils.languageListForTranslation(), new ChooseLangaugeFromDialogAdapter.Callbacks() {
+            @Override
+            public void callback(LangaugeModel model) {
+                dialog.dismiss();
+                translateLeftTextToOther(chatModel, model.getLangCode(), model.getCountryCode());
+//                Glide.with(SingleChattingScreen.this).load(model.getPicDrawable()).into(translateTo);
+//                languageName.setText(model.getLanguageName());
+//                languageCode = model.getLangCode();
+//                countryCode = model.getCountryCode();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        recycler.setAdapter(ada);
+
+        dialog.show();
+    }
+
+    private void showLanguagePickerDialog(ImageView translateTo, TextView languageName) {
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View languageDialogView = factory.inflate(R.layout.dialog_language_pick, null);
+        final AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setView(languageDialogView);
+
+        RecyclerView recycler = languageDialogView.findViewById(R.id.recycler);
+        Button cancel = languageDialogView.findViewById(R.id.cancel);
+        recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+
+        ChooseLangaugeFromDialogAdapter ada = new ChooseLangaugeFromDialogAdapter(this, CommonUtils.languageListForTranslation(), new ChooseLangaugeFromDialogAdapter.Callbacks() {
             @Override
             public void callback(LangaugeModel model) {
                 dialog.dismiss();
@@ -626,12 +698,18 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 showLanguagePickerDialog(translateTo, languageName);
             }
         });
+        languageName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLanguagePickerDialog(translateTo, languageName);
+            }
+        });
         sendMsg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteDialog.dismiss();
                 sendTranslatedMessageToServer(Constants.MESSAGE_TYPE_TRANSLATED,
-                        translatedText.getText().toString(), text.getText().toString(), countryCode);
+                        translatedText.getText().toString(), text.getText().toString(), countryCode, languageName.getText().toString());
 
             }
         });
@@ -720,6 +798,52 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+    private void translateLeftTextToOther(ChatModel model, String languageCode, String countryCode) {
+        final Handler textViewHandler = new Handler();
+
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                TranslateOptions options = TranslateOptions.newBuilder()
+                        .setApiKey(Constants.API_KEY)
+                        .build();
+                Translate translate = options.getService();
+                final Translation translation =
+                        translate.translate(model.getMessageText(),
+                                Translate.TranslateOption.targetLanguage(languageCode));
+                String textt = translation.getTranslatedText();
+
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+//                        sendTranslatedMessageToServer(Constants.MESSAGE_TYPE_TRANSLATED,
+//                                translatedText.getText().toString(), text.getText().toString(), countryCode);
+
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("translatedText", translation.getTranslatedText());
+                        map.put("originalText", model.getMessageText());
+                        map.put("language", countryCode);
+                        map.put("messageType", Constants.MESSAGE_TYPE_TRANSLATED);
+
+                        mDatabase.child("Chats").
+                                child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).
+                                child(model.getId())
+                                .updateChildren(map);
+
+//                        if (translatedText != null) {
+//                            translatedText.setText(translation.getTranslatedText());
+//                        }
+                    }
+                });
+                return null;
+            }
+        }.execute();
+
+    }
+
+
     private void translateLeftText(ChatModel model) {
         final Handler textViewHandler = new Handler();
 
@@ -766,18 +890,45 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     }
 
     private void markAsRead() {
-        if (chatModelArrayList.size() > 0 && hisUserModel != null) {
-            for (ChatModel msg : chatModelArrayList) {
-                if (msg.getId() != null && msg.getMessageBy()!=null && msg.getMessageType()!=null) {
-                    mDatabase
-                            .child("Chats")
-                            .child(hisUserModel.getUsername())
-                            .child(SharedPrefs.getUserModel().getUsername())
-                            .child(msg.getId())
-                            .child("messageStatus")
-                            .setValue("read");
+        if (activityAcitve) {
+//            Thread t=new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+            if (chatModelArrayList.size() > 0 && hisUserModel != null) {
+                for (ChatModel msg : chatModelArrayList) {
+                    if (msg.getId() != null && msg.getMessageBy() != null && msg.getMessageType() != null) {
+                        if (msg.getMessageBy().equalsIgnoreCase(hisUserModel.getUsername())) {
+//                    if (msg.getTime() != 0) {
+                            if (!msg.getMessageStatus().equalsIgnoreCase("read")) {
+                                mDatabase
+                                        .child("Chats")
+                                        .child(hisUserModel.getUsername())
+                                        .child(SharedPrefs.getUserModel().getUsername())
+                                        .child(msg.getId())
+                                        .child("messageStatus")
+                                        .setValue("read");
+                            }
+                        }
+                        if (msg.getMessageBy().equalsIgnoreCase(hisUserModel.getUsername())) {
+                            if (!msg.getMessageStatus().equalsIgnoreCase("read")) {
+                                mDatabase
+                                        .child("Chats")
+                                        .child(SharedPrefs.getUserModel().getUsername())
+                                        .child(hisUserModel.getUsername())
+                                        .child(msg.getId())
+                                        .child("messageStatus")
+                                        .setValue("read");
+                            }
+                        }
+
+                    }
+
                 }
             }
+//                }
+//            });
+//            t.start();
+
         }
     }
 
@@ -850,7 +1001,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 if (dataSnapshot.getValue() != null) {
                     hisUserModel = dataSnapshot.getValue(UserModel.class);
                     if (hisUserModel.getPicUrl() != null) {
-                        markAsRead();
+//                        markAsRead();
                         try {
                             Glide.with(SingleChattingScreen.this).load(hisUserModel.getPicUrl()).into(toolbarImage);
 
@@ -866,6 +1017,43 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                             hisUserModel.getStatus()
                                     .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
                     );
+//                    new Handler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+                    markAsRead();
+//                        }
+//                    }, 2000);
+                    if (ForwardContactSelectionScreen.fromForward) {
+                        msg = getIntent().getStringExtra("msg");
+                        if (msg != null) {
+                            Gson gson = new Gson();
+                            ChatModel newModel = gson.fromJson(msg, ChatModel.class);
+                            String key = mDatabase.push().getKey();
+                            newModel.setMessageBy(SharedPrefs.getUserModel().getUsername());
+                            newModel.setUsername(hisUserModel.getUsername());
+                            newModel.setName(hisUserModel.getName());
+                            newModel.setPicUrl(hisUserModel.getPicUrl());
+                            newModel.setMessageStatus("sent");
+                            newModel.setId(key);
+                            newModel.setTime(System.currentTimeMillis());
+                            mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                    .child(hisUserModel.getUsername()).child(key)
+                                    .setValue(newModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    newModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                                    newModel.setName(SharedPrefs.getUserModel().getName());
+                                    newModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                                    mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(newModel.getId())
+                                            .setValue(newModel);
+                                    sendNotification(newModel.getMessageType(), newModel.getId());
+                                }
+                            });
+                        }
+                        ForwardContactSelectionScreen.fromForward = false;
+                    }
+
+
                 }
             }
 
@@ -876,10 +1064,19 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         });
     }
 
+    @Override
+    protected void onPause() {
+//        mDatabase.removeEventListener(eventListener);
+//        eventListener = null;
+        super.onPause();
+        activityAcitve = false;
+
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+        activityAcitve = true;
 
 
     }
@@ -927,7 +1124,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         messageId = mDatabase.push().getKey();
         sp.play(soundId, 1, 1, 0, 0, 1);
 
-        sendAudioMessageToServer(Constants.MESSAGE_TYPE_AUDIO, mFileName + recordingLocalUrl + ".mp3", "mp3");
+        sendAudioMessageToServer(Constants.MESSAGE_TYPE_AUDIO, mFileName + recordingLocalUrl + ".mp3", "mp3", false);
 
 
     }
@@ -940,6 +1137,27 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 500 && data != null) {
+            Uri uri = data.getData();
+//            CommonUtils.showToast("" + uri);
+            sendAudioMessageToServer(Constants.MESSAGE_TYPE_AUDIO, "" + uri, "mp3", true);
+
+        }
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (data != null) {
+                Bundle extras = data.getExtras();
+                lng = extras.getDouble("Longitude");
+                lat = extras.getDouble("Latitude");
+
+
+//                address.setText(lat == 0 ? "" : CommonUtils.getFullAddress(MapsActivity.this, lat, lng));
+//                CommonUtils.showToast(lat == 0 ? "" : CommonUtils.getFullAddress(SingleChattingScreen.this, lat, lng));
+                sendLocationMessageToServer(lat, lng);
+
+
+            }
+
+        }
         if (requestCode == REQUEST_CODE_CHOOSE && data != null) {
             mSelected = Matisse.obtainResult(data);
             for (Uri img : mSelected) {
@@ -981,9 +1199,125 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
             }
         }
+        if (requestCode == 50) {
+            if (data != null) {
+                Bundle extras = data.getExtras();
+                String name = extras.getString("name");
+                String number = extras.getString("number");
+                sendContactMessageToServer(name, number);
+            }
+        }
 
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void sendContactMessageToServer(String name, String number) {
+
+        message.setText(null);
+        messageId = mDatabase.push().getKey();
+        ChatModel chatModel = new ChatModel(
+                messageId,
+                SharedPrefs.getUserModel().getUsername(),
+                hisUserModel.getUsername(),
+                hisUserModel.getName(),
+                hisUserModel.getPicUrl(),
+                Constants.MESSAGE_TYPE_CONTACT,
+                System.currentTimeMillis(),
+                "sent", name, number
+                , hisUserModel.getCountryNameCode()
+        );
+
+        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                .child(hisUserModel.getUsername()).child(messageId)
+                .setValue(chatModel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+                        chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                        chatModel.setName(SharedPrefs.getUserModel().getName());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(chatModel);
+                        sendNotification(Constants.MESSAGE_TYPE_CONTACT, chatModel.getId());
+
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+    }
+
+
+    private void sendLocationMessageToServer(double lat, double lng) {
+
+        message.setText(null);
+        messageId = mDatabase.push().getKey();
+        ChatModel chatModel = new ChatModel(
+                messageId,
+                SharedPrefs.getUserModel().getUsername(),
+                hisUserModel.getUsername(),
+                hisUserModel.getName(),
+                hisUserModel.getPicUrl(),
+                Constants.MESSAGE_TYPE_LOCATION,
+                System.currentTimeMillis(),
+                lat, lng,
+                "sent", hisUserModel.getCountryNameCode()
+        );
+
+        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                .child(hisUserModel.getUsername()).child(messageId)
+                .setValue(chatModel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+                        chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                        chatModel.setName(SharedPrefs.getUserModel().getName());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(chatModel);
+
+
+//                        mDatabase.child("LastMessages").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername())
+//                                .setValue(chatModel);
+
+                        sendNotification(Constants.MESSAGE_TYPE_LOCATION, chatModel.getId());
+
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+    }
+
+    @Override
+    public void abc(int count, long chatCount) {
+        if (count == chatCount) {
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+            markAsRead();
+//                }
+//            }, 3000);
+        }
     }
 
 
@@ -1116,8 +1450,35 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         chatModel.setName(SharedPrefs.getUserModel().getName());
                         chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
                         chatModel.setDocumentUrl("" + downloadUrl);
-                        mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
-                                .setValue(chatModel);
+
+
+                        ChatModel m = new ChatModel(
+                                chatModel.getId(),
+                                chatModel.getMessageText(),
+                                chatModel.getMessageBy(),
+                                chatModel.getImageUrl(),
+                                chatModel.getAudioUrl(),
+                                chatModel.getVideoUrl(),
+                                chatModel.getDocumentUrl(),
+                                chatModel.getStickerUrl(),
+                                chatModel.getUsername(),
+                                chatModel.getName(),
+                                chatModel.getPicUrl(),
+                                chatModel.getMessageType(),
+                                chatModel.getMediaType(),
+                                chatModel.getRoomId(),
+                                chatModel.getTime(),
+                                chatModel.getMediaTime(),
+                                chatModel.getMessageStatus(),
+                                "" + fileName,
+                                hisUserModel.getCountryNameCode()
+                        );
+
+
+                        mDatabase.child("Chats").child(hisUserModel.getUsername())
+                                .child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
+                                .setValue(m);
+
 
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername())
                                 .child(chatModel.getId()).child("documentFileName").setValue("" + fileName);
@@ -1326,10 +1687,17 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
-    public void putAudio(String path, ChatModel chatModel) {
+    public void putAudio(String path, ChatModel chatModel, boolean from) {
         String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
-        file = Uri.fromFile(new File(path));
+
+        if (!from) {
+            file = Uri.fromFile(new File(path));
+
+        } else {
+            file = Uri.parse(path);
+//            file = Uri.fromFile(new File(path));
+        }
 
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
@@ -1347,6 +1715,12 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
 //                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("audioUrl").setValue("" + path);
 //
+//                        if (!from) {
+//
+//                        } else {
+//                            mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+//                                    .child(hisUserModel.getUsername()).child(chatModel.getId()).child("audioUrl").setValue("" + downloadUrl);
+//                        }
 
                         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
                                 .child(hisUserModel.getUsername()).child(chatModel.getId()).child("audioUploaded").setValue(true);
@@ -1397,7 +1771,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         startActivityForResult(i, CODE);
     }
 
-    private void sendTranslatedMessageToServer(final String type, String translatedText, String originalText, String language) {
+    private void sendTranslatedMessageToServer(final String type, String translatedText, String originalText, String language, String languageName) {
         messageId = mDatabase.push().getKey();
         message.setText(null);
         ChatModel chatModel = new ChatModel(
@@ -1409,7 +1783,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 hisUserModel.getPicUrl(),
                 type,
                 System.currentTimeMillis(),
-                "sent", translatedText, originalText, language
+                "sent", translatedText, originalText, language, hisUserModel.getCountryNameCode(), languageName
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername())
@@ -1460,7 +1834,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent",
+                hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(model.getUsername()).child(messageId)
@@ -1470,11 +1845,21 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                     public void onSuccess(Void aVoid) {
                         adapter.notifyDataSetChanged();
                         recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+
+//                        mDatabase.child("LastMessages").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername())
+//                                .setValue(chatModel);
+
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
                         chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(messageId)
                                 .setValue(chatModel);
+
+
+//                        mDatabase.child("LastMessages").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername())
+//                                .setValue(chatModel);
+
                         sendNotification(type, chatModel.getId());
 
                     }
@@ -1509,6 +1894,10 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCFD Video";
         } else if (type.equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83C\uDE02 Translation";
+        } else if (type.equals(Constants.MESSAGE_TYPE_LOCATION)) {
+            NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCCD Location";
+        } else if (type.equals(Constants.MESSAGE_TYPE_CONTACT)) {
+            NotificationMessage = SharedPrefs.getUserModel().getName() + ": ☎ Contact";
         }
         notificationAsync.setMsgId(messageId);
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, Constants.MESSAGE_TYPE_TEXT, "chat",
@@ -1519,7 +1908,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     }
 
 
-    private void sendAudioMessageToServer(final String type, final String url, String extension) {
+    private void sendAudioMessageToServer(final String type, final String url, String extension, boolean from) {
 
         message.setText(null);
         messageId = mDatabase.push().getKey();
@@ -1540,7 +1929,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1548,7 +1937,13 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        putAudio(mFileName + recordingLocalUrl + ".mp3", chatModel);
+                        if (from) {
+                            putAudio(url, chatModel, from);
+
+                        } else {
+                            putAudio(mFileName + recordingLocalUrl + ".mp3", chatModel, from);
+
+                        }
 
 //                        sendNotification(type);
 
@@ -1578,7 +1973,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1626,7 +2021,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1675,7 +2070,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1733,7 +2128,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1764,6 +2159,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     private void sendDocumentMessageToServer(final String type, final String url, String extension) {
         message.setText(null);
         messageId = mDatabase.push().getKey();
+        final Uri file = Uri.parse(url);
+        String fileName = CommonUtils.uri2filename(file);
         ChatModel chatModel = new ChatModel(
                 messageId,
                 msgText,
@@ -1781,7 +2178,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 roomId,
                 System.currentTimeMillis(),
                 recordingTime,
-                "sent"
+                "sent", "" + fileName, hisUserModel.getCountryNameCode()
         );
 
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(messageId)
@@ -1793,10 +2190,10 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
 
 //                        putPictures(url, chatModel);
-                        final Uri file = Uri.parse(url);
-                        String fileName = CommonUtils.uri2filename(file);
-                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
-                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("documentFileName").setValue("" + fileName);
+//                        final Uri file = Uri.parse(url);
+//                        String fileName = CommonUtils.uri2filename(file);
+//                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+//                                .child(hisUserModel.getUsername()).child(chatModel.getId()).child("documentFileName").setValue("" + fileName);
 
                         putDocument(url, chatModel);
 
@@ -1836,35 +2233,66 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     }
 
     private void getMessagesFromServer() {
-
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId)
-                .limitToLast(100).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    chatModelArrayList.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        ChatModel chat = snapshot.getValue(ChatModel.class);
-                        if (chat != null) {
-                            chatModelArrayList.add(chat);
-                        }
-                    }
-                    recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+                .limitToLast(100).addValueEventListener(eventListener);
 
-                    adapter.notifyDataSetChanged();
-                    markAsRead();
-                } else {
-                    chatModelArrayList.clear();
-                    adapter.notifyDataSetChanged();
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+//        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId)
+//                .limitToLast(100).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.getValue() != null) {
+//                    chatModelArrayList.clear();
+//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                        ChatModel chat = snapshot.getValue(ChatModel.class);
+//                        if (chat != null) {
+//                            chatModelArrayList.add(chat);
+//                        }
+//                    }
+//                    recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+//
+//                    adapter.notifyDataSetChanged();
+//                    markAsRead();
+//                } else {
+//                    chatModelArrayList.clear();
+//                    adapter.notifyDataSetChanged();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
+
+    ValueEventListener eventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.getValue() != null) {
+                chatModelArrayList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    ChatModel chat = snapshot.getValue(ChatModel.class);
+                    if (chat != null) {
+                        chatModelArrayList.add(chat);
+                        chatCallbacks.abc(chatModelArrayList.size(), dataSnapshot.getChildrenCount());
+                    }
+                }
+                recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+                adapter.notifyDataSetChanged();
+//                markAsRead();
+            } else {
+                chatModelArrayList.clear();
+                adapter.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 
     private void getPermissions() {
         int PERMISSION_ALL = 1;
@@ -1872,7 +2300,11 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
+
         };
 
         if (!hasPermissions(SingleChattingScreen.this, PERMISSIONS)) {
@@ -1965,7 +2397,55 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         return super.onOptionsItemSelected(item);
     }
 
-    private void showDeleteAlert(String username, String msgId) {
+    private void showDeleteAlert(String username, ChatModel chatModel) {
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(SingleChattingScreen.this);
+        builder.setTitle("Choose option");
+        AlertDialog alert = builder.create();
+
+
+        builder.setItems(new CharSequence[]
+                        {"Delete message", "Forward", "Cancel"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                deleteAlert(chatModel);
+//                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(chatModel.getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void aVoid) {
+//                                        CommonUtils.showToast("Message deleted");
+//                                    }
+//                                });
+                                break;
+                            case 1:
+                                Intent i = new Intent(SingleChattingScreen.this, ForwardContactSelectionScreen.class);
+                                Gson gson = new Gson();
+                                String json = gson.toJson(chatModel);
+                                i.putExtra("msg", json);
+                                startActivity(i);
+                                break;
+                            case 2:
+                                dialog.dismiss();
+
+                                break;
+
+                        }
+                    }
+                });
+        alert = builder.create();
+        alert.show();
+
+
+//
+
+
+    }
+
+    public void deleteAlert(ChatModel model) {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(SingleChattingScreen.this);
         builder1.setMessage("Delete message?");
         builder1.setCancelable(true);
@@ -1974,7 +2454,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 "Yes",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(msgId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(model.getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 CommonUtils.showToast("Message deleted");
@@ -1994,11 +2474,9 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         AlertDialog alert11 = builder1.create();
         alert11.show();
         AlertDialog.Builder builder;
-
-
     }
 
-    private void showDeleteForAllAlert(String username, String msgId) {
+    private void showDeleteForAllAlert(String username, ChatModel chatModel) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(SingleChattingScreen.this);
         builder.setTitle("Delete Message?");
@@ -2006,14 +2484,14 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
         builder.setItems(new CharSequence[]
-                        {"Delete for me", "Cancel", "Delete for everyone"},
+                        {"Delete for me", "Delete for everyone", "Forward", "Cancel"},
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
                         // of the selected item
                         switch (which) {
                             case 0:
-                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(msgId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).child(chatModel.getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         CommonUtils.showToast("Message deleted");
@@ -2021,14 +2499,21 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 });
                                 break;
                             case 1:
-                                dialog.dismiss();
+                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                        .child(hisUserModel.getUsername()).child(chatModel.getId()).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
+                                mDatabase.child("Chats").child(hisUserModel.getUsername())
+                                        .child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId()).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
+
                                 break;
                             case 2:
-                                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
-                                        .child(hisUserModel.getUsername()).child(msgId).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
-                                mDatabase.child("Chats").child(hisUserModel.getUsername())
-                                        .child(SharedPrefs.getUserModel().getUsername()).child(msgId).child("messageType").setValue(Constants.MESSAGE_TYPE_DELETED);
-
+                                Intent i = new Intent(SingleChattingScreen.this, ForwardContactSelectionScreen.class);
+                                Gson gson = new Gson();
+                                String json = gson.toJson(chatModel);
+                                i.putExtra("msg", json);
+                                startActivity(i);
+                                break;
+                            case 4:
+                                dialog.dismiss();
                                 break;
 
                         }
@@ -2068,6 +2553,15 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     @Override
     public void onFailure() {
+
+    }
+
+
+    @Override
+    protected void onStop() {
+//        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId).removeEventListener(eventListener);
+//        eventListener = null;
+        super.onStop();
 
     }
 

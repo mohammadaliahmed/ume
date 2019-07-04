@@ -40,6 +40,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         holder.name.setText(model.getName());
         if(model.getPicUrl()!=null){
             Glide.with(context).load(model.getPicUrl()).into(holder.pic);
+        }else{
+            Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.pic);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

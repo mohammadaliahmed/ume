@@ -7,27 +7,65 @@
     android:background="#fff"
     tools:context=".Activities.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolBar"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="2dp"
+                android:src="@drawable/logo_purple" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text=" UME"
+                android:textColor="#000"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/toolBar"
+        android:background="#aaa" />
+
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
-        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolBar">
 
     </android.support.v7.widget.RecyclerView>
+
     <TextView
         android:id="@+id/noMsgs"
-        android:visibility="gone"
-        android:text="No messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:text="No messages"
+        android:visibility="gone" />
+
     <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_margin="16dp"
-        app:fabSize="normal"
         android:id="@+id/newMessage"
-        android:src="@drawable/ic_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content" />
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_msg"
+        app:fabSize="normal" />
 
 </RelativeLayout>

@@ -114,6 +114,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.createNotificationChannel(notificationChannel);
         }
         assert mNotificationManager != null;
-        mNotificationManager.notify(ChannelId /* Request Code */, mBuilder.build());
+        mNotificationManager.notify(num /* Request Code */, mBuilder.build());
     }
 }
