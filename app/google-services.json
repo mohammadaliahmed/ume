@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "582678606212",
+    "firebase_url": "https://umefirebaseproject-a95c9.firebaseio.com",
+    "project_id": "umefirebaseproject-a95c9",
+    "storage_bucket": "umefirebaseproject-a95c9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:582678606212:android:6b741d8f2f2c177c",
+        "android_client_info": {
+          "package_name": "com.umetechnologypvt.ume"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "582678606212-qe71ambl9kv53a0gq732no93jptv101u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umetechnologypvt.ume",
+            "certificate_hash": "fa7734f56677f3ea319837d95cad6564d25b63ef"
+          }
+        },
+        {
+          "client_id": "582678606212-p52jgec6ivr9lfasnlbi59jojqeugo99.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsP_va4KNecO98fgTusK2LMjbqqewyW_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "582678606212-p52jgec6ivr9lfasnlbi59jojqeugo99.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

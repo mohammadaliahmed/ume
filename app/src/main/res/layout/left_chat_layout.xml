@@ -94,7 +94,7 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/curved_edges_empty"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <LinearLayout
 
@@ -251,7 +251,7 @@
             <ImageView
                 android:id="@+id/map"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="80dp"
                 android:layout_below="@id/name"
                 android:layout_marginLeft="12dp"
 

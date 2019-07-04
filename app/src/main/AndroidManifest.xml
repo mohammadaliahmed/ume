@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.appsinventiv.ume">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.umetechnologypvt.ume">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -9,67 +10,68 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <!--<uses-permission android:name="android.permission.WRITE_CONTACTS" />-->
 
     <application
-        android:name=".ApplicationClass"
+        android:name="com.umetechnologypvt.ume.ApplicationClass"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".Activities.MainActivity"
+            android:name="com.umetechnologypvt.ume.Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.ContactSelectionScreen" />
-        <activity android:name=".Activities.ForwardContactSelectionScreen" />
-        <activity android:name=".Activities.PhoneContacts" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.ContactSelectionScreen" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.ForwardContactSelectionScreen" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.PhoneContacts" />
         <activity
-            android:name=".Activities.GPSTrackerActivity"
+            android:name="com.umetechnologypvt.ume.Activities.GPSTrackerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.Search.SearchActivity" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.Search.SearchActivity" />
         <activity
-            android:name=".Activities.Search.Filters"
+            android:name="com.umetechnologypvt.ume.Activities.Search.Filters"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".Activities.ImageCrop.TempActivity" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.ImageCrop.TempActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.UserProfileScreen"
+            android:name="com.umetechnologypvt.ume.Activities.UserProfileScreen"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.SingleChattingScreen"
+            android:name="com.umetechnologypvt.ume.Activities.SingleChattingScreen"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.ViewPictures"
+            android:name="com.umetechnologypvt.ume.Activities.ViewPictures"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.PlayVideo"
+            android:name="com.umetechnologypvt.ume.Activities.PlayVideo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.EditProfile"
+            android:name="com.umetechnologypvt.ume.Activities.EditProfile"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Activities.NotificationsList"
+            android:name="com.umetechnologypvt.ume.Activities.NotificationsList"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Activities.TestTranslation"
+            android:name="com.umetechnologypvt.ume.Activities.TestTranslation"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Activities.Profile"
+            android:name="com.umetechnologypvt.ume.Activities.Profile"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Activities.Location.NearbyPeople"
+            android:name="com.umetechnologypvt.ume.Activities.Location.NearbyPeople"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Activities.PhoneVerification"
+            android:name="com.umetechnologypvt.ume.Activities.PhoneVerification"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity
-            android:name=".Activities.Splash"
+            android:name="com.umetechnologypvt.ume.Activities.Splash"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -78,20 +80,20 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".Utils.MyFirebaseInstanceIDService">
+        <service android:name="com.umetechnologypvt.ume.Utils.MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".Utils.MyFirebaseMessagingService">
+        <service android:name="com.umetechnologypvt.ume.Utils.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <provider
-            android:name=".provider.GenericFileProvider"
-            android:authorities="com.appsinventiv.ume.provider"
+            android:name="com.umetechnologypvt.ume.provider.GenericFileProvider"
+            android:authorities="com.umetechnologypvt.ume.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

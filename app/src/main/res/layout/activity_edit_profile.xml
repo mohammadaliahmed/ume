@@ -25,6 +25,15 @@
                 android:padding="10dp"
                 android:src="@drawable/add_photo" />
 
+            <ImageView
+
+                android:layout_width="20dp"
+                android:id="@+id/addPhoto"
+                android:layout_height="20dp"
+                android:layout_marginLeft="75dp"
+                android:layout_marginTop="75dp"
+                android:src="@drawable/plus" />
+
             <ProgressBar
                 android:id="@+id/progress"
                 android:layout_width="wrap_content"
@@ -95,17 +104,19 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_birthday"
                 android:layout_width="20dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
-                android:layout_height="20dp" />
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_birthday" />
+
             <TextView
                 android:id="@+id/chooseBirthday"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
                 android:padding="10dp"
                 android:text="Choose Birthday"
                 android:textColor="#000" />
@@ -126,17 +137,19 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_speak_purple"
                 android:layout_width="20dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
-                android:layout_height="20dp" />
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_speak_purple" />
+
             <TextView
                 android:id="@+id/chooseLanguage"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
                 android:padding="10dp"
                 android:text="Choose language"
                 android:textColor="#000" />
@@ -156,13 +169,15 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_book_purple"
                 android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:padding="2dp"
-                android:layout_centerVertical="true"
-                android:layout_height="20dp" />
+                android:src="@drawable/ic_book_purple" />
+
             <TextView
                 android:id="@+id/chooseLeaningLanguage"
                 android:layout_width="match_parent"
@@ -187,18 +202,20 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_flag_purple"
                 android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:padding="2dp"
-                android:layout_centerVertical="true"
-                android:layout_height="20dp" />
+                android:src="@drawable/ic_flag_purple" />
+
             <TextView
                 android:id="@+id/chooseCountry"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
                 android:padding="10dp"
                 android:text="Choose country"
                 android:textColor="#000" />
@@ -217,19 +234,20 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_location_purple"
                 android:layout_width="20dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
-                android:layout_height="20dp" />
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_location_purple" />
 
             <TextView
                 android:id="@+id/chooseCurrentLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:layout_marginLeft="30dp"
+                android:padding="10dp"
                 android:text="Current Location"
                 android:textColor="#000" />
 
@@ -248,18 +266,20 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/edit_text_background">
+
             <ImageView
-                android:src="@drawable/ic_interest_purple"
                 android:layout_width="20dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
                 android:padding="2dp"
-                android:layout_height="20dp" />
+                android:src="@drawable/ic_interest_purple" />
+
             <TextView
                 android:id="@+id/chooseInterest"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
                 android:padding="10dp"
                 android:text="Choose Interest"
                 android:textColor="#000" />
@@ -272,17 +292,18 @@
                 android:layout_marginRight="10dp"
                 android:src="@drawable/right_arrow" />
         </RelativeLayout>
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
 
             <android.support.design.widget.TextInputEditText
-                android:layout_width="match_parent"
                 android:id="@+id/about"
-                android:inputType="textMultiLine|textCapSentences"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="About" />
+                android:hint="About"
+                android:inputType="textMultiLine|textCapSentences" />
         </android.support.design.widget.TextInputLayout>
 
         <Button

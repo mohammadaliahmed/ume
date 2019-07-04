@@ -159,7 +159,7 @@
             android:padding="5dp"
             android:src="@drawable/ic_translate" />
 
-        <com.appsinventiv.ume.Utils.MyEditText
+        <com.umetechnologypvt.ume.Utils.MyEditText
             android:id="@+id/message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

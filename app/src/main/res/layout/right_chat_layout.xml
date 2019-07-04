@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/curved_edges_empty"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <LinearLayout
 
