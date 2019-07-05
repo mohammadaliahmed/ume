@@ -21,6 +21,8 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSearchUserAdapter.ViewHolder> {
     Context context;
     ArrayList<LocationUserModel> itemList;
@@ -126,8 +128,9 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, userDistance, speakingLanguage, learningLanguage, age;
-        ImageView pic, userFlag, gender, onlineDot;
+        ImageView  gender, onlineDot;
         RelativeLayout genderBg;
+        CircleImageView pic, userFlag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

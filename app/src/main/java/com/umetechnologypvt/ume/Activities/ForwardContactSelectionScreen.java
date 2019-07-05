@@ -97,7 +97,7 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
                 String numer=contact.getNumber();
                 if(numer.startsWith("03")){
                     numer=numer.substring(1);
-                    numer="+923"+numer;
+                    numer="+92"+numer;
                 }
                 numer=numer.replace(" ","").replace("-","");
 
@@ -150,7 +150,9 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
                     map.put(userId, userModel);
                     itemList.clear();
                     for (Map.Entry<String, UserModel> entry : map.entrySet()) {
-                        itemList.add(entry.getValue());
+                        if(!entry.getKey().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                            itemList.add(entry.getValue());
+                        }
                     }
 //                    if (userModel != null) {
 //                        itemList.add(userModel);

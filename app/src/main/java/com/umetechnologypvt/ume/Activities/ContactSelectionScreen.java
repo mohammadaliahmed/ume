@@ -77,14 +77,14 @@ public class ContactSelectionScreen extends AppCompatActivity {
 
         }
         if (phoneContacts.size() > 0) {
-        getDataFromDB();
+            getDataFromDB();
             for (PhoneContactModel contact : phoneContacts) {
-                String numer=contact.getNumber();
-                if(numer.startsWith("03")){
-                    numer=numer.substring(1);
-                    numer="+923"+numer;
+                String numer = contact.getNumber();
+                if (numer.startsWith("03")) {
+                    numer = numer.substring(1);
+                    numer = "+92" + numer;
                 }
-                numer=numer.replace(" ","").replace("-","");
+                numer = numer.replace(" ", "").replace("-", "");
 
                 getFriendsFromDB(numer);
             }
@@ -136,7 +136,9 @@ public class ContactSelectionScreen extends AppCompatActivity {
                         map.put(userId, userModel);
                         itemList.clear();
                         for (Map.Entry<String, UserModel> entry : map.entrySet()) {
-                            itemList.add(entry.getValue());
+                            if(!entry.getKey().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                                itemList.add(entry.getValue());
+                            }
                         }
 
                     }
