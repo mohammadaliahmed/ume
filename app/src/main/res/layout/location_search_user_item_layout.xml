@@ -6,7 +6,6 @@
     android:background="#fff">
 
 
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/pic"
         android:layout_width="80dp"
@@ -14,6 +13,7 @@
         android:padding="15dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_profile_plc" />
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/userFlag"
         android:layout_width="30dp"
@@ -22,7 +22,6 @@
         android:layout_marginTop="50dp"
         android:src="@drawable/flag_pakistan"
         android:visibility="visible" />
-
 
 
     <RelativeLayout
@@ -60,15 +59,35 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="80dp"
         android:layout_marginTop="8dp"
+        android:maxLines="2"
         android:layout_marginBottom="2dp"
+        android:layout_toLeftOf="@id/userStatus"
         android:text="sdfsdfsdf"
         android:textColor="#000"
         android:textSize="15sp" />
 
+    <ImageView
+        android:id="@+id/onlineDot"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginTop="13dp"
+        android:layout_toLeftOf="@id/userStatus"
+        android:src="@drawable/ic_online_dot"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/userStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:layout_marginLeft="195dp"
+        android:text="Online"
+        android:textSize="12sp" />
 
 
     <TextView
@@ -76,6 +95,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:layout_margin="10dp"
         android:layout_marginLeft="195dp"
         android:text="5km"

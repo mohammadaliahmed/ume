@@ -15,6 +15,7 @@ import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
 import com.umetechnologypvt.ume.Models.LocationUserModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CountryUtils;
 import com.bumptech.glide.Glide;
 
@@ -89,6 +90,17 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
 
         }
 
+        holder.userStatus.setText(
+                model.getUserModel().getStatus()
+                        .equalsIgnoreCase("Online") ? "Online" : "Last seen " +
+                        CommonUtils.getFormattedDate(Long.parseLong(model.getUserModel().getStatus()))
+        );
+        if (model.getUserModel().getStatus().equalsIgnoreCase("Online")) {
+            holder.onlineDot.setVisibility(View.VISIBLE);
+        } else {
+            holder.onlineDot.setVisibility(View.GONE);
+        }
+
         if (model.getUserModel().getAge() != 0) {
             holder.age.setText("" + model.getUserModel().getAge());
         }
@@ -127,8 +139,8 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, userDistance, speakingLanguage, learningLanguage, age;
-        ImageView  gender, onlineDot;
+        TextView name, userDistance, userStatus, learningLanguage, age;
+        ImageView gender, onlineDot;
         RelativeLayout genderBg;
         CircleImageView pic, userFlag;
 
@@ -139,8 +151,12 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
             userDistance = itemView.findViewById(R.id.userDistance);
             userFlag = itemView.findViewById(R.id.userFlag);
             age = itemView.findViewById(R.id.age);
+            userStatus = itemView.findViewById(R.id.userStatus);
+
             gender = itemView.findViewById(R.id.gender);
             genderBg = itemView.findViewById(R.id.genderBg);
+            onlineDot = itemView.findViewById(R.id.onlineDot);
+
         }
     }
 

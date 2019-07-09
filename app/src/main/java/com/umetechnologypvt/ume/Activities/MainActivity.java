@@ -19,6 +19,7 @@ import com.umetechnologypvt.ume.Adapters.ChatListAdapter;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.ConnectivityManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference mDatabase;
     ArrayList<ChatListModel> itemList = new ArrayList<>();
     ChatListAdapter adapter;
-    TextView noMsgs;
+//    TextView noMsgs;
     private TextView textCartItemCount;
     HashMap<String, Integer> unreadCount = new HashMap<>();
     private int chatCount;
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerview = findViewById(R.id.recyclerview);
         toolBar = findViewById(R.id.toolBar);
         setSupportActionBar(toolBar);
-        noMsgs = findViewById(R.id.noMsgs);
+//        noMsgs = findViewById(R.id.noMsgs);
         newMessage = findViewById(R.id.newMessage);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -76,8 +77,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerview.setAdapter(adapter);
 
-
-        getMessagesFromDB();
+//        if(ConnectivityManager.isNetworkConnected(this)){
+            getMessagesFromDB();
+//
+//        }else{
+//            itemList=SharedPrefs.getChatList();
+//            adapter.notifyDataSetChanged();
+//        }
 
 //        getLastmsgsFromDB();
         if (SharedPrefs.getUserModel().getUsername() != null) {
@@ -140,40 +146,42 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void getMessagesFromDB() {
-        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.getValue() != null) {
+        if (SharedPrefs.getUserModel().getUsername() != null) {
+            mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    if (dataSnapshot.getValue() != null) {
 //                    getUnreadCount(dataSnapshot.getKey());
 
-                    getMsgsFromDB(dataSnapshot.getKey(), count);
-                    count++;
-                }else{
-                    noMsgs.setVisibility(View.VISIBLE);
+                        getMsgsFromDB(dataSnapshot.getKey(), count);
+                        count++;
+                    } else {
+//                        noMsgs.setVisibility(View.VISIBLE);
+                    }
                 }
-            }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
 
-            }
+                }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-            }
+                }
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
 
 //        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
@@ -218,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                                 for (Map.Entry<Integer, ChatListModel> entry : map.entrySet()) {
                                     itemList.add(entry.getValue());
                                 }
+                                SharedPrefs.setChatList(itemList);
 
                                 Collections.sort(itemList, new Comparator<ChatListModel>() {
                                     @Override
@@ -259,8 +268,8 @@ public class MainActivity extends AppCompatActivity {
 
                     adapter.notifyDataSetChanged();
 
-                }else{
-                    noMsgs.setVisibility(View.VISIBLE);
+                } else {
+//                    noMsgs.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -368,7 +377,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_notifications) {
             Intent i = new Intent(MainActivity.this, NotificationsList.class);
             startActivity(i);
-        }  if (id == R.id.action_nearby) {
+        }
+        if (id == R.id.action_nearby) {
             Intent i = new Intent(MainActivity.this, NearbyPeople.class);
             startActivity(i);
         }

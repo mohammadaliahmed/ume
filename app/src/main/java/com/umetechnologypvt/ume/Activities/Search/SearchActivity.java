@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Adapters.SearchedUserListAdapter;
+import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
@@ -122,15 +123,25 @@ public class SearchActivity extends AppCompatActivity {
 
                                     itemList.add(model);
                                 }
-                                if(itemList.size()>0){
+                                if (itemList.size() > 0) {
                                     noResults.setVisibility(View.GONE);
-                                }else{
+                                } else {
                                     noResults.setVisibility(View.VISIBLE);
                                 }
 
                             }
                         }
                     }
+                    Collections.sort(itemList, new Comparator<UserModel>() {
+                        @Override
+                        public int compare(UserModel listData, UserModel t1) {
+                            String ob1 = ""+listData.getStatus();
+                            String ob2 = ""+t1.getStatus();
+
+                            return ob2.compareTo(ob1);
+
+                        }
+                    });
                     progress.setVisibility(View.GONE);
 
                     adapter.notifyDataSetChanged();

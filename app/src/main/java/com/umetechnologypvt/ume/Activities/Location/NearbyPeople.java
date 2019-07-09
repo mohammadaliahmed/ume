@@ -118,13 +118,23 @@ public class NearbyPeople extends AppCompatActivity {
                     Collections.sort(itemList, new Comparator<LocationUserModel>() {
                         @Override
                         public int compare(LocationUserModel listData, LocationUserModel t1) {
-                            Double ob1 = listData.getDistance();
-                            Double ob2 = t1.getDistance();
+                            String ob1 = "" + listData.getUserModel().getStatus();
+                            String ob2 = "" + t1.getUserModel().getStatus();
 
-                            return ob1.compareTo(ob2);
+                            return ob2.compareTo(ob1);
 
                         }
                     });
+//                    Collections.sort(itemList, new Comparator<LocationUserModel>() {
+//                        @Override
+//                        public int compare(LocationUserModel listData, LocationUserModel t1) {
+//                            Double ob1 = listData.getDistance();
+//                            Double ob2 = t1.getDistance();
+//
+//                            return ob1.compareTo(ob2);
+//
+//                        }
+//                    });
                     adapter.updateList(itemList);
                     adapter.filter(50);
 

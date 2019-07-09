@@ -196,12 +196,21 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         hisUserModel.getConfirmFriends().add(SharedPrefs.getUserModel().getUsername());
         mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends());
+        try {
+            myUserModel.getRequestReceived().remove(myUserModel.getRequestReceived().indexOf(hisUserModel.getUsername()));
 
+        } catch (Exception e) {
 
-        myUserModel.getRequestReceived().remove(myUserModel.getRequestReceived().indexOf(hisUserModel.getUsername()));
+        }
+
         mDatabase.child("Users").child(myUserModel.getUsername()).child("requestReceived").setValue(myUserModel.getRequestReceived());
 
-        hisUserModel.getRequestSent().remove(hisUserModel.getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
+        try {
+            hisUserModel.getRequestSent().remove(hisUserModel.getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
+
+        } catch (Exception e) {
+
+        }
         mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestSent").setValue(hisUserModel.getRequestSent());
 
         sendAcceptRequestNotification();
@@ -395,10 +404,20 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         if (user.getGender() != null) {
             gender.setText(user.getGender());
             if (user.getGender().equalsIgnoreCase("female")) {
-                Glide.with(this).load(R.drawable.ic_female).into(genderPic);
+                try {
+                    Glide.with(this).load(R.drawable.ic_female).into(genderPic);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 genderBg.setBackground(UserProfileScreen.this.getResources().getDrawable(R.drawable.custom_corners_pink));
             } else {
-                Glide.with(this).load(R.drawable.ic_male).into(genderPic);
+                try {
+                    Glide.with(this).load(R.drawable.ic_male).into(genderPic);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 genderBg.setBackground(UserProfileScreen.this.getResources().getDrawable(R.drawable.custom_corners_blue));
 
             }
@@ -407,9 +426,10 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
         );
 
-        localTime.setText(CountryUtils.getGMT(user.getCountryNameCode()) + " " + CommonUtils.getLocalTime(System.currentTimeMillis(), CountryUtils.getGMT(user.getCountryNameCode())));
+        if (user.getCountryNameCode() != null) {
+            localTime.setText(CountryUtils.getGMT(user.getCountryNameCode()) + " " + CommonUtils.getLocalTime(System.currentTimeMillis(), CountryUtils.getGMT(user.getCountryNameCode())));
 
-
+        }
         country.setText(user.getCountry());
         if (user.getPicUrl() != null) {
             try {

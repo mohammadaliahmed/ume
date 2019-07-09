@@ -317,7 +317,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         adapter = new ChatAdapter(this, chatModelArrayList, new ChatAdapter.ChatScreenCallbacks() {
             @Override
             public void deleteMessage(UserModel otherUser, ChatModel chatModel) {
-                showDeleteAlert(otherUser.getUsername(), chatModel);
+                showDeleteAlert(hisUserModel.getUsername(), chatModel);
 //                Intent i = new Intent(SingleChattingScreen.this, ForwardContactSelectionScreen.class);
 //                Gson gson = new Gson();
 //                String json = gson.toJson(chatModel);
@@ -327,7 +327,9 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
             @Override
             public void deleteMessageForAll(UserModel otherUser, ChatModel chatModel) {
-                showDeleteForAllAlert(otherUser.getUsername(), chatModel);
+                if (chatModel != null) {
+                    showDeleteForAllAlert(hisUserModel.getUsername(), chatModel);
+                }
             }
 
             @Override
@@ -359,7 +361,9 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         });
         recyclerView.setAdapter(adapter);
         getParticipantsFromDB();
-        getMessagesFromServer();
+        if (userId != null) {
+            getMessagesFromServer();
+        }
 
 
         pickDocument.setOnClickListener(new View.OnClickListener() {
@@ -587,7 +591,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             @Override
             public void callback(LangaugeModel model) {
                 dialog.dismiss();
-                translateLeftTextToOther(chatModel, model.getLangCode(), model.getCountryCode());
+                translateLeftTextToOther(chatModel, model.getLangCode(), model.getCountryCode(), model.getLanguageName());
 //                Glide.with(SingleChattingScreen.this).load(model.getPicDrawable()).into(translateTo);
 //                languageName.setText(model.getLanguageName());
 //                languageCode = model.getLangCode();
@@ -769,7 +773,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
-    private void translateLeftTextToOther(ChatModel model, String languageCode, String countryCode) {
+    private void translateLeftTextToOther(ChatModel model, String languageCode, String countryCode, String languageName) {
         final Handler textViewHandler = new Handler();
 
 
@@ -795,6 +799,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         map.put("translatedText", translation.getTranslatedText());
                         map.put("originalText", model.getMessageText());
                         map.put("language", countryCode);
+                        map.put("countryCode", "us");
+                        map.put("languageName", languageName);
                         map.put("messageType", Constants.MESSAGE_TYPE_TRANSLATED);
 
                         mDatabase.child("Chats").
@@ -841,6 +847,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         map.put("translatedText", translation.getTranslatedText());
                         map.put("originalText", model.getMessageText());
                         map.put("language", "us");
+                        map.put("countryCode", "us");
+                        map.put("languageName", "English");
                         map.put("messageType", Constants.MESSAGE_TYPE_TRANSLATED);
 
                         mDatabase.child("Chats").
@@ -1089,14 +1097,21 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
-        messageId = mDatabase.push().getKey();
-        sp.play(soundId, 1, 1, 0, 0, 1);
+        try {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+            messageId = mDatabase.push().getKey();
+            sp.play(soundId, 1, 1, 0, 0, 1);
 
-        sendAudioMessageToServer(Constants.MESSAGE_TYPE_AUDIO, mFileName + recordingLocalUrl + ".mp3", "mp3", false);
+            sendAudioMessageToServer(Constants.MESSAGE_TYPE_AUDIO, mFileName + recordingLocalUrl + ".mp3", "mp3", false);
+        } catch (NullPointerException e) {
 
+        } finally {
+//            mRecorder.stop();
+//            mRecorder.release();
+//            mRecorder = null;
+        }
 
     }
 
@@ -2217,34 +2232,6 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId)
                 .limitToLast(100).addValueEventListener(eventListener);
 
-
-//        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId)
-//                .limitToLast(100).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.getValue() != null) {
-//                    chatModelArrayList.clear();
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        ChatModel chat = snapshot.getValue(ChatModel.class);
-//                        if (chat != null) {
-//                            chatModelArrayList.add(chat);
-//                        }
-//                    }
-//                    recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
-//
-//                    adapter.notifyDataSetChanged();
-//                    markAsRead();
-//                } else {
-//                    chatModelArrayList.clear();
-//                    adapter.notifyDataSetChanged();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
     }
 
     ValueEventListener eventListener = new ValueEventListener() {
@@ -2371,6 +2358,38 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
             finish();
+        }
+        if (item.getItemId() ==R.id.action_clear_chat) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(SingleChattingScreen.this);
+            builder1.setMessage("Clear Chat?");
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton(
+                    "Yes",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    CommonUtils.showToast("Chat Cleared");
+                                }
+                            });
+                        }
+                    });
+
+            builder1.setNegativeButton(
+                    "No",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+            AlertDialog.Builder builder;
+
+
         }
 
 

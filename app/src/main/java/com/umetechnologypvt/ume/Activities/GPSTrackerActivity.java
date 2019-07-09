@@ -136,7 +136,9 @@ public class GPSTrackerActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
 //        progressBar.setVisibility(View.GONE);
-        mGoogleApiClient.disconnect();
+        if(mGoogleApiClient!=null) {
+            mGoogleApiClient.disconnect();
+        }
         super.onStop();
 
     }

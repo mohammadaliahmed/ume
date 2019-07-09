@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseException;
 import com.umetechnologypvt.ume.Adapters.ForwardUserListAdapter;
 import com.umetechnologypvt.ume.Models.PhoneContactModel;
 import com.umetechnologypvt.ume.Models.UserModel;
@@ -94,12 +95,12 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
             getDataFromDB();
             for (PhoneContactModel contact : phoneContacts) {
 //                getFriendsFromDB(contact.getNumber());
-                String numer=contact.getNumber();
-                if(numer.startsWith("03")){
-                    numer=numer.substring(1);
-                    numer="+92"+numer;
+                String numer = contact.getNumber();
+                if (numer.startsWith("03")) {
+                    numer = numer.substring(1);
+                    numer = "+92" + numer;
                 }
-                numer=numer.replace(" ","").replace("-","");
+                numer = numer.replace(" ", "").replace("-", "");
 
                 getFriendsFromDB(numer);
             }
@@ -142,41 +143,50 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
     }
 
     private void getFriendsFromDB(String userId) {
-        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                    map.put(userId, userModel);
-                    itemList.clear();
-                    for (Map.Entry<String, UserModel> entry : map.entrySet()) {
-                        if(!entry.getKey().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
-                            itemList.add(entry.getValue());
+        try {
+            mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue() != null) {
+                        UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                        map.put(userId, userModel);
+                        itemList.clear();
+                        for (Map.Entry<String, UserModel> entry : map.entrySet()) {
+                            if (!entry.getKey().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                                itemList.add(entry.getValue());
+                            }
                         }
-                    }
 //                    if (userModel != null) {
 //                        itemList.add(userModel);
 //                    }
-                    getSupportActionBar().setSubtitle(itemList.size() + " Contacts");
-                    Collections.sort(itemList, new Comparator<UserModel>() {
-                        @Override
-                        public int compare(UserModel listData, UserModel t1) {
-                            String ob1 = listData.getName();
-                            String ob2 = t1.getName();
+                        getSupportActionBar().setSubtitle(itemList.size() + " Contacts");
+                        Collections.sort(itemList, new Comparator<UserModel>() {
+                            @Override
+                            public int compare(UserModel listData, UserModel t1) {
+                                String ob1 = listData.getName();
+                                String ob2 = t1.getName();
 
-                            return ob1.compareTo(ob2);
+                                if (listData.getName() != null) {
+                                    return ob1.compareTo(ob2);
 
-                        }
-                    });
-                    adapter.notifyDataSetChanged();
+                                } else {
+                                    return 0;
+
+                                }
+                            }
+                        });
+                        adapter.notifyDataSetChanged();
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -206,6 +216,7 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
     private void getPermissions() {
         int PERMISSION_ALL = 1;
         String[] PERMISSIONS = {

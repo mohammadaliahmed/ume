@@ -102,12 +102,17 @@ public class PhoneVerification extends AppCompatActivity {
                         CommonUtils.showToast("Select your country");
                     } else {
 //                        loginUser("03030448686");
-                        finalNumber="+"+foneCode+number.getText().toString();
+                        String num = number.getText().toString();
+                        if (foneCode.contains("92") && num.startsWith("03")) {
+                            num=num.substring(1);
+                        }
+
+                        finalNumber = "+" + foneCode + num;
 ////                        CommonUtils.showToast(finalNumber);
 //
                         progress.setVisibility(View.VISIBLE);
 //                        checkUser();
-                    sendVerifyCode(finalNumber);
+                        sendVerifyCode(finalNumber);
                     }
                 }
             });
@@ -149,12 +154,16 @@ public class PhoneVerification extends AppCompatActivity {
                     @Override
                     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                         CommonUtils.showToast("Verified");
+                        progress.setVisibility(View.GONE);
+
                         checkUser();
                     }
 
                     @Override
                     public void onVerificationFailed(FirebaseException e) {
                         CommonUtils.showToast(e.getMessage());
+                        progress.setVisibility(View.GONE);
+
                     }
 
                     @Override
@@ -169,6 +178,9 @@ public class PhoneVerification extends AppCompatActivity {
                     public void onCodeAutoRetrievalTimeOut(String s) {
                         super.onCodeAutoRetrievalTimeOut(s);
                         CommonUtils.showToast("Time out");
+                        sendCode.setText("Resend");
+                        progress.setVisibility(View.GONE);
+
                     }
                 }
         );

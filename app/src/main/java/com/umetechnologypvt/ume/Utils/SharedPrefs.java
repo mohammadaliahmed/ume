@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.umetechnologypvt.ume.ApplicationClass;
+import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -20,6 +23,24 @@ public class SharedPrefs {
     private SharedPrefs() {
 
     }
+
+
+
+
+    public static void setChatList(ArrayList<ChatListModel> itemList ) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("ChatList", json);
+    }
+
+    public static ArrayList getChatList() {
+        Gson gson = new Gson();
+        ArrayList<ChatListModel> itemList=new ArrayList<>();
+        itemList = gson.fromJson(preferenceGetter("ChatList"), ArrayList.class);
+        return itemList;
+    }
+
 
 
 
