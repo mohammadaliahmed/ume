@@ -4,12 +4,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.umetechnologypvt.ume.Activities.UserManagement.Login;
+import com.umetechnologypvt.ume.Activities.UserManagement.Register;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.PrefManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
@@ -35,7 +39,7 @@ public class Splash extends AppCompatActivity {
         if (!prefManager.isFirstTimeLaunch()) {
             launchHomeScreen();
             finish();
-        }else {
+        } else {
 
 
             new Handler().postDelayed(new Runnable() {
@@ -49,7 +53,7 @@ public class Splash extends AppCompatActivity {
                 public void run() {
                     // This method will be executed once the timer is over
                     // Start your app main activity
-                    Intent i = new Intent(Splash.this, PhoneVerification.class);
+                    Intent i = new Intent(Splash.this, Login.class);
                     startActivity(i);
 
                     // close this activity

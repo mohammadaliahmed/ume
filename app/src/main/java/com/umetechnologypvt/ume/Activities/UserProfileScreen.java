@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -64,6 +66,8 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
     TextView about;
     TextView age;
 
+    TextView friends;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +84,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         userId = getIntent().getStringExtra("userId");
 
 
+        friends = findViewById(R.id.friends);
         genderBg = findViewById(R.id.genderBg);
         age = findViewById(R.id.age);
         about = findViewById(R.id.about);
@@ -101,6 +106,17 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         userPic = findViewById(R.id.userPic);
         startChat = findViewById(R.id.startChat);
         localTime = findViewById(R.id.localTime);
+
+        friends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i=new Intent(UserProfileScreen.this,UserFriends.class);
+                i.putExtra("userId",userId);
+                startActivity(i);
+            }
+        });
+
+
         userPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,18 +177,24 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                 "Yes",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
-                        hisUserModel.getConfirmFriends().remove(hisUserModel.getConfirmFriends().indexOf(SharedPrefs.getUserModel().getUsername()));
+                        try {
 
 
-                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(myUserModel.getConfirmFriends());
-                        mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                CommonUtils.showToast("Removed from friends");
-                            }
-                        });
-                        dialog.cancel();
+                            myUserModel.getConfirmFriends().remove(myUserModel.getConfirmFriends().indexOf(userId));
+                            hisUserModel.getConfirmFriends().remove(hisUserModel.getConfirmFriends().indexOf(SharedPrefs.getUserModel().getUsername()));
+
+
+                            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(myUserModel.getConfirmFriends());
+                            mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    CommonUtils.showToast("Removed from friends");
+                                }
+                            });
+                            dialog.cancel();
+                        } catch (Exception e) {
+
+                        }
                     }
                 });
 
@@ -226,7 +248,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
                 SharedPrefs.getUserModel().getUsername(),
-                "" + SharedPrefs.getUserModel().getUsername().length()
+                "" + SharedPrefs.getUserModel().getUsername().length(),SharedPrefs.getUserModel().getPicUrl()
         );
         String key = mDatabase.push().getKey();
         NotificationModel model = new NotificationModel(
@@ -328,14 +350,15 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
                 SharedPrefs.getUserModel().getUsername(),
-                "" + SharedPrefs.getUserModel().getUsername().length()
+                "" + SharedPrefs.getUserModel().getUsername().length(),SharedPrefs.getUserModel().getPicUrl()
         );
         String key = mDatabase.push().getKey();
+
         NotificationModel model = new NotificationModel(
                 key, hisUserModel.getUsername(),
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getPicUrl(),
-                SharedPrefs.getUserModel().getName() + " sent you friend request",
+                SharedPrefs.getUserModel().getName() == null ? " " : SharedPrefs.getUserModel().getName() + " sent you friend request",
                 "newRequest",
                 System.currentTimeMillis()
         );
@@ -354,6 +377,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                     if (hisUserModel != null) {
                         inflatelayout(hisUserModel.getInterests());
                         setUserProfileData(hisUserModel);
+
                     }
                 }
             }
@@ -394,10 +418,16 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         learningLanguage.setText(user.getLearningLanguage() + "");
         memberSince.setText(CommonUtils.getFormattedDate(user.getTime()));
         currenLocation.setText(user.getCurrentLocation());
+        if (user.getConfirmFriends().size() > 0) {
+            friends.setText(user.getConfirmFriends().size() + " Friends");
+        }
         if (user.getCountryNameCode() != null) {
             flag.setVisibility(View.VISIBLE);
-
-            Glide.with(UserProfileScreen.this).load(CountryUtils.getFlagDrawableResId(user.getCountryNameCode())).into(flag);
+            try {
+                Glide.with(UserProfileScreen.this).load(CountryUtils.getFlagDrawableResId(user.getCountryNameCode())).into(flag);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             flag.setVisibility(View.GONE);
         }

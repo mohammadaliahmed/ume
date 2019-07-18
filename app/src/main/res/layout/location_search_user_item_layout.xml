@@ -20,7 +20,6 @@
         android:layout_height="18dp"
         android:layout_marginLeft="45dp"
         android:layout_marginTop="50dp"
-        android:src="@drawable/flag_pakistan"
         android:visibility="visible" />
 
 
@@ -48,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/gender"
-            android:text="22"
+            android:text=""
             android:textColor="#fff"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -66,7 +65,7 @@
         android:maxLines="2"
         android:layout_marginBottom="2dp"
         android:layout_toLeftOf="@id/userStatus"
-        android:text="sdfsdfsdf"
+        android:text=""
         android:textColor="#000"
         android:textSize="15sp" />
 
@@ -86,7 +85,7 @@
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
         android:layout_marginLeft="195dp"
-        android:text="Online"
+        android:text=""
         android:textSize="12sp" />
 
 
@@ -98,7 +97,7 @@
         android:layout_centerVertical="true"
         android:layout_margin="10dp"
         android:layout_marginLeft="195dp"
-        android:text="5km"
+        android:text=""
         android:textSize="12sp" />
 
     <View

@@ -19,7 +19,10 @@ public class UserModel {
     List<String> confirmFriends=new ArrayList<>();
     List<String> requestSent=new ArrayList<>();
     List<String> requestReceived=new ArrayList<>();
-    List<String> blockedUsers=new ArrayList<>();
+
+    String password;
+    String email;
+
     private int age;
 
     String countryNameCode;
@@ -51,6 +54,29 @@ public class UserModel {
         this.status = status;
     }
 
+    public UserModel(String username, String name, String email,  String password,long time) {
+        this.username = username;
+        this.name = name;
+        this.time = time;
+        this.password = password;
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public double getLongitude() {
         return longitude;
@@ -116,13 +142,7 @@ public class UserModel {
         this.requestSent = requestSent;
     }
 
-    public List<String> getBlockedUsers() {
-        return blockedUsers;
-    }
 
-    public void setBlockedUsers(List<String> blockedUsers) {
-        this.blockedUsers = blockedUsers;
-    }
 
     public List<String> getLearningLanguage() {
         return learningLanguage;

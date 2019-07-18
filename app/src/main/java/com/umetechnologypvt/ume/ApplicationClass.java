@@ -1,10 +1,9 @@
 package com.umetechnologypvt.ume;
 
 import android.app.Application;
-import android.arch.lifecycle.ProcessLifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import android.os.StrictMode;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.umetechnologypvt.ume.Utils.SampleLifecycleListener;
 import com.google.firebase.database.DatabaseReference;
 
@@ -25,7 +24,7 @@ public class ApplicationClass extends Application {
         super.onCreate();
         instance = this;
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new SampleLifecycleListener());
 //        sendUserSatus(true);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();

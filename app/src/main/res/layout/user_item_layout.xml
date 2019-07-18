@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="70dp"
-        android:text=""
+        android:text="dsfdsfs"
         android:textColor="#000"
         android:textSize="15sp" />
 
@@ -26,4 +26,42 @@
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:background="#e7e7e7" />
+
+    <RelativeLayout
+        android:id="@+id/clickToUnblock"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="#fff"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="40dp"
+            android:text="Blocked. Long click to unblock"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/youAreBlocked"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="#fff"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="40dp"
+            android:text="This user has blocked you"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+    </RelativeLayout>
 </RelativeLayout>

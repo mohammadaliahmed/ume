@@ -4,14 +4,25 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatEditText;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
@@ -33,7 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class PhoneVerification extends AppCompatActivity {
+public class PhoneVerification extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     LinearLayout progress;
     //    EditText number;
     Button sendCode;
@@ -49,6 +60,11 @@ public class PhoneVerification extends AppCompatActivity {
     AppCompatEditText number;
     String foneCode;
     String finalNumber;
+    GoogleApiClient apiClient;
+
+    SignInButton google;
+    GoogleSignInAccount account;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +83,10 @@ public class PhoneVerification extends AppCompatActivity {
 //            launchHomeScreen();
             finish();
         } else {
+            GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+            apiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions).build();
+            apiClient.connect();
             mDatabase = FirebaseDatabase.getInstance().getReference();
 
             this.setTitle("Verify your phone");
@@ -74,12 +94,22 @@ public class PhoneVerification extends AppCompatActivity {
                 getSupportActionBar().setElevation(0);
             }
             phoneAuth = PhoneAuthProvider.getInstance();
+            google = findViewById(R.id.google);
             sendCode = findViewById(R.id.sendCode);
 //            number = findViewById(R.id.number);
             ccp = (CountryCodePicker) findViewById(R.id.ccp);
 
             number = (AppCompatEditText) findViewById(R.id.number);
             ccp.registerPhoneNumberTextView(number);
+
+
+            google.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = Auth.GoogleSignInApi.getSignInIntent(apiClient);
+                    startActivityForResult(i, 100);
+                }
+            });
 
             progress = findViewById(R.id.progress);
             getListOfUsers();
@@ -103,16 +133,16 @@ public class PhoneVerification extends AppCompatActivity {
                     } else {
 //                        loginUser("03030448686");
                         String num = number.getText().toString();
-                        if (foneCode.contains("92") && num.startsWith("03")) {
-                            num=num.substring(1);
-                        }
+//                        if (foneCode.contains("92") && num.startsWith("03")) {
+//                            num=num.substring(1);
+//                        }
 
                         finalNumber = "+" + foneCode + num;
 ////                        CommonUtils.showToast(finalNumber);
 //
                         progress.setVisibility(View.VISIBLE);
-//                        checkUser();
-                        sendVerifyCode(finalNumber);
+                        checkUser();
+//                        sendVerifyCode(finalNumber);
                     }
                 }
             });
@@ -143,6 +173,36 @@ public class PhoneVerification extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            GoogleSignInResult googleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleResult(googleSignInResult);
+
+        }
+    }
+    private void handleResult(GoogleSignInResult googleSignInResult) {
+        if (googleSignInResult.isSuccess()) {
+            account = googleSignInResult.getSignInAccount();
+//            e_fullname.setText(account.getDisplayName());
+
+            String userId = account.getEmail().replace("@", "").replace(".", "");
+            String email = account.getEmail();
+            Auth.GoogleSignInApi.signOut(apiClient).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+
+                }
+            });
+            finalNumber = userId;
+            CommonUtils.showToast(userId);
+            checkUser();
+
+//            loginUser(account.getEmail().replace("@", "").replace(".", ""));
+
+        }
+    }
     private void sendVerifyCode(String phoneNumber) {
 
         phoneAuth.verifyPhoneNumber(
@@ -237,4 +297,8 @@ public class PhoneVerification extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }

@@ -57,11 +57,13 @@ public class CommonUtils {
         if (SharedPrefs.getUserModel() != null) {
             DatabaseReference mDatabase;
             mDatabase = FirebaseDatabase.getInstance().getReference();
-            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                }
-            });
+            if(mDatabase!=null && SharedPrefs.getUserModel()!=null && SharedPrefs.getUserModel().getUsername()!=null && b!=null) {
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                });
+            }
         }
 
 
@@ -639,7 +641,7 @@ public class CommonUtils {
         itemList.add(new LangaugeModel("Bengali", "bn", "bd", R.drawable.flag_bangladesh));
         itemList.add(new LangaugeModel("Belarusian", "be", "by", R.drawable.flag_belarus));
         itemList.add(new LangaugeModel("Bulgarian", "bg", "bg", R.drawable.flag_bulgaria));
-        itemList.add(new LangaugeModel("Catalan", "ca", "an", R.drawable.flag_antigua_and_barbuda));
+        itemList.add(new LangaugeModel("Catalan", "ca", "es", R.drawable.flag_antigua_and_barbuda));
         itemList.add(new LangaugeModel("Chinese", "zh-CN", "cn", R.drawable.flag_china));
         itemList.add(new LangaugeModel("Croatian", "hr", "hr", R.drawable.flag_croatia));
         itemList.add(new LangaugeModel("Czech", "cs", "cz", R.drawable.flag_czech_republic));

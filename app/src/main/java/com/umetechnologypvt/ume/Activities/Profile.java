@@ -8,10 +8,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,6 +83,8 @@ Profile extends AppCompatActivity {
     int yearr = 1990;
     private int age;
     ImageView addPhoto;
+    private String pictureUrl;
+    private UserModel model;
 
 
     @Override
@@ -109,7 +111,6 @@ Profile extends AppCompatActivity {
         chooseCountry = findViewById(R.id.chooseCountry);
         chooseLanguage = findViewById(R.id.chooseLanguage);
         progress = findViewById(R.id.progress);
-        progress.setVisibility(View.VISIBLE);
         getUserDataFromDB();
         setupLearningLangaue();
         setupInterest();
@@ -205,6 +206,9 @@ Profile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
+
+
                 if (name.getText().length() == 0) {
                     name.setError("Enter name");
                 } else if (language == null) {
@@ -213,6 +217,12 @@ Profile extends AppCompatActivity {
                     CommonUtils.showToast("Choose country");
                 } else if (dob == null) {
                     CommonUtils.showToast("Choose date of birth");
+                } else if (currentLocation == null) {
+                    CommonUtils.showToast("Choose current location");
+                }else if (learningLanguages.size()<0) {
+                    CommonUtils.showToast("Choose learning language");
+                } else if (interestList.size()<1) {
+                    CommonUtils.showToast("Choose interest");
                 } else {
 
                     int selectedId = radioGender.getCheckedRadioButtonId();
@@ -311,18 +321,18 @@ Profile extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
-            mSelected = Matisse.obtainResult(data);
-            progress.setVisibility(View.VISIBLE);
-            for (Uri img :
-                    mSelected) {
-                CompressImage compressImage = new CompressImage(Profile.this);
-                imageUrl.add(compressImage.compressImage("" + img));
-            }
-            Glide.with(Profile.this).load(mSelected.get(0)).into(image);
-            putPictures(imageUrl.get(0));
-
-        }
+//        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+//            mSelected = Matisse.obtainResult(data);
+////            progress.setVisibility(View.VISIBLE);
+//            for (Uri img :
+//                    mSelected) {ed
+//                CompressImage compressImage = new CompressImage(Profile.this);
+//                imageUrl.add(compressImage.compressImage("" + img));
+//            }
+//            Glide.with(Profile.this).load(mSelected.get(0)).into(image);
+//            putPictures(imageUrl.get(0));
+//
+//        }
         super.onActivityResult(requestCode, resultCode, data);
 
     }
@@ -344,14 +354,16 @@ Profile extends AppCompatActivity {
                         // Get a URL to the uploaded content
 
                         Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
-                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
+                         pictureUrl=""+downloadUrl;
+//                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
+//                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
                                 CommonUtils.showToast("Pic uploaded");
+
                                 progress.setVisibility(View.GONE);
-                            }
-                        });
+//                            }
+//                        });
 
 
                     }
@@ -375,12 +387,12 @@ Profile extends AppCompatActivity {
         userModel.setGender(gender);
         userModel.setDob(dob);
         userModel.setAge(age);
-        userModel.setCountryNameCode(countryCode);
+        userModel.setCountryNameCode(countryCode==null?model.getCountryNameCode():countryCode);
         userModel.setCurrentLocation(currentLocation);
         userModel.setInterests(interestList);
+        userModel.setPicUrl(pictureUrl==null?userModel.getPicUrl():pictureUrl);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);
-        userModel.setCountryNameCode(SharedPrefs.getCountryCode());
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(SharedPrefs.getUserModel().getUsername(), userModel);
@@ -403,7 +415,7 @@ Profile extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    UserModel model = dataSnapshot.getValue(UserModel.class);
+                     model = dataSnapshot.getValue(UserModel.class);
                     if (model != null) {
                         SharedPrefs.setUserModel(model);
                         country = model.getCountry();

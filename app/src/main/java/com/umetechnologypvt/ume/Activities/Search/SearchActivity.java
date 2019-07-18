@@ -2,9 +2,11 @@ package com.umetechnologypvt.ume.Activities.Search;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Adapters.SearchedUserListAdapter;
-import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
@@ -92,63 +93,67 @@ public class SearchActivity extends AppCompatActivity {
                 if (dataSnapshot.getValue() != null) {
                     noResults.setVisibility(View.GONE);
                     progress.setVisibility(View.VISIBLE);
-
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        UserModel model = snapshot.getValue(UserModel.class);
-                        if (model != null) {
-                            if (model.getName() != null) {
+                    try {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            UserModel model = snapshot.getValue(UserModel.class);
+                            if (model != null) {
+                                if (model.getName() != null) {
 //                                itemList.add(model);
-                                List<String> inter = model.getInterests();
-                                inter.add("any");
-                                List<String> larn = model.getLearningLanguage();
-                                larn.add("any");
-                                model.setGender(model.getGender() + "Any");
-                                model.setLanguage(model.getLanguage() + "any");
-                                model.setCountry(model.getCountry() + "any");
-                                model.setInterests(inter);
-                                model.setLearningLanguage(larn);
-                                model.setCurrentLocation(model.getCurrentLocation() + "any");
+                                    List<String> inter = model.getInterests();
+                                    inter.add("any");
+                                    List<String> larn = model.getLearningLanguage();
+                                    larn.add("any");
+                                    model.setGender(model.getGender() + "Any");
+                                    model.setLanguage(model.getLanguage() + "any");
+                                    model.setCountry(model.getCountry() + "any");
+                                    model.setInterests(inter);
+                                    model.setLearningLanguage(larn);
+                                    model.setCurrentLocation(model.getCurrentLocation() + "any");
 
-                                if (
-                                        model.getCurrentLocation().contains(currentLocation) &&
-                                                model.getCountry().contains(country) &&
-                                                model.getGender().contains(gender) &&
-                                                model.getLanguage().contains(language) &&
-                                                model.getInterests().contains(interest) &&
-                                                model.getName().contains(word) &&
-                                                model.getLearningLanguage().contains(learnLanguage) &&
-                                                model.getAge() >= startAge && model.getAge() <= endAge &&
-                                                !model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())
-                                        ) {
+                                    if (
+                                            model.getCurrentLocation().contains(currentLocation) &&
+                                                    model.getCountry().contains(country) &&
+                                                    model.getGender().contains(gender) &&
+                                                    model.getLanguage().contains(language) &&
+                                                    model.getInterests().contains(interest) &&
+                                                    model.getName().contains(word) &&
+                                                    model.getLearningLanguage().contains(learnLanguage) &&
+                                                    model.getAge() >= startAge && model.getAge() <= endAge &&
+                                                    !model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())
+                                            ) {
 
-                                    itemList.add(model);
+                                        itemList.add(model);
+                                    }
+                                    if (itemList.size() > 0) {
+                                        noResults.setVisibility(View.GONE);
+                                    } else {
+                                        noResults.setVisibility(View.VISIBLE);
+                                    }
+
                                 }
-                                if (itemList.size() > 0) {
-                                    noResults.setVisibility(View.GONE);
-                                } else {
-                                    noResults.setVisibility(View.VISIBLE);
-                                }
-
                             }
                         }
+                        Collections.sort(itemList, new Comparator<UserModel>() {
+                            @Override
+                            public int compare(UserModel listData, UserModel t1) {
+                                String ob1 = "" + listData.getStatus();
+                                String ob2 = "" + t1.getStatus();
+
+                                return ob2.compareTo(ob1);
+
+                            }
+                        });
+                        progress.setVisibility(View.GONE);
+
+                        adapter.notifyDataSetChanged();
+                    } catch (Exception e) {
+
                     }
-                    Collections.sort(itemList, new Comparator<UserModel>() {
-                        @Override
-                        public int compare(UserModel listData, UserModel t1) {
-                            String ob1 = ""+listData.getStatus();
-                            String ob2 = ""+t1.getStatus();
-
-                            return ob2.compareTo(ob1);
-
-                        }
-                    });
-                    progress.setVisibility(View.GONE);
-
-                    adapter.notifyDataSetChanged();
                 } else {
                     progress.setVisibility(View.GONE);
                     noResults.setVisibility(View.VISIBLE);
                 }
+
             }
 
             @Override

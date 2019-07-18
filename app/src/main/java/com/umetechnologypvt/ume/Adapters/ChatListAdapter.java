@@ -2,8 +2,8 @@ package com.umetechnologypvt.ume.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.Models.ChatListModel;
+import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
@@ -33,15 +34,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     HashMap<String, Integer> unreadCount = new HashMap<>();
     HashMap<Integer, ChatListModel> map;
 
+    ChatCallbacks callbacks;
+
 //    public ChatListAdapter(Context context, HashMap<Integer, ChatListModel> map) {
 //        this.context = context;
 //        this.map = map;
 //    }
 
 
-        public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList) {
+        public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList,ChatCallbacks callbacks) {
         this.context = context;
         this.itemList = itemList;
+        this.callbacks=callbacks;
 
     }
 
@@ -50,6 +54,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         notifyDataSetChanged();
     }
 
+    public void setNewList(ArrayList<ChatListModel> itemList){
+            this.itemList=itemList;
+            notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -133,6 +141,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             holder.flag.setVisibility(View.GONE);
         }
 
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                callbacks.onChatDelete(model.getUsername());
+                return false;
+            }
+        });
+
 
     }
 
@@ -156,5 +172,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             flag = itemView.findViewById(R.id.flag);
 
         }
+    }
+    public interface ChatCallbacks{
+            public void onChatDelete(String username);
     }
 }

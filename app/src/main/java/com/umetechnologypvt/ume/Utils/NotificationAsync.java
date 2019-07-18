@@ -51,6 +51,7 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
         String NotificationType = params[5];
         String Id = params[6];
         String ChannelId = params[7];
+        String PictureUrl = params[8];
 
 
 
@@ -79,6 +80,7 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
             jsonObject.put("Type", NotificationType);
             jsonObject.put("Id",Id);
             jsonObject.put("ChannelId",ChannelId);
+            jsonObject.put("PictureUrl",PictureUrl);
 
 
             json.put("data", jsonObject);

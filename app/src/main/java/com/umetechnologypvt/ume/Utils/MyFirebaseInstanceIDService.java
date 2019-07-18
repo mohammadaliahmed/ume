@@ -15,7 +15,6 @@ import static android.content.ContentValues.TAG;
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     DatabaseReference mDatabase;
-    Context context = this;
 
     @Override
     public void onTokenRefresh() {

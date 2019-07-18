@@ -21,6 +21,12 @@ public class Constants {
 
     public static long DELETED_MSG_TIME=600000;
 
+    public static String EXTRA_MSG = "extra_msg";
+    public static String USER_ID = "extra_user_id";
+    public static String NOTIFICATION_COUNT = "extra_notification_count";
+    public static String IMAGE_URL = "image_url";
+
+
 
 
 }

@@ -20,18 +20,24 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v13.view.inputmethod.InputContentInfoCompat;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.core.view.inputmethod.InputContentInfoCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -52,6 +58,7 @@ import android.widget.TextView;
 import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
 import com.umetechnologypvt.ume.Adapters.ChatAdapter;
 import com.umetechnologypvt.ume.Adapters.ChooseLangaugeFromDialogAdapter;
+import com.umetechnologypvt.ume.FloatingChatButton.FloatingButton;
 import com.umetechnologypvt.ume.Interface.ChatCallbacks;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.LangaugeModel;
@@ -60,6 +67,7 @@ import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
+import com.umetechnologypvt.ume.Utils.ConnectivityManager;
 import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
 import com.umetechnologypvt.ume.Utils.MyEditText;
@@ -97,6 +105,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +129,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     private static final int TYPE_VIDEO = 2;
 
 
-    boolean activityAcitve = false;
+    public static boolean activityAcitve = false;
 
     String mCurrentPhotoPath;
     Uri capturedUri = null;
@@ -150,6 +160,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     StorageReference mStorageRef;
     private static final int REQUEST_CODE_CHOOSE = 23;
     private static final int REQUEST_CODE_FILE = 25;
+    RelativeLayout cannotSend;
 
 
     //    ArrayList<UserModel> pList=new ArrayList<>();
@@ -203,6 +214,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             getSupportActionBar().setElevation(0);
         }
         this.setTitle("");
+        cannotSend = findViewById(R.id.cannotSend);
         translate = findViewById(R.id.translate);
         userStatus = findViewById(R.id.userStatus);
         otherParticipantName = findViewById(R.id.otherParticipantName);
@@ -360,9 +372,42 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             }
         });
         recyclerView.setAdapter(adapter);
-        getParticipantsFromDB();
+
+
         if (userId != null) {
-            getMessagesFromServer();
+            getParticipantsFromDB();
+            if (ConnectivityManager.isNetworkConnected(this)) {
+//                getMessagesFromDB();
+                getMessagesFromServer();
+
+            } else {
+
+                chatModelArrayList = SharedPrefs.getMessagesList(userId);
+                if (chatModelArrayList != null) {
+                    Collections.sort(chatModelArrayList, new Comparator<ChatModel>() {
+                        @Override
+                        public int compare(ChatModel listData, ChatModel t1) {
+                            Long ob1 = listData.getTime();
+                            Long ob2 = t1.getTime();
+
+                            return ob1.compareTo(ob2);
+
+                        }
+                    });
+                    adapter.setNewList(chatModelArrayList);
+                    recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
+
+
+                }
+
+                hisUserModel = SharedPrefs.getParticipantModel(userId);
+                if (hisUserModel != null) {
+                    setHisDetails(hisUserModel);
+                }
+//            adapter.notifyDataSetChanged();
+            }
+
+//            getMessagesFromServer();
         }
 
 
@@ -534,7 +579,38 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         });
 //        markAsRead();
 
+        getMyUserModelFromDB();
+
     }
+
+    private void getMyUserModelFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    if (dataSnapshot.child("blockedMe").child(userId).exists()) {
+                        send.setVisibility(View.GONE);
+                        messagingArea.setVisibility(View.GONE);
+                        recordButton.setVisibility(View.GONE);
+                        cannotSend.setVisibility(View.VISIBLE);
+                    }
+                    if (dataSnapshot.child("blockedUsers").child(userId).exists()) {
+                        send.setVisibility(View.GONE);
+                        messagingArea.setVisibility(View.GONE);
+                        recordButton.setVisibility(View.GONE);
+                        cannotSend.setVisibility(View.VISIBLE);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void showTranslteOptionAlert(ChatModel model) {
 
@@ -979,29 +1055,11 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
                     hisUserModel = dataSnapshot.getValue(UserModel.class);
-                    if (hisUserModel.getPicUrl() != null) {
-//                        markAsRead();
-                        try {
-                            Glide.with(SingleChattingScreen.this).load(hisUserModel.getPicUrl()).into(toolbarImage);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        adapter.setHisUserModel(hisUserModel);
-
-                    }
-                    otherParticipantName.setText(hisUserModel.getName());
-                    userStatus.setText(
-                            hisUserModel.getStatus()
-                                    .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
-                    );
-//                    new Handler().postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
+                    setHisDetails(hisUserModel);
                     markAsRead();
-//                        }
-//                    }, 2000);
+                    stopService(new Intent(SingleChattingScreen.this, FloatingButton.class));
+                    SharedPrefs.setHeadNotificationCount(userId, "0");
+
                     if (ForwardContactSelectionScreen.fromForward) {
                         msg = getIntent().getStringExtra("msg");
                         if (msg != null) {
@@ -1015,6 +1073,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                             newModel.setMessageStatus("sent");
                             newModel.setId(key);
                             newModel.setTime(System.currentTimeMillis());
+
                             mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
                                     .child(hisUserModel.getUsername()).child(key)
                                     .setValue(newModel).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1041,6 +1100,28 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
             }
         });
+    }
+
+    private void setHisDetails(UserModel hisUserModel) {
+        if (hisUserModel.getPicUrl() != null) {
+            try {
+                Glide.with(SingleChattingScreen.this).load(hisUserModel.getPicUrl()).into(toolbarImage);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            SharedPrefs.setParticipantModel(userId, hisUserModel);
+            adapter.setHisUserModel(hisUserModel);
+
+        }
+        otherParticipantName.setText(hisUserModel.getName());
+        if (hisUserModel.getStatus() != null) {
+            userStatus.setText(
+                    hisUserModel.getStatus()
+                            .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(hisUserModel.getStatus()))
+
+            );
+        }
     }
 
     @Override
@@ -1302,6 +1383,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //            new Handler().postDelayed(new Runnable() {
 //                @Override
 //                public void run() {
+            SharedPrefs.setMessagesList(userId, chatModelArrayList);
             markAsRead();
 //                }
 //            }, 3000);
@@ -1896,9 +1978,16 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": ☎ Contact";
         }
         notificationAsync.setMsgId(msgId);
-        notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, Constants.MESSAGE_TYPE_TEXT, "chat",
+        notificationAsync.execute(
+                "ali",
+                hisUserModel.getFcmKey(),
+                NotificationTitle,
+                NotificationMessage,
+                Constants.MESSAGE_TYPE_TEXT,
+                "chat",
                 SharedPrefs.getUserModel().getUsername(),
-                "" + SharedPrefs.getUserModel().getUsername().length()
+                "" + SharedPrefs.getUserModel().getUsername().length(),
+                SharedPrefs.getUserModel().getPicUrl()
         );
 
     }
@@ -2234,6 +2323,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     }
 
+
     ValueEventListener eventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -2243,6 +2333,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                     ChatModel chat = snapshot.getValue(ChatModel.class);
                     if (chat != null) {
                         chatModelArrayList.add(chat);
+
                         chatCallbacks.abc(chatModelArrayList.size(), dataSnapshot.getChildrenCount());
                     }
                 }
@@ -2359,7 +2450,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
             finish();
         }
-        if (item.getItemId() ==R.id.action_clear_chat) {
+        if (item.getItemId() == R.id.action_clear_chat) {
             AlertDialog.Builder builder1 = new AlertDialog.Builder(SingleChattingScreen.this);
             builder1.setMessage("Clear Chat?");
             builder1.setCancelable(true);

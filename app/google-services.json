@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "582678606212-aeqpf0cbc5fg5h2l3dt2v83ihab9m1qn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umetechnologypvt.ume",
+            "certificate_hash": "40fb850f56733d0331711a91d1c20b915d9edb71"
+          }
+        },
+        {
           "client_id": "582678606212-qe71ambl9kv53a0gq732no93jptv101u.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -41,7 +49,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1736294279767272~1416977197"
     }
   ],
   "configuration_version": "1"

@@ -3,12 +3,15 @@ package com.umetechnologypvt.ume.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.common.reflect.TypeToken;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.ChatListModel;
+import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -25,9 +28,34 @@ public class SharedPrefs {
     }
 
 
+    public static void setMessagesList(String username,ArrayList<ChatModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter(username+"messages", json);
+    }
+
+    public static ArrayList getMessagesList(String username) {
+        Gson gson = new Gson();
+        ArrayList<ChatModel> playersList = (ArrayList<ChatModel>) gson.fromJson(preferenceGetter(username+"messages"),
+                new TypeToken<ArrayList<ChatModel>>() {
+                }.getType());
+        return playersList;
+    }
 
 
-    public static void setChatList(ArrayList<ChatListModel> itemList ) {
+
+    public static void setHeadNotificationCount(String id,String count) {
+        preferenceSetter(id, count);
+    }
+
+    public static String getHeadNotificationCount(String id) {
+        return preferenceGetter(id);
+    }
+
+
+
+    public static void setChatList(ArrayList<ChatListModel> itemList) {
 
         Gson gson = new Gson();
         String json = gson.toJson(itemList);
@@ -36,11 +64,24 @@ public class SharedPrefs {
 
     public static ArrayList getChatList() {
         Gson gson = new Gson();
-        ArrayList<ChatListModel> itemList=new ArrayList<>();
-        itemList = gson.fromJson(preferenceGetter("ChatList"), ArrayList.class);
-        return itemList;
+        ArrayList<ChatListModel> playersList = (ArrayList<ChatListModel>) gson.fromJson(preferenceGetter("ChatList"),
+                new TypeToken<ArrayList<ChatListModel>>() {
+                }.getType());
+        return playersList;
     }
 
+    public static void setParticipantModel(String userId,UserModel model) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(model);
+        preferenceSetter(userId, json);
+    }
+
+    public static UserModel getParticipantModel(String userId) {
+        Gson gson = new Gson();
+        UserModel model = gson.fromJson(preferenceGetter(userId), UserModel.class);
+        return model;
+    }
 
 
 
@@ -129,6 +170,7 @@ public class SharedPrefs {
     public static String getNotificationCount() {
         return preferenceGetter("setChatCount");
     }
+
     public static void logout() {
         SharedPreferences pref = ApplicationClass.getInstance().getApplicationContext().getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();

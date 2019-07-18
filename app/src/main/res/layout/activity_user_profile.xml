@@ -88,6 +88,39 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#fff"
+                    android:weightSum="2">
+
+                    <TextView
+                        android:id="@+id/moments"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/edit_text_background"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Moments" />
+
+
+                    <TextView
+                        android:id="@+id/friends"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/edit_text_background"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Friends" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -170,9 +203,9 @@
 
                             <ImageView
                                 android:id="@+id/genderPic"
-                                android:layout_centerVertical="true"
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
+                                android:layout_centerVertical="true"
                                 android:src="@drawable/ic_male" />
 
 

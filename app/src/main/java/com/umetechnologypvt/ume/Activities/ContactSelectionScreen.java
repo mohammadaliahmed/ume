@@ -1,27 +1,36 @@
 package com.umetechnologypvt.ume.Activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseException;
 import com.umetechnologypvt.ume.Adapters.UserListAdapter;
+import com.umetechnologypvt.ume.Interface.ContactListCallbacks;
 import com.umetechnologypvt.ume.Models.PhoneContactModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,12 +47,15 @@ import java.util.Map;
 public class ContactSelectionScreen extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<UserModel> itemList = new ArrayList<>();
+    ArrayList<String> blockedList = new ArrayList<>();
     UserListAdapter adapter;
     DatabaseReference mDatabase;
-    TextView noContacts;
+//    TextView noContacts;
     ArrayList<PhoneContactModel> phoneContacts = new ArrayList<>();
     HashMap<String, UserModel> map = new HashMap<>();
+    private ArrayList<String> blockedMeList = new ArrayList<>();
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,18 +68,146 @@ public class ContactSelectionScreen extends AppCompatActivity {
         this.setTitle("Select Contact");
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        noContacts = findViewById(R.id.noContacts);
+//        noContacts = findViewById(R.id.noContacts);
         recyclerView = findViewById(R.id.recyclerview);
 
-        adapter = new UserListAdapter(this, itemList);
+        adapter = new UserListAdapter(this, itemList, blockedList, blockedMeList, new ContactListCallbacks() {
+            @Override
+            public void onBlock(UserModel model) {
+                showBlockAlert(model);
+            }
+
+            @Override
+            public void onUnBlock(UserModel model) {
+                showUnBlockAlert(model);
+            }
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
         getPermissions();
 //        getDataFromDB();
 
-
+        getBlockListFromDB();
+        getMeBlockListFromDB();
     }
+
+    private void showUnBlockAlert(UserModel model) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ContactSelectionScreen.this);
+        builder.setTitle("Alert");
+        builder.setMessage("Do you want to unblock this user?");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername())
+                        .child("blockedUsers").child(model.getUsername()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("UnBlocked");
+                    }
+                });
+                mDatabase.child("Users").child(model.getUsername()).child("blockedMe")
+                        .child(SharedPrefs.getUserModel().getUsername()).removeValue().
+                        addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        });
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showBlockAlert(UserModel model) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ContactSelectionScreen.this);
+        builder.setTitle("Alert");
+        builder.setMessage("Do you want to block this user?");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername())
+                        .child("blockedUsers").child(model.getUsername()).setValue(model.getUsername()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("Blocked");
+                    }
+                });
+                mDatabase.child("Users").child(model.getUsername()).child("blockedMe")
+                        .child(SharedPrefs.getUserModel().getUsername()).setValue(SharedPrefs.getUserModel().getUsername()).
+                        addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        });
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void getBlockListFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("blockedUsers").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    blockedList.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String username = snapshot.getKey();
+                        blockedList.add(username);
+                    }
+                    adapter.notifyDataSetChanged();
+                }else{
+                    blockedList.clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getMeBlockListFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("blockedMe").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    blockedMeList.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String username = snapshot.getKey();
+                        blockedMeList.add(username);
+                    }
+                    adapter.notifyDataSetChanged();
+                }else{
+                    blockedMeList.clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void getDataFromMobile() {
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
@@ -102,7 +242,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    noContacts.setVisibility(View.GONE);
+//                    noContacts.setVisibility(View.GONE);
                     itemList.clear();
                     UserModel model = dataSnapshot.getValue(UserModel.class);
                     if (model != null) {
@@ -113,7 +253,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
                                 }
                             }
                         } else {
-                            noContacts.setVisibility(View.VISIBLE);
+//                            noContacts.setVisibility(View.VISIBLE);
                         }
 
                     }
@@ -152,16 +292,18 @@ public class ContactSelectionScreen extends AppCompatActivity {
                             public int compare(UserModel listData, UserModel t1) {
                                 String ob1 = listData.getName();
                                 String ob2 = t1.getName();
-                                if (listData.getName() != null) {
+                                try {
                                     return ob1.compareTo(ob2);
 
-                                } else {
-                                    return 0;
 
+                                } catch (NullPointerException e) {
+                                    e.printStackTrace();
                                 }
 
+                                return 0;
                             }
                         });
+//                        adapter.setUserList(itemList);
                         adapter.notifyDataSetChanged();
                     }
                 }

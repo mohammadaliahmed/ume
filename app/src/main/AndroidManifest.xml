@@ -10,17 +10,26 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+
     <!--<uses-permission android:name="android.permission.WRITE_CONTACTS" />-->
 
     <application
         android:name="com.umetechnologypvt.ume.ApplicationClass"
         android:allowBackup="true"
+        android:appComponentFactory="android.support.v4.app.CoreComponentFactory"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:appComponentFactory"
+
+
+        >
         <activity
             android:name="com.umetechnologypvt.ume.Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -31,6 +40,15 @@
             android:name="com.umetechnologypvt.ume.Activities.GPSTrackerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name="com.umetechnologypvt.ume.Activities.Search.SearchActivity" />
+        <activity android:name="com.umetechnologypvt.ume.Activities.UserFriends" />
+        <activity
+            android:name=".Activities.UserManagement.Register"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Activities.UserManagement.Login"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name="com.umetechnologypvt.ume.Activities.Search.Filters"
             android:windowSoftInputMode="stateHidden" />
@@ -100,6 +118,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <service android:name=".FloatingChatButton.FloatingButton" />
     </application>
 
 </manifest>

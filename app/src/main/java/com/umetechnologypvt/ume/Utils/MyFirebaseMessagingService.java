@@ -6,12 +6,22 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
+import android.media.SoundPool;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.core.app.NotificationCompat;
+
 import android.util.Log;
 
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
+import com.umetechnologypvt.ume.ApplicationClass;
+import com.umetechnologypvt.ume.FloatingChatButton.FloatingButton;
 import com.umetechnologypvt.ume.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -29,8 +39,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mBuilder;
     private String username;
-    private String Id;
+    private String Id, PictureUrl;
     private int ChannelId;
+    SoundPool sp;
+
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -48,9 +60,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             title = map.get("Title");
             ChannelId = Integer.parseInt(map.get("ChannelId") == null ? "" + System.currentTimeMillis() : map.get("ChannelId"));
             type = map.get("Type");
+            PictureUrl = map.get("PictureUrl");
 //            username = map.get("Username");
             Id = map.get("Id");
-            handleNow(title, message, type);
+
+            if (type.equalsIgnoreCase("chat")) {
+                if (SingleChattingScreen.activityAcitve) {
+
+                } else {
+                    int count = 0;
+                    try {
+                        count = Integer.parseInt((SharedPrefs.getHeadNotificationCount(Id).equalsIgnoreCase("") ? "0" : SharedPrefs.getHeadNotificationCount(Id)));
+                        if (count == 0) {
+                            count = 1;
+                        } else {
+                            count = count + 1;
+                        }
+                    } catch (NumberFormatException e) {
+                        SharedPrefs.setHeadNotificationCount(Id, "1");
+                    }
+
+                    SharedPrefs.setHeadNotificationCount(Id, "" + count);
+                    Intent it = new Intent(ApplicationClass.getInstance().getApplicationContext(), FloatingButton.class);
+                    it.putExtra(Constants.EXTRA_MSG, message.length() > 30 ? message.substring(30) : message);
+                    it.putExtra(Constants.IMAGE_URL, PictureUrl);
+                    it.putExtra(Constants.USER_ID, Id);
+                    it.putExtra(Constants.NOTIFICATION_COUNT, count);
+                    startService(it);
+
+                    RingtoneManager.getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)).play();
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for 500 milliseconds
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        //deprecated in API 26
+                        v.vibrate(500);
+                    }
+                }
+
+            } else {
+                handleNow(title, message, type);
+
+            }
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
 //                scheduleJob();
@@ -74,8 +126,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent resultIntent = null;
         if (type.equalsIgnoreCase("chat")) {
 //            SharedPrefs.setNewMsg("1");
+//            startService(new Intent(ApplicationClass.getInstance().getApplicationContext(), FloatingButton.class));
+
             resultIntent = new Intent(this, SingleChattingScreen.class);
             resultIntent.putExtra("userId", Id);
+
         } else if (type.equalsIgnoreCase("friendRequest")) {
             if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
 

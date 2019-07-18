@@ -1,8 +1,8 @@
 package com.umetechnologypvt.ume.Utils;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 public class SampleLifecycleListener implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)

@@ -30,7 +30,7 @@
             android:gravity="right"
             android:text="0 km" />
 
-        <android.support.v7.widget.AppCompatSeekBar
+        <androidx.appcompat.widget.AppCompatSeekBar
             android:id="@+id/seekBar"
             android:layout_width="0dp"
 
@@ -60,11 +60,11 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="1dp"
         android:background="#d6d6d6" />
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>

@@ -1,13 +1,27 @@
 package com.umetechnologypvt.ume.Activities;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,9 +30,11 @@ import android.widget.TextView;
 import com.umetechnologypvt.ume.Activities.Location.NearbyPeople;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.Adapters.ChatListAdapter;
+import com.umetechnologypvt.ume.FloatingChatButton.FloatingButton;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.ConnectivityManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.ChildEventListener;
@@ -36,21 +52,55 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    public static boolean active;
     FloatingActionButton newMessage;
+    public static Activity myDialog;
 
     RecyclerView recyclerview;
     DatabaseReference mDatabase;
     ArrayList<ChatListModel> itemList = new ArrayList<>();
     ChatListAdapter adapter;
-//    TextView noMsgs;
+    //    TextView noMsgs;
     private TextView textCartItemCount;
     HashMap<String, Integer> unreadCount = new HashMap<>();
     private int chatCount;
     Toolbar toolBar;
     HashMap<Integer, ChatListModel> map = new HashMap<Integer, ChatListModel>();
     int count = 0;
+    public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (!Settings.canDrawOverlays(this)) {
+                // You don't have permission
+                checkPermission();
+            } else {
+                // Do as per your logic
+            }
+        }
+    }
 
 
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        active = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        active = false;
+    }
+
+
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolBar);
 //        noMsgs = findViewById(R.id.noMsgs);
         newMessage = findViewById(R.id.newMessage);
+        myDialog = MainActivity.this;
+
+        checkPermission();
+
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -68,22 +122,40 @@ public class MainActivity extends AppCompatActivity {
         newMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                startService(new Intent(getApplication(), FloatingButton.class));
+
                 startActivity(new Intent(MainActivity.this, ContactSelectionScreen.class));
             }
         });
 
 
-        adapter = new ChatListAdapter(this, itemList);
+        adapter = new ChatListAdapter(this, itemList, new ChatListAdapter.ChatCallbacks() {
+            @Override
+            public void onChatDelete(String username) {
+                showDeleteAlert(username);
+            }
+        });
         recyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerview.setAdapter(adapter);
 
-//        if(ConnectivityManager.isNetworkConnected(this)){
+        if (ConnectivityManager.isNetworkConnected(this)) {
             getMessagesFromDB();
-//
-//        }else{
-//            itemList=SharedPrefs.getChatList();
+
+        } else {
+            itemList = SharedPrefs.getChatList();
+            Collections.sort(itemList, new Comparator<ChatListModel>() {
+                @Override
+                public int compare(ChatListModel listData, ChatListModel t1) {
+                    Long ob1 = listData.getMessage().getTime();
+                    Long ob2 = t1.getMessage().getTime();
+
+                    return ob2.compareTo(ob1);
+
+                }
+            });
+            adapter.setNewList(itemList);
 //            adapter.notifyDataSetChanged();
-//        }
+        }
 
 //        getLastmsgsFromDB();
         if (SharedPrefs.getUserModel().getUsername() != null) {
@@ -94,41 +166,49 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void getLastmsgsFromDB() {
-        mDatabase.child("LastMessages").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    itemList.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        ChatModel model = snapshot.getValue(ChatModel.class);
-
-                        itemList.add(new ChatListModel(snapshot.getKey(), model));
-                    }
-                    Collections.sort(itemList, new Comparator<ChatListModel>() {
-                        @Override
-                        public int compare(ChatListModel listData, ChatListModel t1) {
-                            Long ob1 = listData.getMessage().getTime();
-                            Long ob2 = t1.getMessage().getTime();
-
-                            return ob2.compareTo(ob1);
-
-                        }
-                    });
-                    adapter.notifyDataSetChanged();
-                }
+    public void checkPermission() {
+        System.out.println("CHECK PERMISSIONS:");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
             }
+        }
+    }
 
+    private void showDeleteAlert(String username) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Alert");
+        builder.setMessage("Do you want to delete this chat? ");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(username)
+                        .removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("Deleted");
+                    }
+                });
 
             }
         });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
+
 
     @Override
     protected void onResume() {
         super.onResume();
+        active = true;
+
         if (textCartItemCount != null) {
             if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
                 if (Integer.parseInt(SharedPrefs.getNotificationCount()) > 0) {
@@ -168,7 +248,9 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                    itemList.clear();
+                    map.clear();
+                    getMessagesFromDB();
                 }
 
                 @Override
@@ -184,29 +266,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-//        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.getValue() != null) {
-//                    noMsgs.setVisibility(View.GONE);
-//
-//                    itemList.clear();
-//                    chatCount = 0;
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        getUnreadCount(snapshot.getKey());
-//                        getMsgsFromDB(snapshot.getKey());
-//                        final String abc = snapshot.getKey();
-//                    }
-//                } else {
-//                    noMsgs.setVisibility(View.VISIBLE);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
     }
 
     private void getMsgsFromDB(String key, int count) {

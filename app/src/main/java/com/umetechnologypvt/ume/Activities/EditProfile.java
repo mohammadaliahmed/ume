@@ -9,11 +9,11 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,6 +86,8 @@ public class EditProfile extends AppCompatActivity {
     private int age;
     EditText about;
     ImageView addPhoto;
+    private String pictureUrl;
+    private UserModel model;
 
 
     @Override
@@ -116,7 +118,6 @@ public class EditProfile extends AppCompatActivity {
         chooseCountry = findViewById(R.id.chooseCountry);
         chooseLanguage = findViewById(R.id.chooseLanguage);
         progress = findViewById(R.id.progress);
-        progress.setVisibility(View.VISIBLE);
         getUserDataFromDB();
         setupLearningLangaue();
         setupInterest();
@@ -319,18 +320,18 @@ public class EditProfile extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
-            mSelected = Matisse.obtainResult(data);
-            progress.setVisibility(View.VISIBLE);
-            for (Uri img :
-                    mSelected) {
-                CompressImage compressImage = new CompressImage(EditProfile.this);
-                imageUrl.add(compressImage.compressImage("" + img));
-            }
-            Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
-            putPictures(imageUrl.get(0));
-
-        }
+//        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+//            mSelected = Matisse.obtainResult(data);
+//            progress.setVisibility(View.VISIBLE);
+//            for (Uri img :
+//                    mSelected) {
+//                CompressImage compressImage = new CompressImage(EditProfile.this);
+//                imageUrl.add(compressImage.compressImage("" + img));
+//            }
+//            Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
+//            putPictures(imageUrl.get(0));
+//
+//        }
         super.onActivityResult(requestCode, resultCode, data);
 
     }
@@ -352,14 +353,15 @@ public class EditProfile extends AppCompatActivity {
                         // Get a URL to the uploaded content
 
                         Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
-                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
+                         pictureUrl=""+downloadUrl;
+//                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
+//                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
                                 CommonUtils.showToast("Pic uploaded");
                                 progress.setVisibility(View.GONE);
-                            }
-                        });
+//                            }
+//                        });
 
 
                     }
@@ -384,7 +386,8 @@ public class EditProfile extends AppCompatActivity {
         userModel.setDob(dob);
         userModel.setAge(age);
         userModel.setCurrentLocation(currentLocation);
-        userModel.setCountryNameCode(countryCode);
+        userModel.setCountryNameCode(countryCode==null?model.getCountryNameCode():countryCode);
+        userModel.setPicUrl(pictureUrl==null?userModel.getPicUrl():pictureUrl);
         userModel.setInterests(interestList);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);
@@ -409,7 +412,7 @@ public class EditProfile extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    UserModel model = dataSnapshot.getValue(UserModel.class);
+                     model = dataSnapshot.getValue(UserModel.class);
                     if (model != null) {
                         SharedPrefs.setUserModel(model);
                         country = model.getCountry();
@@ -433,11 +436,13 @@ public class EditProfile extends AppCompatActivity {
                             }
 
                         }
-                        if (model.getGender().equalsIgnoreCase("male")) {
-                            ((RadioButton) radioGender.getChildAt(0)).setChecked(true);
-                        } else {
-                            ((RadioButton) radioGender.getChildAt(1)).setChecked(true);
+                        if(model.getGender()!=null) {
+                            if (model.getGender().equalsIgnoreCase("male")) {
+                                ((RadioButton) radioGender.getChildAt(0)).setChecked(true);
+                            } else {
+                                ((RadioButton) radioGender.getChildAt(1)).setChecked(true);
 
+                            }
                         }
 
                         learningLanguages = model.getLearningLanguage();
