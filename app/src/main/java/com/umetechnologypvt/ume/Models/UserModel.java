@@ -31,7 +31,17 @@ public class UserModel {
 
     double latitude,longitude;
 
+    String thumbnailUrl;
+
     public UserModel() {
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public UserModel(String gender, String language, String country, String currentLocation,

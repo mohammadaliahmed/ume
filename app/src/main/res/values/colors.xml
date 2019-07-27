@@ -13,4 +13,7 @@
     <color name="colorYellow">#fcef00</color>
     <color name="colorGreyDark">#4e4e4e</color>
     <color name="colorSelected">#1cb700ff</color>
+    <color name="light_blank">#212121</color>
+    <color name="selected_option">#009688</color>
+    <color name="red">#D72026</color>
 </resources>

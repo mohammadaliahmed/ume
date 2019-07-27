@@ -50,8 +50,8 @@ public class CompressImage {
 
 //      max Height and width values of the compressed image is taken as 816x612
 
-        float maxHeight = 1000.0f;
-        float maxWidth = 800.0f;
+        float maxHeight = 600.0f;
+        float maxWidth = 500.0f;
         float imgRatio = actualWidth / actualHeight;
         float maxRatio = maxWidth / maxHeight;
 

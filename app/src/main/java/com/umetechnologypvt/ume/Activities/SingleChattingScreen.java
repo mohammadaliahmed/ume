@@ -1,6 +1,7 @@
 package com.umetechnologypvt.ume.Activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -652,6 +653,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     }
 
 
+    @SuppressLint("WrongConstant")
     private void showTranslateLanguagePickerDialog(ChatModel chatModel) {
         LayoutInflater factory = LayoutInflater.from(this);
         final View languageDialogView = factory.inflate(R.layout.dialog_language_pick, null);
@@ -1081,7 +1083,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 public void onSuccess(Void aVoid) {
                                     newModel.setUsername(SharedPrefs.getUserModel().getUsername());
                                     newModel.setName(SharedPrefs.getUserModel().getName());
-                                    newModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                                    newModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                                     mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(newModel.getId())
                                             .setValue(newModel);
                                     sendNotification(newModel.getMessageType(), newModel.getId());
@@ -1306,7 +1308,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
                                 .setValue(chatModel);
@@ -1353,7 +1355,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
                                 .setValue(chatModel);
@@ -1472,7 +1474,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 .child(hisUserModel.getUsername()).child(chatModel.getId()).child("stickerUrl").setValue("" + downloadUrl);
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         chatModel.setStickerUrl("" + downloadUrl);
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
@@ -1519,7 +1521,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         chatModel.setDocumentUrl("" + downloadUrl);
 
@@ -1598,7 +1600,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         chatModel.setVideoUrl("" + downloadUrl);
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
@@ -1649,7 +1651,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 .child(hisUserModel.getUsername()).child(chatModel.getId()).child("videoUrl").setValue("" + downloadUrl);
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         chatModel.setVideoUrl("" + downloadUrl);
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
@@ -1738,7 +1740,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 .child(hisUserModel.getUsername()).child(chatModel.getId()).child("imageUrl").setValue("" + downloadUrl);
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setImageUrl("" + downloadUrl);
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(chatModel.getId())
@@ -1802,7 +1804,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setAudioUrl("" + downloadUrl);
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(messageId)
@@ -1872,7 +1874,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(messageId)
                                 .setValue(chatModel);
@@ -1929,7 +1931,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
-                        chatModel.setPicUrl(SharedPrefs.getUserModel().getPicUrl());
+                        chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
                         chatModel.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(messageId)
                                 .setValue(chatModel);
@@ -1987,7 +1989,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 "chat",
                 SharedPrefs.getUserModel().getUsername(),
                 "" + SharedPrefs.getUserModel().getUsername().length(),
-                SharedPrefs.getUserModel().getPicUrl()
+                SharedPrefs.getUserModel().getThumbnailUrl()
         );
 
     }

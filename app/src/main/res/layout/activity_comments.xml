@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#eee" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="30dp"
+            android:id="@+id/image"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="10dp"
+            android:src="@drawable/ic_profile_plc" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:id="@+id/comment"
+            android:scrollbars="vertical"
+            android:background="@null"
+            android:hint="Post comment"
+            android:layout_centerVertical="true"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxHeight="100dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="60dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/postComment"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorGrey"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="10dp"
+            android:text="Post"
+            android:textSize="17sp" />
+    </RelativeLayout>
+
+</RelativeLayout>

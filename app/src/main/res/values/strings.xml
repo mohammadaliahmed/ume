@@ -2,4 +2,10 @@
     <string name="app_name">UME</string>
     <string name="error_gif">x or y bound size should be at least %1$dpx and file size should be no more than %2$sM</string>
     <string name="video_compression_complete">Video Compression Complete</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="file_limit_size_upload_format">Files must be less than %sMB</string>
+
 </resources>

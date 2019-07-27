@@ -28,6 +28,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
 import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
 import com.umetechnologypvt.ume.BottomDialogs.DialogCallbacks;
@@ -35,6 +36,7 @@ import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
+import com.umetechnologypvt.ume.Utils.CompressImageToThumbnail;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
@@ -88,6 +90,7 @@ public class EditProfile extends AppCompatActivity {
     ImageView addPhoto;
     private String pictureUrl;
     private UserModel model;
+    private String userUploadedThumbnailUrl;
 
 
     @Override
@@ -255,7 +258,11 @@ public class EditProfile extends AppCompatActivity {
                             imageUrl.add(compressImage.compressImage("" + img));
                         }
                         Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
+                        CompressImageToThumbnail c=new CompressImageToThumbnail(EditProfile.this);
+                        String thumbnailUrl = c.compressImage("" + mSelected.get(0));
+
                         putPictures(imageUrl.get(0));
+                        putThumbnail(thumbnailUrl);
 
                     }
                 })
@@ -377,6 +384,47 @@ public class EditProfile extends AppCompatActivity {
 
 
     }
+ public void putThumbnail(String path) {
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        ;
+        Uri file = Uri.fromFile(new File(path));
+
+
+        StorageReference riversRef = mStorageRef.child("Photos").child(imgName);
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    @SuppressWarnings("VisibleForTests")
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                         userUploadedThumbnailUrl=""+downloadUrl;
+//                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
+//                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+                                CommonUtils.showToast("Pic uploaded");
+                                progress.setVisibility(View.GONE);
+//                            }
+//                        });
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        Toast.makeText(EditProfile.this, "error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+    }
 
     private void takeUserToNextScreen() {
         UserModel userModel = SharedPrefs.getUserModel();
@@ -388,6 +436,7 @@ public class EditProfile extends AppCompatActivity {
         userModel.setCurrentLocation(currentLocation);
         userModel.setCountryNameCode(countryCode==null?model.getCountryNameCode():countryCode);
         userModel.setPicUrl(pictureUrl==null?userModel.getPicUrl():pictureUrl);
+        userModel.setThumbnailUrl(userUploadedThumbnailUrl==null?userModel.getThumbnailUrl():userUploadedThumbnailUrl);
         userModel.setInterests(interestList);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+
+    <RelativeLayout
+        android:id="@+id/toolbar"
+
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_back_black"
+            android:visibility="gone" />
+
+
+        <TextView
+            android:id="@+id/toolbarName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/back"
+            android:text="Ali Ahmed"
+            android:textColor="#000"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/menu" />
+    </RelativeLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/picture"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1.5"
+                    android:src="@drawable/ic_profile_plc" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_weight="1.7"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/postCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="-"
+                        android:textColor="#000"
+                        android:textSize="18sp"
+
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="Posts"
+                        android:textSize="16sp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginTop="20dp"
+                    android:layout_weight="1.7"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/friendsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="-"
+
+                        android:textColor="#000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="Friends"
+
+
+                        android:textSize="16sp" />
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Ali Ahmed"
+                android:textColor="#000" />
+
+            <TextView
+                android:id="@+id/about"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:maxLines="4"
+                android:text="About"
+                android:textColor="#000" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/addAsFriend"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/btn_bg_purple"
+                    android:gravity="center"
+                    android:inputType="text"
+                    android:text="Add As Friend"
+                    android:textColor="#fff"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/startChat"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/btn_bg_grey"
+                    android:gravity="center"
+                    android:inputType="text"
+                    android:text="Message"
+                    android:textSize="13sp" />
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="#ddd" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</RelativeLayout>

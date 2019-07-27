@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:text="Show users" />
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/search_bg"
+            android:hint="Search"
+            android:inputType="textCapWords"
+            android:padding="10dp"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="38dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="50dp"
+            android:background="#aaa" />
+
+        <RadioGroup
+            android:id="@+id/radioGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/radio_flat_selector"
+                android:button="@android:color/transparent"
+                android:gravity="center"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="Any"
+                android:textColor="@color/radio_flat_text_selector" />
+
+            <RadioButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/radio_flat_selector"
+                android:button="@android:color/transparent"
+                android:gravity="center"
+
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+
+                android:text="Male"
+                android:textColor="@color/radio_flat_text_selector" />
+
+            <RadioButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/radio_flat_selector"
+                android:button="@android:color/transparent"
+                android:gravity="center"
+                android:paddingTop="5dp"
+
+                android:paddingBottom="5dp"
+                android:text="Female"
+                android:textColor="@color/radio_flat_text_selector" />
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/chooseSpoken"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_speak" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="38dp"
+                    android:layout_weight="3"
+
+                    android:text="Spoken Language:"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseSpokenLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="150dp"
+                    android:layout_weight="1"
+
+                    android:gravity="right"
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseLearning"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_book" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="38dp"
+                    android:layout_weight="3"
+                    android:text="Leaning Language:"
+
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseLearningLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="150dp"
+                    android:layout_weight="1"
+                    android:gravity="right"
+
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseCountryr"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+
+                    android:padding="2dp"
+                    android:src="@drawable/ic_flag" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="38dp"
+                    android:layout_weight="3"
+                    android:text="Country:"
+
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseCountry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="150dp"
+
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseCurrentLocation"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_location" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="38dp"
+
+                    android:layout_weight="3"
+                    android:text="Current Location:"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseCurrent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="150dp"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="Any"
+
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseAgeRel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+
+
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_age" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="38dp"
+
+                    android:layout_weight="3"
+
+                    android:text="Age group:"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="150dp"
+                    android:layout_weight="1"
+
+                    android:gravity="right"
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/chooseInterestRel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+
+                    android:src="@drawable/ic_heart" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="38dp"
+
+                    android:layout_weight="3"
+
+                    android:text="Interests:"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/chooseInterest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="150dp"
+                    android:gravity="right"
+
+                    android:text="Any"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/btn_empty"
+                android:inputType="text"
+                android:text="Reset"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/ok"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/btn_bg"
+                android:inputType="text"
+                android:text="Ok"
+                android:textColor="#fff" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</ScrollView>

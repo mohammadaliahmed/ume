@@ -110,8 +110,8 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
         friends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i=new Intent(UserProfileScreen.this,UserFriends.class);
-                i.putExtra("userId",userId);
+                Intent i = new Intent(UserProfileScreen.this, UserFriends.class);
+                i.putExtra("userId", userId);
                 startActivity(i);
             }
         });
@@ -248,7 +248,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
                 SharedPrefs.getUserModel().getUsername(),
-                "" + SharedPrefs.getUserModel().getUsername().length(),SharedPrefs.getUserModel().getPicUrl()
+                "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
         );
         String key = mDatabase.push().getKey();
         NotificationModel model = new NotificationModel(
@@ -350,7 +350,7 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
 
         notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
                 SharedPrefs.getUserModel().getUsername(),
-                "" + SharedPrefs.getUserModel().getUsername().length(),SharedPrefs.getUserModel().getPicUrl()
+                "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
         );
         String key = mDatabase.push().getKey();
 
@@ -377,6 +377,24 @@ public class UserProfileScreen extends AppCompatActivity implements Notification
                     if (hisUserModel != null) {
                         inflatelayout(hisUserModel.getInterests());
                         setUserProfileData(hisUserModel);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+
+                    UserModel m = dataSnapshot.getValue(UserModel.class);
+                    if (m != null) {
+                        SharedPrefs.setUserModel(m);
 
                     }
                 }

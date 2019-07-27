@@ -25,6 +25,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
 import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
 import com.umetechnologypvt.ume.BottomDialogs.DialogCallbacks;
@@ -32,6 +33,7 @@ import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
+import com.umetechnologypvt.ume.Utils.CompressImageToThumbnail;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
@@ -85,6 +87,8 @@ Profile extends AppCompatActivity {
     ImageView addPhoto;
     private String pictureUrl;
     private UserModel model;
+    private String userUploadedThumbnailUrl;
+
 
 
     @Override
@@ -257,10 +261,56 @@ Profile extends AppCompatActivity {
                         }
                         Glide.with(Profile.this).load(mSelected.get(0)).into(image);
                         putPictures(imageUrl.get(0));
+                        CompressImageToThumbnail c=new CompressImageToThumbnail(Profile.this);
+
+                        String thumbnailUrl = c.compressImage("" + mSelected.get(0));
+                        putThumbnail(thumbnailUrl);
 
                     }
                 })
                 .start();
+    }
+
+    public void putThumbnail(String path) {
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+        ;
+        Uri file = Uri.fromFile(new File(path));
+
+
+        StorageReference riversRef = mStorageRef.child("Photos").child(imgName);
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    @SuppressWarnings("VisibleForTests")
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        userUploadedThumbnailUrl=""+downloadUrl;
+//                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("picUrl")
+//                                .setValue("" + downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("Pic uploaded");
+                        progress.setVisibility(View.GONE);
+//                            }
+//                        });
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        Toast.makeText(Profile.this, "error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
     }
 
     public String inputStreamToString(InputStream inputStream) {
@@ -390,6 +440,7 @@ Profile extends AppCompatActivity {
         userModel.setCountryNameCode(countryCode==null?model.getCountryNameCode():countryCode);
         userModel.setCurrentLocation(currentLocation);
         userModel.setInterests(interestList);
+        userModel.setThumbnailUrl(userUploadedThumbnailUrl==null?userModel.getThumbnailUrl():userUploadedThumbnailUrl);
         userModel.setPicUrl(pictureUrl==null?userModel.getPicUrl():pictureUrl);
         userModel.setLearningLanguage(learningLanguages);
         userModel.setLanguage(language);

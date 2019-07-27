@@ -7,6 +7,7 @@ import com.google.common.reflect.TypeToken;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
+import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.google.gson.Gson;
 
@@ -28,31 +29,29 @@ public class SharedPrefs {
     }
 
 
-    public static void setMessagesList(String username,ArrayList<ChatModel> itemList) {
+    public static void setMessagesList(String username, ArrayList<ChatModel> itemList) {
 
         Gson gson = new Gson();
         String json = gson.toJson(itemList);
-        preferenceSetter(username+"messages", json);
+        preferenceSetter(username + "messages", json);
     }
 
     public static ArrayList getMessagesList(String username) {
         Gson gson = new Gson();
-        ArrayList<ChatModel> playersList = (ArrayList<ChatModel>) gson.fromJson(preferenceGetter(username+"messages"),
+        ArrayList<ChatModel> playersList = (ArrayList<ChatModel>) gson.fromJson(preferenceGetter(username + "messages"),
                 new TypeToken<ArrayList<ChatModel>>() {
                 }.getType());
         return playersList;
     }
 
 
-
-    public static void setHeadNotificationCount(String id,String count) {
+    public static void setHeadNotificationCount(String id, String count) {
         preferenceSetter(id, count);
     }
 
     public static String getHeadNotificationCount(String id) {
         return preferenceGetter(id);
     }
-
 
 
     public static void setChatList(ArrayList<ChatListModel> itemList) {
@@ -70,7 +69,38 @@ public class SharedPrefs {
         return playersList;
     }
 
-    public static void setParticipantModel(String userId,UserModel model) {
+
+    public static void setPosts(ArrayList<PostsModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("PostsModel", json);
+    }
+
+    public static ArrayList getPosts() {
+        Gson gson = new Gson();
+        ArrayList<PostsModel> playersList = (ArrayList<PostsModel>) gson.fromJson(preferenceGetter("PostsModel"),
+                new TypeToken<ArrayList<PostsModel>>() {
+                }.getType());
+        return playersList;
+    }
+
+    public static void setLikesList(ArrayList<String> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("getLikesList", json);
+    }
+
+    public static ArrayList getLikesList() {
+        Gson gson = new Gson();
+        ArrayList<String> playersList = (ArrayList<String>) gson.fromJson(preferenceGetter("getLikesList"),
+                new TypeToken<ArrayList<String>>() {
+                }.getType());
+        return playersList;
+    }
+
+    public static void setParticipantModel(String userId, UserModel model) {
 
         Gson gson = new Gson();
         String json = gson.toJson(model);
@@ -82,8 +112,6 @@ public class SharedPrefs {
         UserModel model = gson.fromJson(preferenceGetter(userId), UserModel.class);
         return model;
     }
-
-
 
 
     public static void setUserModel(UserModel model) {
@@ -130,6 +158,14 @@ public class SharedPrefs {
 
     public static String getCountryCode() {
         return preferenceGetter("getCountryCode");
+    }
+
+    public static void setMuted(String value) {
+        preferenceSetter("muted", value);
+    }
+
+    public static String getMuted() {
+        return preferenceGetter("muted");
     }
 
 

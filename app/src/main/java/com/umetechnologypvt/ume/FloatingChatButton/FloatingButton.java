@@ -1,12 +1,8 @@
 package com.umetechnologypvt.ume.FloatingChatButton;
 
 import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -16,19 +12,19 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.umetechnologypvt.ume.Activities.MainActivity;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.Constants;
@@ -83,13 +79,38 @@ public class FloatingButton extends Service {
 
         removeView.setVisibility(View.GONE);
         removeImg = (ImageView) removeView.findViewById(R.id.remove_img);
-        windowManager.addView(removeView, paramRemove);
+        try {
+            windowManager.addView(removeView, paramRemove);
+
+        } catch (Exception e) {
+
+        }
 
 
         chatheadView = (RelativeLayout) inflater.inflate(R.layout.chathead, null);
         chatheadImg = (ImageView) chatheadView.findViewById(R.id.chathead_img);
 
-        Glide.with(this).load(PictureUrl).into(chatheadImg);
+//        Glide.with(this).load(PictureUrl).into(chatheadImg);
+        if (PictureUrl == null) {
+        } else {
+            if (PictureUrl != null || !PictureUrl.equalsIgnoreCase("")) {
+                Glide.with(this).load(PictureUrl).into(chatheadImg);
+
+            } else {
+                Glide.with(this).load(R.drawable.ic_profile_plc).placeholder(R.drawable.ic_profile_plc).listener(new RequestListener<Integer, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+
+                        return false;
+                    }
+                }).into(chatheadImg);
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             windowManager.getDefaultDisplay().getSize(szWindow);
         } else {
@@ -119,7 +140,12 @@ public class FloatingButton extends Service {
         params.gravity = Gravity.CENTER | Gravity.LEFT;
         params.x = 0;
         params.y = 100;
-        windowManager.addView(chatheadView, params);
+        try {
+            windowManager.addView(chatheadView, params);
+
+        } catch (Exception e) {
+
+        }
 
         chatheadView.setOnTouchListener(new View.OnTouchListener() {
             long time_start = 0, time_end = 0;
@@ -193,14 +219,22 @@ public class FloatingButton extends Service {
                                         WindowManager.LayoutParams param_remove = (WindowManager.LayoutParams) removeView.getLayoutParams();
                                         param_remove.x = x_cord_remove;
                                         param_remove.y = y_cord_remove;
+                                        try {
+                                            windowManager.updateViewLayout(removeView, param_remove);
 
-                                        windowManager.updateViewLayout(removeView, param_remove);
+                                        } catch (Exception e) {
+
+                                        }
                                     }
 
                                     layoutParams.x = x_cord_remove + (Math.abs(removeView.getWidth() - chatheadView.getWidth())) / 2;
                                     layoutParams.y = y_cord_remove + (Math.abs(removeView.getHeight() - chatheadView.getHeight())) / 2;
+                                    try {
+                                        windowManager.updateViewLayout(chatheadView, layoutParams);
 
-                                    windowManager.updateViewLayout(chatheadView, layoutParams);
+                                    } catch (Exception e) {
+
+                                    }
                                     break;
                                 } else {
                                     inBounded = false;
@@ -213,8 +247,12 @@ public class FloatingButton extends Service {
 
                                     param_remove.x = x_cord_remove;
                                     param_remove.y = y_cord_remove;
+                                    try {
+                                        windowManager.updateViewLayout(removeView, param_remove);
 
-                                    windowManager.updateViewLayout(removeView, param_remove);
+                                    } catch (Exception e) {
+
+                                    }
                                 }
 
                             }
@@ -223,7 +261,12 @@ public class FloatingButton extends Service {
                             layoutParams.x = x_cord_Destination;
                             layoutParams.y = y_cord_Destination;
 
-                            windowManager.updateViewLayout(chatheadView, layoutParams);
+                            try {
+                                windowManager.updateViewLayout(chatheadView, layoutParams);
+
+                            } catch (Exception e) {
+
+                            }
                             break;
                         case MotionEvent.ACTION_UP:
                             isLongclick = false;
@@ -272,7 +315,7 @@ public class FloatingButton extends Service {
                             break;
                     }
                     return true;
-                }catch (Exception e){
+                } catch (Exception e) {
 //                    e.printStackTrace();
                 }
                 return true;
@@ -316,7 +359,12 @@ public class FloatingButton extends Service {
         paramsTxt.gravity = Gravity.CENTER | Gravity.LEFT;
 
         txtView.setVisibility(View.GONE);
-        windowManager.addView(txtView, paramsTxt);
+        try {
+            windowManager.addView(txtView, paramsTxt);
+
+        } catch (Exception e) {
+
+        }
     }
 
 
@@ -394,7 +442,7 @@ public class FloatingButton extends Service {
                     long step = (500 - t) / 5;
                     mParams.x = 0 - (int) (double) bounceValue(step, x);
                     windowManager.updateViewLayout(chatheadView, mParams);
-                }catch (Exception e){
+                } catch (Exception e) {
                 }
             }
 
@@ -403,7 +451,7 @@ public class FloatingButton extends Service {
                 try {
                     windowManager.updateViewLayout(chatheadView, mParams);
 
-                }catch (IllegalArgumentException e){
+                } catch (IllegalArgumentException e) {
 
                 }
             }
@@ -493,7 +541,12 @@ public class FloatingButton extends Service {
             }
 
             txtView.setVisibility(View.VISIBLE);
-            windowManager.updateViewLayout(txtView, param_txt);
+            try {
+                windowManager.updateViewLayout(txtView, param_txt);
+
+            } catch (Exception e) {
+
+            }
 
             myHandler.postDelayed(myRunnable, 5000);
 
@@ -596,15 +649,31 @@ public class FloatingButton extends Service {
         super.onDestroy();
 
         if (chatheadView != null) {
-            windowManager.removeView(chatheadView);
+            try {
+                windowManager.removeView(chatheadView);
+
+            } catch (Exception e) {
+
+            }
         }
 
         if (txtView != null) {
-            windowManager.removeView(txtView);
+            try {
+                windowManager.removeView(txtView);
+
+            } catch (Exception e) {
+
+            }
         }
 
         if (removeView != null) {
-            windowManager.removeView(removeView);
+            try {
+
+                windowManager.removeView(removeView);
+
+            } catch (Exception e) {
+
+            }
         }
 
     }

@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserManagement.Login;
-import com.umetechnologypvt.ume.Activities.UserManagement.Register;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.PrefManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;

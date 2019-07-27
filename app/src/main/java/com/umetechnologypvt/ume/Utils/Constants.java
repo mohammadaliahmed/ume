@@ -1,5 +1,11 @@
 package com.umetechnologypvt.ume.Utils;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.umetechnologypvt.ume.Models.ChatListModel;
+
+import java.util.ArrayList;
+
 /**
  * Created by AliAh on 19/02/2018.
  */
@@ -25,6 +31,11 @@ public class Constants {
     public static String USER_ID = "extra_user_id";
     public static String NOTIFICATION_COUNT = "extra_notification_count";
     public static String IMAGE_URL = "image_url";
+    public static int PICTURE_POSITION = 0;
+
+
+
+
 
 
 

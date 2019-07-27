@@ -222,9 +222,10 @@ public class SearchActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_filter) {
-            Intent i = new Intent(SearchActivity.this, Filters.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(i);
+//            Intent i = new Intent(SearchActivity.this, Filters.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(i);
+            finish();
         }
 
 

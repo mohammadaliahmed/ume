@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/imageLayout"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+            <ImageView
+                android:id="@+id/imgShow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="visible" />
+
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/videoLayout"
+            android:layout_width="match_parent"
+            android:visibility="visible"
+            android:layout_height="200dp">
+
+            <VideoView
+                android:id="@+id/vidShow"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+
+
+        </RelativeLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add Comment"
+
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+
+
+
+
+    <RelativeLayout
+        android:id="@+id/wholeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="#fff"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/progressBar"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:text="Posting.." />
+    </RelativeLayout>
+
+</RelativeLayout>
