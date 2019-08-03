@@ -9,9 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.umetechnologypvt.ume.Activities.UserProfileScreen;
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
+import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.Constants;
 
 import java.util.ArrayList;
 
@@ -30,27 +32,29 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view=LayoutInflater.from(context).inflate(R.layout.user_item_layout,viewGroup,false);
-        FriendsListAdapter.ViewHolder viewHolder=new FriendsListAdapter.ViewHolder(view);
+        View view = LayoutInflater.from(context).inflate(R.layout.user_item_layout, viewGroup, false);
+        FriendsListAdapter.ViewHolder viewHolder = new FriendsListAdapter.ViewHolder(view);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
-        UserModel model=itemList.get(i);
+        UserModel model = itemList.get(i);
         holder.name.setText(model.getName());
-        if(model.getPicUrl()!=null){
+        if (model.getPicUrl() != null) {
             Glide.with(context).load(model.getPicUrl()).into(holder.pic);
-        }else{
+        } else {
             Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.pic);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i=new Intent(context,UserProfileScreen.class);
-                i.putExtra("userId",model.getUsername());
+                Intent i = new Intent(context, MainActivity.class);
+                Constants.USER_ID = model.getUsername();
+                i.putExtra("value", 2);
                 context.startActivity(i);
+
             }
         });
 
@@ -64,10 +68,11 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         ImageView pic;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            pic=itemView.findViewById(R.id.pic);
-            name=itemView.findViewById(R.id.name);
+            pic = itemView.findViewById(R.id.pic);
+            name = itemView.findViewById(R.id.name);
         }
     }
 

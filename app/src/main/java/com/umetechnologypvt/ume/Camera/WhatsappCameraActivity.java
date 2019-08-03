@@ -1,9 +1,6 @@
 package com.umetechnologypvt.ume.Camera;
 
 import android.Manifest;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -28,6 +25,7 @@ import android.os.Handler;
 import android.os.StatFs;
 import android.os.SystemClock;
 
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -42,12 +40,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ZoomControls;
 
-import com.umetechnologypvt.ume.Activities.EditProfile;
+import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.CompressImage;
+import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
+import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
@@ -76,10 +76,12 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     private Camera.PictureCallback jpegCallback;
     int MAX_VIDEO_SIZE_UPLOAD = 25; //MB
     float mDist = 0;
+    private static final int REQUEST_TAKE_GALLERY_VIDEO = 99;
 
     ImageView pickGallery;
     FrameLayout pCameraLayout;
     private List<Uri> mSelected = new ArrayList<>();
+    ImageView pickVideo;
 //    ZoomControls zoomControls;
 
 
@@ -168,6 +170,7 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
         }
         pCameraLayout = findViewById(R.id.pCameraLayout);
         pickGallery = findViewById(R.id.pickGallery);
+        pickVideo = findViewById(R.id.pickVideo);
 
         runTimePermission = new RunTimePermission(this);
         runTimePermission.requestPermission(new String[]{Manifest.permission.CAMERA,
@@ -211,15 +214,27 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
                 initMatisse();
             }
         });
+        pickVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {//
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
+                startActivityForResult(intent, REQUEST_TAKE_GALLERY_VIDEO);
+
+
+            }
+        });
+
 //        enableZoom();
 
     }
 
     private void initMatisse() {
+        mSelected.clear();
         Matisse.from(WhatsappCameraActivity.this)
                 .choose(MimeType.allOf())
                 .countable(true)
-                .maxSelectable(1)
+                .maxSelectable(9)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
                 .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -232,22 +247,40 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
             mSelected = Matisse.obtainResult(data);
-            Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoVideoRedirectActivity.class);
-            mIntent.putExtra("PATH", ""+mSelected.get(0));
-            mIntent.putExtra("THUMB", ""+mSelected.get(0));
+            Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
+            mIntent.putExtra("PATH", "" + mSelected.get(0));
+            mIntent.putExtra("THUMB", "" + mSelected.get(0));
             mIntent.putExtra("WHO", "Image");
+            SharedPrefs.setMultiPickedImg(new ArrayList<>());
+            List<String> imgs = new ArrayList<>();
+            for (Uri uri : mSelected) {
+                CompressImage compressImage = new CompressImage(WhatsappCameraActivity.this);
+                imgs.add(compressImage.compressImage("" + uri));
+            }
+            if (imgs.size() > 0) {
+                mIntent.putExtra("WHO", "Multi");
+                SharedPrefs.setMultiPickedImg(imgs);
+            }
             startActivity(mIntent);
-//            for (Uri img :
-//                    mSelected) {
-//                CompressImage compressImage = new CompressImage(EditProfile.this);
-//                imageUrl.add(compressImage.compressImage("" + img));
-//            }
-//            Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
-//            putPictures(imageUrl.get(0));
 
+
+        } else if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
+            if (data != null) {
+                Uri selectedImageUri = data.getData();
+
+                // OI FILE Manager
+                String filemanagerstring = selectedImageUri.getPath();
+                Intent mIntent = new Intent(WhatsappCameraActivity.this, VideoRedirectActivity.class);
+                mIntent.putExtra("PATH", CommonUtils.getRealPathFromURI(selectedImageUri));
+                mIntent.putExtra("THUMB", CommonUtils.getRealPathFromURI(selectedImageUri));
+                mIntent.putExtra("WHO", "GalleryVideo");
+                startActivity(mIntent);
+
+            }
+            super.onActivityResult(requestCode, resultCode, data);
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     private void cancelSavePicTaskIfNeed() {
         if (savePicTask != null && savePicTask.getStatus() == AsyncTask.Status.RUNNING) {
@@ -298,7 +331,7 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
                 @Override
                 public void run() {
 
-                    Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoVideoRedirectActivity.class);
+                    Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
                     mIntent.putExtra("PATH", tempFile.toString());
                     mIntent.putExtra("THUMB", tempFile.toString());
                     mIntent.putExtra("WHO", "Image");
@@ -331,6 +364,17 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
             if (rotation != 0) {
                 Matrix mat = new Matrix();
                 mat.postRotate(rotation);
+                Camera.CameraInfo info = new Camera.CameraInfo();
+
+                if (flag == 0) {
+                    Camera.getCameraInfo(0, info);
+                } else {
+                    Camera.getCameraInfo(1, info);
+                }
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+
+                    mat.preScale(1.0f, -1.0f);
+                }
                 Bitmap bitmap1 = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
                 if (bitmap != bitmap1) {
                     bitmap.recycle();
@@ -463,6 +507,7 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
             if (tempFile != null && thumbFilename != null)
                 onVideoSendDialog(tempFile.getAbsolutePath(), thumbFilename.getAbsolutePath());
         }
+
     }
 
     private int mPhotoAngle = 90;
@@ -905,42 +950,6 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
 
     };
 
-    private void scaleUpAnimation() {
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(imgCapture, "scaleX", 2f);
-        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(imgCapture, "scaleY", 2f);
-        scaleDownX.setDuration(100);
-        scaleDownY.setDuration(100);
-        AnimatorSet scaleDown = new AnimatorSet();
-        scaleDown.play(scaleDownX).with(scaleDownY);
-
-        scaleDownX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                View p = (View) imgCapture.getParent();
-                p.invalidate();
-            }
-        });
-        scaleDown.start();
-    }
-
-    private void scaleDownAnimation() {
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(imgCapture, "scaleX", 1f);
-        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(imgCapture, "scaleY", 1f);
-        scaleDownX.setDuration(100);
-        scaleDownY.setDuration(100);
-        AnimatorSet scaleDown = new AnimatorSet();
-        scaleDown.play(scaleDownX).with(scaleDownY);
-
-        scaleDownX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-
-                View p = (View) imgCapture.getParent();
-                p.invalidate();
-            }
-        });
-        scaleDown.start();
-    }
 
     @Override
     protected void onPause() {
@@ -1051,7 +1060,7 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
                                 .show();
                     } else {
 
-                        Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoVideoRedirectActivity.class);
+                        Intent mIntent = new Intent(WhatsappCameraActivity.this, VideoRedirectActivity.class);
                         mIntent.putExtra("PATH", videopath.toString());
                         mIntent.putExtra("THUMB", thumbPath.toString());
                         mIntent.putExtra("WHO", "Video");
@@ -1114,9 +1123,9 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         if (flag == 1) {
-            mediaRecorder.setProfile(CamcorderProfile.get(1, CamcorderProfile.QUALITY_HIGH));
+            mediaRecorder.setProfile(CamcorderProfile.get(1, CamcorderProfile.QUALITY_480P));
         } else {
-            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
         }
         mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
 

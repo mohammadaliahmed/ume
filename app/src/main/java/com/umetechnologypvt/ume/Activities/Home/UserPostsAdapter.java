@@ -55,11 +55,20 @@ public class UserPostsAdapter extends RecyclerView.Adapter<UserPostsAdapter.View
         PostsModel model = itemList.get(position);
         if (model.getType().equalsIgnoreCase("image")) {
             holder.videoIcon.setVisibility(View.GONE);
+            holder.multiIcon.setVisibility(View.GONE);
+
             Glide.with(context).load(model.getPictureUrl()).into(holder.image);
         } else if (model.getType().equalsIgnoreCase("video")) {
             holder.videoIcon.setVisibility(View.VISIBLE);
+            holder.multiIcon.setVisibility(View.GONE);
+
 
             Glide.with(context).load(model.getVideoThumbnailUrl()).into(holder.image);
+        } else if (model.getType().equalsIgnoreCase("multi")) {
+            holder.videoIcon.setVisibility(View.GONE);
+            holder.multiIcon.setVisibility(View.VISIBLE);
+
+            Glide.with(context).load(model.getPictureUrl()).into(holder.image);
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,12 +95,13 @@ public class UserPostsAdapter extends RecyclerView.Adapter<UserPostsAdapter.View
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView image, videoIcon;
+        ImageView image, multiIcon, videoIcon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             videoIcon = itemView.findViewById(R.id.videoIcon);
+            multiIcon = itemView.findViewById(R.id.multiIcon);
 
         }
     }

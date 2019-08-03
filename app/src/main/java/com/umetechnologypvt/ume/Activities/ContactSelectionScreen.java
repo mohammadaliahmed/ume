@@ -50,8 +50,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
     ArrayList<String> blockedList = new ArrayList<>();
     UserListAdapter adapter;
     DatabaseReference mDatabase;
-//    TextView noContacts;
-    ArrayList<PhoneContactModel> phoneContacts = new ArrayList<>();
+    //    TextView noContacts;
     HashMap<String, UserModel> map = new HashMap<>();
     private ArrayList<String> blockedMeList = new ArrayList<>();
 
@@ -90,6 +89,10 @@ public class ContactSelectionScreen extends AppCompatActivity {
 
         getBlockListFromDB();
         getMeBlockListFromDB();
+
+        for (String abc : SharedPrefs.getUserModel().getConfirmFriends()) {
+            getFriendsFromDB(abc);
+        }
     }
 
     private void showUnBlockAlert(UserModel model) {
@@ -171,7 +174,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
                         blockedList.add(username);
                     }
                     adapter.notifyDataSetChanged();
-                }else{
+                } else {
                     blockedList.clear();
                     adapter.notifyDataSetChanged();
                 }
@@ -195,69 +198,9 @@ public class ContactSelectionScreen extends AppCompatActivity {
                         blockedMeList.add(username);
                     }
                     adapter.notifyDataSetChanged();
-                }else{
+                } else {
                     blockedMeList.clear();
                     adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-
-    private void getDataFromMobile() {
-        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (phones.moveToNext()) {
-            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            phoneContacts.add(new PhoneContactModel(name, phoneNumber));
-
-        }
-        if (phoneContacts.size() > 0) {
-            getDataFromDB();
-            for (PhoneContactModel contact : phoneContacts) {
-                String numer = contact.getNumber();
-                if (numer.startsWith("03")) {
-                    numer = numer.substring(1);
-                    numer = "+92" + numer;
-                }
-                numer = numer.replace(" ", "").replace("-", "");
-
-                getFriendsFromDB(numer);
-            }
-        }
-
-        adapter.notifyDataSetChanged();
-        phones.close();
-    }
-
-
-    private void getDataFromDB() {
-
-        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-//                    noContacts.setVisibility(View.GONE);
-                    itemList.clear();
-                    UserModel model = dataSnapshot.getValue(UserModel.class);
-                    if (model != null) {
-                        if (model.getConfirmFriends().size() > 0) {
-                            for (String userId : model.getConfirmFriends()) {
-                                if (userId != null) {
-                                    getFriendsFromDB(userId);
-                                }
-                            }
-                        } else {
-//                            noContacts.setVisibility(View.VISIBLE);
-                        }
-
-                    }
-
                 }
             }
 
@@ -357,7 +300,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
         if (!hasPermissions(ContactSelectionScreen.this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         } else {
-            getDataFromMobile();
+//            getDataFromMobile();
         }
     }
 

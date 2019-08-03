@@ -20,10 +20,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Adapters.FriendsListAdapter;
+import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.NotificationAsync;
+import com.umetechnologypvt.ume.Utils.NotificationObserver;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
@@ -37,12 +40,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class CommentsActivity extends AppCompatActivity {
+public class CommentsActivity extends AppCompatActivity implements NotificationObserver {
     RecyclerView recycler;
     CommentsListAdapter adapter;
     ArrayList<CommentsModel> itemList = new ArrayList<>();
     DatabaseReference mDatabase;
-    private String postId;
+    private String postId, postBy;
     TextView postComment;
     EditText comment;
     CircleImageView image;
@@ -58,6 +61,7 @@ public class CommentsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
         postId = getIntent().getStringExtra("postId");
+        postBy = getIntent().getStringExtra("postBy");
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         postComment = findViewById(R.id.postComment);
@@ -101,8 +105,8 @@ public class CommentsActivity extends AppCompatActivity {
         adapter = new CommentsListAdapter(this, itemList, new CommentsListAdapter.CommentsCallback() {
             @Override
             public void takeUserWhere(int value) {
-                Intent i=new Intent(CommentsActivity.this,MainActivity.class);
-                i.putExtra("value",value);
+                Intent i = new Intent(CommentsActivity.this, MainActivity.class);
+                i.putExtra("value", value);
                 startActivity(i);
             }
         });
@@ -132,8 +136,61 @@ public class CommentsActivity extends AppCompatActivity {
                 map.put("commentByPicUrl", model.getCommentByPicUrl());
                 map.put("commentsCount", itemList.size());
                 mDatabase.child("Posts").child("Posts").child(postId).updateChildren(map);
+
+                if (!postBy.equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+                    getUserDetailsFromDB();
+                }
+
             }
         });
+    }
+
+    private void getUserDetailsFromDB() {
+        mDatabase.child("Users").child(postBy).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                    if (userModel != null) {
+                        sendLikeNotification(userModel);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void sendLikeNotification(UserModel userModel) {
+        if (userModel.getFcmKey() != null && !userModel.getFcmKey().equalsIgnoreCase("")) {
+            NotificationAsync notificationAsync = new NotificationAsync(CommentsActivity.this);
+//                        String NotificationTitle = "New message in " + groupName;
+            String NotificationTitle = SharedPrefs.getUserModel().getName() + " commented on your post";
+            String NotificationMessage = "Click to view ";
+
+            notificationAsync.execute("ali", userModel.getFcmKey(), NotificationTitle, NotificationMessage, "commentPost", "commentPost",
+                    postId,
+                    "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
+            );
+            String key = mDatabase.push().getKey();
+
+            NotificationModel notificationModel = new NotificationModel(
+                    key,
+                    userModel.getUsername(),
+                    postId,
+                    SharedPrefs.getUserModel().getThumbnailUrl(),
+                    SharedPrefs.getUserModel().getName() + " commented on your post",
+                    "commentPost",
+                    System.currentTimeMillis()
+            );
+
+
+            mDatabase.child("Notifications").child(userModel.getUsername()).child(key).setValue(notificationModel);
+        }
     }
 
     private void getDataFromDB() {
@@ -182,4 +239,13 @@ public class CommentsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSuccess(String chatId) {
+
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 }

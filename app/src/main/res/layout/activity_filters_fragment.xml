@@ -9,12 +9,45 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:id="@+id/nearbry"
+            android:background="@drawable/edit_text_background"
+            android:foreground="?attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:text="Nearby People" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="10dp"
+            android:background="#aaa" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="20dp"
-            android:text="Show users" />
+            android:text="Show users"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/search"
@@ -23,6 +56,7 @@
             android:layout_gravity="center"
             android:background="@drawable/search_bg"
             android:hint="Search"
+            android:layout_marginTop="10dp"
             android:inputType="textCapWords"
             android:padding="10dp"
             android:textSize="12sp" />
@@ -32,6 +66,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="38dp"
             android:layout_marginTop="20dp"
+            android:visibility="gone"
             android:layout_marginRight="50dp"
             android:background="#aaa" />
 
@@ -41,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:gravity="center_horizontal"

@@ -11,11 +11,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.CountryUtils;
 import com.bumptech.glide.Glide;
 
@@ -95,9 +97,11 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 
 
         holder.itemView.setOnClickListener(v -> {
-            Intent i1 = new Intent(context, UserProfileScreen.class);
-            i1.putExtra("userId", model.getUsername());
+            Intent i1 = new Intent(context, MainActivity.class);
+            Constants.USER_ID = model.getUsername();
+            i1.putExtra("value", 2);
             context.startActivity(i1);
+
         });
         holder.pic.setOnClickListener(new View.OnClickListener() {
             @Override

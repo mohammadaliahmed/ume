@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.umetechnologypvt.ume.Activities.Home.FiltersFragment;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.R;
 
@@ -72,6 +73,7 @@ public class ChooseSingleInterestListAdapter extends RecyclerView.Adapter<Choose
             @Override
             public void onClick(View v) {
                 Filters.interest=name;
+                FiltersFragment.interest=name;
                 click.onItemClicked(name);
             }
         });

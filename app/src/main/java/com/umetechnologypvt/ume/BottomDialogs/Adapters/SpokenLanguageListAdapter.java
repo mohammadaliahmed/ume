@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Activities.EditProfile;
+import com.umetechnologypvt.ume.Activities.Home.FiltersFragment;
 import com.umetechnologypvt.ume.Activities.Profile;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.Models.LangaugeModel;
@@ -101,6 +102,7 @@ public class SpokenLanguageListAdapter extends RecyclerView.Adapter<SpokenLangua
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FiltersFragment.language = langaugeModel.getLanguageName();
                 EditProfile.language = langaugeModel.getLanguageName();
                 Profile.language = langaugeModel.getLanguageName();
                 Filters.language = langaugeModel.getLanguageName();

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:orientation="vertical"
+    android:paddingTop="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/menu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:padding="8dp"
+            android:src="@drawable/menu" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/postByPic"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_profile_plc" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/flag"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_below="@id/postByPic"
+            android:layout_marginLeft="-10dp"
+            android:layout_marginTop="-15dp"
+            android:layout_toRightOf="@id/postByPic"
+            android:src="@drawable/flag_pakistan"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/postByName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="5dp"
+            android:text=""
+            android:textColor="#000" />
+
+        <RelativeLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginTop="40dp"
+            android:orientation="vertical">
+
+
+            <VideoView
+                android:id="@+id/video_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/imageView_sound"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="15dp"
+                android:contentDescription="@null"
+                android:padding="5dp"
+                android:src="@drawable/ic_unmute" />
+
+
+            <ImageView
+                android:id="@+id/mainImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder"
+                android:visibility="gone" />
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/slider"
+                android:layout_width="match_parent"
+                android:layout_height="350dp">
+
+
+            </androidx.viewpager.widget.ViewPager>
+
+
+        </RelativeLayout>
+
+        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+            android:id="@+id/dots_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            app:dotsColor="@color/black"
+            app:dotsSize="5dp"
+            app:dotsWidthFactor="3" />
+
+
+        <ImageView
+            android:id="@+id/showLike"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="150dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_like_red"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/muteIcon"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_below="@id/content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="-20dp"
+            android:layout_marginRight="10dp"
+            android:visibility="gone" />
+
+
+        <LinearLayout
+            android:id="@+id/icons"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_below="@id/content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/likeBtn"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_like_empty" />
+
+            <ImageView
+                android:id="@+id/comments"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/ic_comment" />
+
+            <ImageView
+                android:id="@+id/forward"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/ic_forward" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/likesCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/icons"
+            android:layout_marginLeft="10dp"
+            android:text="20 Likes"
+            android:textColor="#000"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/lastComment"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_below="@id/likesCount"
+            android:layout_marginLeft="10dp"
+            android:maxLines="2"
+            android:text="ALi Ahmed  sdfsdfd"
+            android:textColor="#000"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/commentsCount"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lastComment"
+            android:layout_marginLeft="10dp"
+            android:text="20 Comments"
+            android:textColor="#000"
+            android:textSize="13sp" />
+
+        <RelativeLayout
+            android:id="@+id/commentsArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/commentsCount">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/commenterImg"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_profile_plc" />
+
+            <TextView
+                android:id="@+id/addComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="45dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:hint="Add Comment..."
+                android:textSize="13sp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/commentsArea"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="15dp"
+
+            android:background="@android:color/transparent"
+            android:hint="19 hours ago"
+            android:textSize="11sp" />
+    </RelativeLayout>
+
+
+</ScrollView>

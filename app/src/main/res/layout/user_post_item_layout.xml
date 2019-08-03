@@ -19,5 +19,13 @@
         android:layout_margin="5dp"
         android:src="@drawable/ic_vide_white"
         android:visibility="gone" />
+    <ImageView
+        android:id="@+id/multiIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_multi_imgs"
+        android:visibility="gone" />
 
 </RelativeLayout>

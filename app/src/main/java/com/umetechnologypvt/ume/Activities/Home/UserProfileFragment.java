@@ -6,10 +6,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -49,6 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserProfileFragment extends Fragment {
     Context context;
 
+    LinearLayout frnds;
     DatabaseReference mDatabase;
     //    TextView editProfile;
     TextView about, name, friendsCount, postCount;
@@ -66,7 +71,8 @@ public class UserProfileFragment extends Fragment {
     TextView addAsFriend;
     int abc = 0;
     UserModel myUserModel, hisUserModel;
-
+    private long totalPostCount;
+    ImageView menu;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -78,6 +84,8 @@ public class UserProfileFragment extends Fragment {
         about = rootView.findViewById(R.id.about);
         name = rootView.findViewById(R.id.name);
         friendsCount = rootView.findViewById(R.id.friendsCount);
+        frnds = rootView.findViewById(R.id.frnds);
+        menu = rootView.findViewById(R.id.menu);
         postCount = rootView.findViewById(R.id.postCount);
         picture = rootView.findViewById(R.id.picture);
         toolbarName = rootView.findViewById(R.id.toolbarName);
@@ -87,6 +95,13 @@ public class UserProfileFragment extends Fragment {
 
         recyclerview = rootView.findViewById(R.id.recyclerview);
         userId = Constants.USER_ID;
+
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopup(v);
+            }
+        });
 
         if (userId != null) {
             getUserDataFromDB();
@@ -108,7 +123,16 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
+
         friendsCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, UserFriends.class);
+                i.putExtra("userId", userId);
+                context.startActivity(i);
+            }
+        });
+        frnds.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(context, UserFriends.class);
@@ -163,6 +187,28 @@ public class UserProfileFragment extends Fragment {
 
 
         return rootView;
+    }
+
+    public void showPopup(View v) {
+        PopupMenu popup = new PopupMenu(getActivity(), v);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_example, popup.getMenu());
+        popup.show();
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.shareprofile:
+                        CommonUtils.shareUrl(context, "profile", userId);
+                        return true;
+                    case R.id.copyprofile:
+                        CommonUtils.copyUrl(context, "profile", userId);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
     }
 
     private void sendFriendRequest() {
@@ -304,46 +350,52 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void getMyDataFromDB() {
-        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    myUserModel = dataSnapshot.getValue(UserModel.class);
-                    if (myUserModel.getRequestSent().contains(userId)) {
-                        addAsFriend.setText("Request sent");
-                        addAsFriend.setEnabled(false);
-                        addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                        addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
-                        abc = 1;
-                    } else if (myUserModel.getRequestReceived().contains(userId)) {
-                        abc = 2;
-                        addAsFriend.setText("Accept request");
-                        addAsFriend.setEnabled(true);
-                        addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                        addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
-                    } else if (myUserModel.getConfirmFriends().contains(userId)) {
-                        abc = 3;
-                        addAsFriend.setText("Friend");
-                        addAsFriend.setEnabled(true);
-                        addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                        addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
-                    } else {
-                        abc = 0;
-                        addAsFriend.setText("Add as Friend");
-                        addAsFriend.setEnabled(true);
+        try {
+
+
+            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue() != null) {
+                        myUserModel = dataSnapshot.getValue(UserModel.class);
+                        if (myUserModel.getRequestSent().contains(userId)) {
+                            addAsFriend.setText("Request sent");
+                            addAsFriend.setEnabled(false);
+                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
+                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                            abc = 1;
+                        } else if (myUserModel.getRequestReceived().contains(userId)) {
+                            abc = 2;
+                            addAsFriend.setText("Accept request");
+                            addAsFriend.setEnabled(true);
+                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
+                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                        } else if (myUserModel.getConfirmFriends().contains(userId)) {
+                            abc = 3;
+                            addAsFriend.setText("Friend");
+                            addAsFriend.setEnabled(true);
+                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
+                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                        } else {
+                            abc = 0;
+                            addAsFriend.setText("Add as Friend");
+                            addAsFriend.setEnabled(true);
 //                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                        addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                        addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
+                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                        }
+
                     }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
-            }
+            });
+        } catch (Exception e) {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        }
     }
 
     private void sendNewFriendRequestNotification() {
@@ -423,6 +475,7 @@ public class UserProfileFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
                     postIdsList.clear();
+                    totalPostCount = dataSnapshot.getChildrenCount();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String key = snapshot.getKey();
                         postIdsList.add(key);
@@ -455,7 +508,7 @@ public class UserProfileFragment extends Fragment {
                     if (model != null && model.getId() != null) {
                         itemList.add(model);
                         SharedPrefs.setPosts(itemList);
-                        postCount.setText("" + postIdsList.size());
+                        postCount.setText("" + itemList.size());
 
                     }
                     Collections.sort(itemList, new Comparator<PostsModel>() {
@@ -468,6 +521,23 @@ public class UserProfileFragment extends Fragment {
                         }
                     });
                     adapter.notifyDataSetChanged();
+                    if (itemList.size() == totalPostCount) {
+                        if (Constants.LIKE_COMMENT == 1) {
+
+                            int count = 0;
+                            for (PostsModel m : itemList) {
+                                if (m.getId().equalsIgnoreCase(Constants.POST_ID)) {
+                                    Constants.PICTURE_POSITION = count;
+
+                                    break;
+                                }
+                                count++;
+                            }
+                            Fragment fragment = new UserPostsFragment();
+                            loadFragment(fragment);
+                            Constants.LIKE_COMMENT = 0;
+                        }
+                    }
                 }
             }
 
@@ -485,6 +555,21 @@ public class UserProfileFragment extends Fragment {
         this.context = context;
 
     }
+
+
+//    @Override
+//    public boolean onMenuItemClick(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.shareprofile:
+//                CommonUtils.shareUrl(context, "profile", userId);
+//                return true;
+//            case R.id.copyprofile:
+//                CommonUtils.copyUrl(context,"profile",userId);
+//                return true;
+//            default:
+//                return false;
+//        }
+//    }
 
 
 }

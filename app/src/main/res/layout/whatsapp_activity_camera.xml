@@ -129,14 +129,23 @@
 
                     <ImageView
                         android:id="@+id/pickGallery"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
                         android:layout_gravity="right"
-                        android:padding="15dp"
                         android:src="@drawable/ic_gallery" />
+
+                    <ImageView
+                        android:id="@+id/pickVideo"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="right"
+                        android:layout_margin="10dp"
+                        android:layout_toLeftOf="@id/pickGallery"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_video" />
 
 
                 </RelativeLayout>

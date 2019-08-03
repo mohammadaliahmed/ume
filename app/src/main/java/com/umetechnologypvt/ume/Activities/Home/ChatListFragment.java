@@ -72,7 +72,7 @@ public class ChatListFragment extends Fragment {
     ChatListAdapter adapter;
     HashMap<String, Integer> unreadCount = new HashMap<>();
     private int chatCount;
-    HashMap<Integer, ChatListModel> map = new HashMap<Integer, ChatListModel>();
+    HashMap<String, ChatListModel> map = new HashMap<>();
     int count = 0;
     ImageView newChat;
 
@@ -81,7 +81,7 @@ public class ChatListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDatabase=FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         View rootView = inflater.inflate(R.layout.activity_chat_list_fragment, container, false);
         recyclerview = rootView.findViewById(R.id.recyclerview);
         newMessage = rootView.findViewById(R.id.newMessage);
@@ -129,7 +129,6 @@ public class ChatListFragment extends Fragment {
     }
 
 
-
     private void showDeleteAlert(String username) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Alert");
@@ -157,10 +156,11 @@ public class ChatListFragment extends Fragment {
     }
 
 
-
-
     private void getMessagesFromDB() {
+
         if (SharedPrefs.getUserModel().getUsername() != null) {
+            itemList.clear();
+            map.clear();
             mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -184,6 +184,7 @@ public class ChatListFragment extends Fragment {
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     itemList.clear();
                     map.clear();
+                    count = 0;
                     getMessagesFromDB();
                 }
 
@@ -214,9 +215,9 @@ public class ChatListFragment extends Fragment {
                             if (model != null) {
 
 
-                                map.put(count, new ChatListModel(key, model));
+                                map.put(key, new ChatListModel(key, model));
                                 itemList.clear();
-                                for (Map.Entry<Integer, ChatListModel> entry : map.entrySet()) {
+                                for (Map.Entry<String, ChatListModel> entry : map.entrySet()) {
                                     itemList.add(entry.getValue());
                                 }
                                 SharedPrefs.setChatList(itemList);
@@ -273,7 +274,6 @@ public class ChatListFragment extends Fragment {
         });
 
     }
-
 
 
     @Override

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.umetechnologypvt.ume.Activities.Location.NearbyPeople;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.Activities.Search.SearchActivity;
 import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
@@ -44,6 +46,8 @@ public class FiltersFragment extends Fragment {
             country = "any", currentLocation = "any",
             language = "any", interest = "any", startAge = "18", endAge = "70", gender = "any";
 
+
+    LinearLayout nearbry;
     @Override
     public void onResume() {
         super.onResume();
@@ -74,6 +78,7 @@ public class FiltersFragment extends Fragment {
         ok = rootView.findViewById(R.id.ok);
         radioGender = rootView.findViewById(R.id.radioGender);
         search = rootView.findViewById(R.id.search);
+        nearbry = rootView.findViewById(R.id.nearbry);
         chooseCurrent = rootView.findViewById(R.id.chooseCurrent);
         chooseAge = rootView.findViewById(R.id.chooseAge);
         chooseLearningLanguage = rootView.findViewById(R.id.chooseLearningLanguage);
@@ -90,6 +95,12 @@ public class FiltersFragment extends Fragment {
         chooseAgeRel= rootView.findViewById(R.id.chooseAgeRel);
 
 
+        nearbry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                context.startActivity(new Intent(context,NearbyPeople.class));
+            }
+        });
 
 
 

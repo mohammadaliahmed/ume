@@ -430,19 +430,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     context.startActivity(intent);
 
                 } else {
-                    DownloadFile.fromUrll(model.getDocumentUrl(), filename, new DownloadFile.FileDownloaded() {
-                        @Override
-                        public void onFileDownloaded(String filename) {
-                            CommonUtils.showToast("downloaded");
-                            File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DOWNLOADS) + "/" + filename);
-                            Intent intent = new Intent();
-                            intent.setAction(android.content.Intent.ACTION_VIEW);
-
-                            intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
-                            context.startActivity(intent);
-                        }
-                    });
+                    DownloadFile.fromUrll(model.getDocumentUrl(), filename);
                     Intent intent = new Intent();
                     intent.setAction(android.content.Intent.ACTION_VIEW);
 

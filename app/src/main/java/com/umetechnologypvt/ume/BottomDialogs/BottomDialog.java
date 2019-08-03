@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 
+import com.umetechnologypvt.ume.Activities.Home.FiltersFragment;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.Adapters.ChooseCountryAdapter;
 import com.umetechnologypvt.ume.BottomDialogs.Adapters.ChooseInterestListAdapter;
@@ -155,7 +156,9 @@ public class BottomDialog {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FiltersFragment.startAge = data[numberPicker1.getValue()];
                 Filters.startAge = data[numberPicker1.getValue()];
+                FiltersFragment.endAge = data1[numberPicker2.getValue()];
                 Filters.endAge = data1[numberPicker2.getValue()];
                 dialog.dismiss();
                 callbacks.onOkPressed();

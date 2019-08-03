@@ -10,9 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.umetechnologypvt.ume.Activities.Home.MyProfileFragment;
-import com.umetechnologypvt.ume.Activities.Home.UserProfileFragment;
-import com.umetechnologypvt.ume.Activities.UserProfileScreen;
+
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;

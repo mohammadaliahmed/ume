@@ -1,13 +1,13 @@
 package com.umetechnologypvt.ume.Models;
 
 public class NotificationModel {
-    String id,username,hisusername,picUrl,title,type;
+    String notifcationId,username,id,picUrl,title,type;
     long time;
 
-    public NotificationModel(String id, String username, String hisusername, String picUrl, String title, String type, long time) {
-        this.id = id;
+    public NotificationModel(String notifcationId, String username, String id, String picUrl, String title, String type, long time) {
+        this.notifcationId = notifcationId;
         this.username = username;
-        this.hisusername = hisusername;
+        this.id = id;
         this.picUrl = picUrl;
         this.title = title;
         this.type = type;
@@ -17,20 +17,12 @@ public class NotificationModel {
     public NotificationModel() {
     }
 
-    public long getTime() {
-        return time;
+    public String getNotifcationId() {
+        return notifcationId;
     }
 
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setNotifcationId(String notifcationId) {
+        this.notifcationId = notifcationId;
     }
 
     public String getUsername() {
@@ -41,12 +33,12 @@ public class NotificationModel {
         this.username = username;
     }
 
-    public String getHisusername() {
-        return hisusername;
+    public String getId() {
+        return id;
     }
 
-    public void setHisusername(String hisusername) {
-        this.hisusername = hisusername;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getPicUrl() {
@@ -71,5 +63,13 @@ public class NotificationModel {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }

@@ -1,26 +1,21 @@
 package com.umetechnologypvt.ume.Camera;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -37,8 +32,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.iceteck.silicompressorr.SiliCompressor;
 import com.umetechnologypvt.ume.Activities.Comments.CommentsModel;
-import com.umetechnologypvt.ume.Activities.EditProfile;
-import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
@@ -51,11 +44,12 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by sotsys016-2 on 13/8/16 in com.cnc3camera.
  */
-public class PhotoVideoRedirectActivity extends AppCompatActivity {
+public class VideoRedirectActivity extends AppCompatActivity {
 
     ProgressBar progress;
     EditText comment;
@@ -66,20 +60,21 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
     private String postType;
     private String imagePath;
     RelativeLayout wholeLayout;
-    private ImageView imgShow;
     String imgUrl;
     private Uri videoPath;
     //    LinearLayout compressionMsg;
     private String finalVideoPath;
-    RelativeLayout imageLayout, videoLayout;
+    RelativeLayout videoLayout;
     private boolean videoCompressed = false;
     private Uri videoThumbPath;
+    CircleImageView image;
+    ImageView thumbnail;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photovideo_redirect);
+        setContentView(R.layout.activity_video_redirect);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -90,35 +85,31 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
         progress = findViewById(R.id.progress);
+        image = findViewById(R.id.image);
         videoLayout = findViewById(R.id.videoLayout);
-        imageLayout = findViewById(R.id.imageLayout);
-        imgShow = (ImageView) findViewById(R.id.imgShow);
-        videoView = (VideoView) findViewById(R.id.vidShow);
+        thumbnail = findViewById(R.id.thumbnail);
+
+//        videoView = (VideoView) findViewById(R.id.vidShow);
 //        compressionMsg = (LinearLayout) findViewById(R.id.compressionMsg);
 
-
-        if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Image")) {
-            imageLayout.setVisibility(View.VISIBLE);
-            videoLayout.setVisibility(View.GONE);
-            postType = "Image";
-            imagePath = getIntent().getStringExtra("PATH");
-            CompressImage image = new CompressImage(this);
-            imgUrl = image.compressImage(imagePath);
-
-            initImage();
-
-        } else if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Video")) {
-            imageLayout.setVisibility(View.GONE);
+        Glide.with(this).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(image);
+        if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Video")) {
             videoLayout.setVisibility(View.VISIBLE);
             videoPath = Uri.parse(getIntent().getStringExtra("PATH"));
             videoThumbPath = Uri.parse(getIntent().getStringExtra("THUMB"));
             postType = "Video";
             initVideo();
+            Glide.with(this).load(videoThumbPath.getPath()).into(thumbnail);
 
-        } else {
+        } else if (getIntent().getStringExtra("WHO").equalsIgnoreCase("GalleryVideo")) {
+            videoLayout.setVisibility(View.VISIBLE);
+            videoPath = Uri.parse(getIntent().getStringExtra("PATH"));
+            videoThumbPath = Uri.parse(getIntent().getStringExtra("THUMB"));
+            postType = "Video";
+            initVideo();
+            Glide.with(this).load(videoThumbPath.getPath()).into(thumbnail);
 
         }
-
 
         comment = findViewById(R.id.comment);
         wholeLayout = findViewById(R.id.wholeLayout);
@@ -143,7 +134,8 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
                 System.currentTimeMillis(),
                 postType,
                 1,
-                comment.getText().length() > 0 ? 1 : 0, 0
+                comment.getText().length() > 0 ? 1 : 0, 0,
+                SharedPrefs.getUserModel().getCountryNameCode()
         );
         mDatabase.child("Posts").child("Posts").child(id).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -165,52 +157,15 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
         });
     }
 
-    private void sendImage() {
-        wholeLayout.setVisibility(View.VISIBLE);
-        String id = mDatabase.push().getKey();
-        PostsModel model = new PostsModel(
-                id,
-                SharedPrefs.getUserModel().getUsername(),
-                SharedPrefs.getUserModel().getName(),
-                SharedPrefs.getUserModel().getThumbnailUrl(),
-                comment.getText().toString(),
-                SharedPrefs.getUserModel().getUsername(),
-                SharedPrefs.getUserModel().getName(),
-                SharedPrefs.getUserModel().getThumbnailUrl(),
-                "",
-                System.currentTimeMillis(),
-                postType,
-                1,
-                comment.getText().length() > 0 ? 1 : 0
-        );
-        mDatabase.child("Posts").child("Posts").child(id).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                putPictures(model, imgUrl);
-                if (comment.getText().length() > 0) {
-                    String key = mDatabase.push().getKey();
-                    CommentsModel commentsModel = new CommentsModel(
-                            key, comment.getText().toString(),
-                            SharedPrefs.getUserModel().getUsername(),
-                            SharedPrefs.getUserModel().getName(),
-                            SharedPrefs.getUserModel().getPicUrl(),
-                            System.currentTimeMillis()
-                    );
-                    mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
-                }
-                mDatabase.child("PostsBy").child(SharedPrefs.getUserModel().getUsername()).child(id).setValue(id);
-            }
-        });
-    }
 
     private void initVideo() {
-        videoView.setVisibility(View.VISIBLE);
+//        videoView.setVisibility(View.VISIBLE);
         try {
 //                videoView.setMediaController(null);
             MediaController mediaController = new MediaController(this);
-            mediaController.setAnchorView(videoView);
-            videoView.setMediaController(mediaController);
-            videoView.setVideoURI(videoPath);
+//            mediaController.setAnchorView(videoView);
+//            videoView.setMediaController(mediaController);
+//            videoView.setVideoURI(videoPath);
             File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Silicompressor/videos");
 //                File file = null;
             if (f.mkdirs() || f.isDirectory())
@@ -225,48 +180,25 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        videoView.requestFocus();
+//        videoView.requestFocus();
         //videoView.setZOrderOnTop(true);
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            public void onPrepared(MediaPlayer mp) {
-
-                videoView.start();
-            }
-        });
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                videoView.start();
-            }
-        });
-
-    }
-
-    VideoView videoView;
-
-    private void initImage() {
-
-
-        imgShow.setVisibility(View.VISIBLE);
-
-        Glide.with(PhotoVideoRedirectActivity.this)
-                .load(imagePath)
-                .listener(new RequestListener<String, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        return false;
-                    }
-                })
-
-                .into(imgShow);
+//        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            public void onPrepared(MediaPlayer mp) {
+//
+//                videoView.start();
+//            }
+//        });
+//        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mp) {
+//                videoView.start();
+//            }
+//        });
 
     }
+
+//    VideoView videoView;
+
 
     public void putVideo(PostsModel model, String path) {
         String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -302,7 +234,7 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception exception) {
                         // Handle unsuccessful uploads
                         // ...
-                        Toast.makeText(PhotoVideoRedirectActivity.this, exception.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VideoRedirectActivity.this, exception.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -382,7 +314,7 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception exception) {
                         // Handle unsuccessful uploads
                         // ...
-                        Toast.makeText(PhotoVideoRedirectActivity.this, exception.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VideoRedirectActivity.this, exception.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -391,9 +323,9 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (videoView.isPlaying()) {
-            videoView.pause();
-        }
+//        if (videoView.isPlaying()) {
+//            videoView.pause();
+//        }
         super.onBackPressed();
     }
 
@@ -416,8 +348,12 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
         protected String doInBackground(String... paths) {
             String filePath = null;
             try {
-
-                filePath = SiliCompressor.with(mContext).compressVideo(paths[0], paths[1]);
+                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                mmr.setDataSource(paths[0]);
+                String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+                String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+                filePath = SiliCompressor.with(mContext).compressVideo(paths[0], paths[1],
+                        Integer.parseInt(width), Integer.parseInt(height), 450000);
 
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -460,9 +396,7 @@ public class PhotoVideoRedirectActivity extends AppCompatActivity {
             finish();
         }
         if (item.getItemId() == R.id.action_share) {
-            if (postType.equalsIgnoreCase("image")) {
-                sendImage();
-            } else if (postType.equalsIgnoreCase("video")) {
+            if (postType.equalsIgnoreCase("video")) {
                 if (videoCompressed) {
                     sendVideo();
                 } else {

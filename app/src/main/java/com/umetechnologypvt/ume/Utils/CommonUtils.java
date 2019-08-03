@@ -1,7 +1,10 @@
 package com.umetechnologypvt.ume.Utils;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Address;
@@ -68,7 +71,7 @@ public class CommonUtils {
         if (SharedPrefs.getUserModel() != null) {
             DatabaseReference mDatabase;
             mDatabase = FirebaseDatabase.getInstance().getReference();
-            if(mDatabase!=null && SharedPrefs.getUserModel()!=null && SharedPrefs.getUserModel().getUsername()!=null && b!=null) {
+            if (mDatabase != null && SharedPrefs.getUserModel() != null && SharedPrefs.getUserModel().getUsername() != null && b != null) {
                 mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -78,6 +81,38 @@ public class CommonUtils {
         }
 
 
+    }
+
+    public static void shareUrl(Context context, String postType, String postId) {
+        String append = "";
+        if (postType.equalsIgnoreCase("post")) {
+            append = "p";
+        } else if (postType.equalsIgnoreCase("profile")) {
+            append = "u";
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "http://umetechnology.com/" + append + "/" + postId);
+        context.startActivity(Intent.createChooser(shareIntent, "Share post via.."));
+    }
+
+    public static void copyUrl(Context context, String postType, String postId) {
+        String append = "";
+
+        if (postType.equalsIgnoreCase("post")) {
+            append = "p";
+        } else if (postType.equalsIgnoreCase("profile")) {
+            append = "u";
+        }
+
+        String url = "http://umetechnology.com/" + append + "/" + postId;
+
+
+        ClipboardManager _clipboard = (ClipboardManager) ApplicationClass.getInstance().getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        _clipboard.setText(url);
+        CommonUtils.showToast("Copied");
     }
 
 
@@ -113,7 +148,6 @@ public class CommonUtils {
             return Uri.parse("");
         }
     }
-
 
 
     public static String millisToLongDHMS(long duration) {
@@ -153,7 +187,6 @@ public class CommonUtils {
             return "0 second";
         }
     }
-
 
 
     public static Uri getVideoPiac(Uri uri) {
@@ -258,7 +291,7 @@ public class CommonUtils {
         }
     }
 
-    public static String getLocalTime(long smsTimeInMilis,String gmt) {
+    public static String getLocalTime(long smsTimeInMilis, String gmt) {
         Calendar smsTime = Calendar.getInstance(TimeZone.getTimeZone(gmt));
         smsTime.setTimeInMillis(smsTimeInMilis);
 
@@ -349,8 +382,8 @@ public class CommonUtils {
         return (rad * 180.0 / Math.PI);
     }
 
-    public static ArrayList<String> interestList(){
-        ArrayList<String> interestList=new ArrayList<>();
+    public static ArrayList<String> interestList() {
+        ArrayList<String> interestList = new ArrayList<>();
         interestList.add("Acting");
         interestList.add("Adventure");
         interestList.add("Animals");

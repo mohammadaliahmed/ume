@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -40,6 +41,37 @@ public class SharedPrefs {
         Gson gson = new Gson();
         ArrayList<ChatModel> playersList = (ArrayList<ChatModel>) gson.fromJson(preferenceGetter(username + "messages"),
                 new TypeToken<ArrayList<ChatModel>>() {
+                }.getType());
+        return playersList;
+    }
+
+
+    public static void setMultiPickedImg(List<String> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("imgs", json);
+    }
+
+    public static ArrayList getMultiImgs() {
+        Gson gson = new Gson();
+        ArrayList<String> playersList = (ArrayList<String>) gson.fromJson(preferenceGetter("imgs"),
+                new TypeToken<ArrayList<String>>() {
+                }.getType());
+        return playersList;
+    }
+
+    public static void setMutedList(List<String> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("mutes", json);
+    }
+
+    public static ArrayList getMutedList() {
+        Gson gson = new Gson();
+        ArrayList<String> playersList = (ArrayList<String>) gson.fromJson(preferenceGetter("mutes"),
+                new TypeToken<ArrayList<String>>() {
                 }.getType());
         return playersList;
     }

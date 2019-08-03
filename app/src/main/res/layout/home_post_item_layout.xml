@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingTop="10dp">
 
     <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:id="@+id/menu"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="5dp"
+        android:padding="8dp"
         android:src="@drawable/menu" />
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -20,12 +22,23 @@
         android:layout_marginLeft="10dp"
         android:src="@drawable/ic_profile_plc" />
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/flag"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_below="@id/postByPic"
+        android:layout_marginLeft="-10dp"
+        android:layout_marginTop="-15dp"
+        android:layout_toRightOf="@id/postByPic"
+        android:src="@drawable/flag_pakistan"
+        android:visibility="visible" />
+
     <TextView
         android:id="@+id/postByName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="5dp"
         android:text=""
         android:textColor="#000" />
 
@@ -36,12 +49,35 @@
         android:layout_marginTop="40dp"
         android:orientation="vertical">
 
-        <VideoView
-            android:id="@+id/mainVideo"
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/video_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_centerInParent="true"
+                app:surface_type="texture_view"
+                app:use_controller="false" />
+
+            <ImageView
+                android:id="@+id/imageView_sound"
+                android:layout_width="30dp"
+                android:visibility="gone"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="15dp"
+                android:contentDescription="@null"
+                android:padding="5dp"
+                android:src="@drawable/ic_unmute" />
+
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/mainImage"
@@ -51,7 +87,38 @@
             android:src="@drawable/placeholder"
             android:visibility="gone" />
 
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/slider"
+            android:layout_width="match_parent"
+            android:layout_height="350dp">
+
+
+        </androidx.viewpager.widget.ViewPager>
+
+
     </RelativeLayout>
+
+    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+        android:id="@+id/dots_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        app:dotsColor="@color/black"
+        app:dotsSize="4dp"
+        app:dotsWidthFactor="3" />
+
+    <ImageView
+        android:id="@+id/showLike"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_like_red"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/muteIcon"
@@ -66,9 +133,9 @@
 
     <LinearLayout
         android:id="@+id/icons"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
 
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/content"
         android:layout_margin="10dp"
         android:orientation="horizontal">
@@ -80,13 +147,14 @@
             android:src="@drawable/ic_like_empty" />
 
         <ImageView
+            android:id="@+id/comments"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:id="@+id/comments"
             android:layout_marginLeft="20dp"
             android:src="@drawable/ic_comment" />
 
         <ImageView
+            android:id="@+id/forward"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginLeft="20dp"

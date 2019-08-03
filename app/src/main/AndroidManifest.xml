@@ -38,17 +38,43 @@
         tools:replace="android:appComponentFactory">
         <activity
             android:name=".Activities.Home.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://recipe-app.com/recipe" -->
+                <data
+                    android:host="umetechnology.com"
+                    android:pathPrefix="/u"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".Activities.ContactSelectionScreen" />
         <activity android:name=".Activities.ForwardContactSelectionScreen" />
         <activity android:name=".Activities.Comments.CommentsActivity" />
         <activity android:name=".Activities.PhoneContacts" />
         <activity android:name=".Camera.CameraActivity" />
-        <activity android:name=".Camera.WhatsappCameraActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Camera.PhotoVideoRedirectActivity"
-           />
+        <activity android:name=".Activities.ViewPost">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://recipe-app.com/recipe" -->
+                <data
+                    android:host="umetechnology.com"
+                    android:pathPrefix="/p"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Camera.WhatsappCameraActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Camera.VideoRedirectActivity" />
+        <activity android:name=".Camera.PhotoRedirectActivity" />
         <activity
             android:name=".Activities.GPSTrackerActivity"
             android:theme="@style/AppTheme.NoActionBar" />

@@ -56,6 +56,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
 import com.umetechnologypvt.ume.Adapters.ChatAdapter;
 import com.umetechnologypvt.ume.Adapters.ChooseLangaugeFromDialogAdapter;
@@ -301,16 +302,24 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         toolbarImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i1 = new Intent(SingleChattingScreen.this, UserProfileScreen.class);
-                i1.putExtra("userId", hisUserModel.getUsername());
+//                Intent i1 = new Intent(SingleChattingScreen.this, UserProfileScreen.class);
+//                i1.putExtra("userId", hisUserModel.getUsername());
+//                startActivity(i1);
+                Intent i1 = new Intent(SingleChattingScreen.this, MainActivity.class);
+                Constants.USER_ID = hisUserModel.getUsername();
+                i.putExtra("value", 2);
                 startActivity(i1);
             }
         });
         otherParticipantName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i1 = new Intent(SingleChattingScreen.this, UserProfileScreen.class);
-                i1.putExtra("userId", hisUserModel.getUsername());
+//                Intent i1 = new Intent(SingleChattingScreen.this, UserProfileScreen.class);
+//                i1.putExtra("userId", hisUserModel.getUsername());
+//                startActivity(i1);
+                Intent i1 = new Intent(SingleChattingScreen.this, MainActivity.class);
+                Constants.USER_ID = hisUserModel.getUsername();
+                i.putExtra("value", 2);
                 startActivity(i1);
             }
         });
@@ -385,16 +394,6 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
                 chatModelArrayList = SharedPrefs.getMessagesList(userId);
                 if (chatModelArrayList != null) {
-                    Collections.sort(chatModelArrayList, new Comparator<ChatModel>() {
-                        @Override
-                        public int compare(ChatModel listData, ChatModel t1) {
-                            Long ob1 = listData.getTime();
-                            Long ob2 = t1.getTime();
-
-                            return ob1.compareTo(ob2);
-
-                        }
-                    });
                     adapter.setNewList(chatModelArrayList);
                     recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
 

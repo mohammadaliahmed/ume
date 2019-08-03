@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Activities.EditProfile;
+import com.umetechnologypvt.ume.Activities.Home.FiltersFragment;
 import com.umetechnologypvt.ume.Activities.Profile;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
 import com.umetechnologypvt.ume.Models.Country;
@@ -99,7 +100,9 @@ public class ChooseCountryAdapter extends RecyclerView.Adapter<ChooseCountryAdap
                 EditProfile.currentLocation = country.getCountryName();
                 Profile.currentLocation = country.getCountryName();
                 Filters.country = country.getCountryName();
+                FiltersFragment.country = country.getCountryName();
                 Filters.currentLocation = country.getCountryName();
+                FiltersFragment.currentLocation = country.getCountryName();
                 click.onItemClicked(country);
 
             }

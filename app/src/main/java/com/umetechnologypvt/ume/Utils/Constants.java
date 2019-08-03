@@ -29,9 +29,11 @@ public class Constants {
 
     public static String EXTRA_MSG = "extra_msg";
     public static String USER_ID = "extra_user_id";
+    public static String POST_ID = "extra_post_id";
     public static String NOTIFICATION_COUNT = "extra_notification_count";
     public static String IMAGE_URL = "image_url";
     public static int PICTURE_POSITION = 0;
+    public static int LIKE_COMMENT = 0;
 
 
 

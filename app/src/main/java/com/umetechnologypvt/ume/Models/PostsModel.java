@@ -1,7 +1,11 @@
 package com.umetechnologypvt.ume.Models;
 
+import android.net.Uri;
+
+import java.util.List;
+
 public class PostsModel {
-    String id, postBy, postByName, userPicUrl, comment, commentBy,commentByName,
+    String id, postBy, postByName, userPicUrl, comment, commentBy, commentByName,
             commentByPicUrl, pictureUrl, videoUrl, videoThumbnailUrl, location;
     long time;
     long commentsCount, likesCount;
@@ -10,14 +14,21 @@ public class PostsModel {
     int postFor;
     long videoViews;
 
+    Uri mediaUri;
+    private boolean isMute;
+    String countryCode;
+
+    List<String> multiImages;
+
 
     public PostsModel() {
     }
+
     //for picture
     public PostsModel(String id, String postBy, String postByName, String userPicUrl,
-                      String comment, String commentBy,String commentByName, String commentByPicUrl,
+                      String comment, String commentBy, String commentByName, String commentByPicUrl,
                       String pictureUrl, long time,
-                      String type, int postFor,long commentsCount) {
+                      String type, int postFor, long commentsCount, String countryCode) {
         this.id = id;
         this.postBy = postBy;
         this.comment = comment;
@@ -31,12 +42,14 @@ public class PostsModel {
         this.commentByPicUrl = commentByPicUrl;
         this.postFor = postFor;
         this.commentsCount = commentsCount;
+        this.countryCode = countryCode;
     }
+
     //for video
     public PostsModel(String id, String postBy, String postByName, String userPicUrl,
-                      String comment, String commentBy,String commentByName, String commentByPicUrl,
+                      String comment, String commentBy, String commentByName, String commentByPicUrl,
                       String videoUrl, String videoThumbnailUrl, long time,
-                      String type, int postFor,long commentsCount,long videoViews) {
+                      String type, int postFor, long commentsCount, long videoViews, String countryCode) {
         this.id = id;
         this.postBy = postBy;
         this.comment = comment;
@@ -52,7 +65,50 @@ public class PostsModel {
         this.postFor = postFor;
         this.commentsCount = commentsCount;
         this.videoViews = videoViews;
+        this.countryCode = countryCode;
     }
+
+    public List<String> getMultiImages() {
+        return multiImages;
+    }
+
+    public void setMultiImages(List<String> multiImages) {
+        this.multiImages = multiImages;
+    }
+
+    public long getVideoViews() {
+        return videoViews;
+    }
+
+    public void setVideoViews(long videoViews) {
+        this.videoViews = videoViews;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public boolean isMute() {
+        return isMute;
+    }
+
+    public void setMute(boolean mute) {
+        isMute = mute;
+    }
+
+    public Uri getMediaUri() {
+
+        return mediaUri;
+    }
+
+    public void setMediaUri(Uri mediaUri) {
+        this.mediaUri = mediaUri;
+    }
+
 
     public String getCommentByName() {
         return commentByName;

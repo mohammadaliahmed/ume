@@ -2,8 +2,10 @@ package com.umetechnologypvt.ume.Activities.Location;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +13,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
 import com.umetechnologypvt.ume.Models.LocationUserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.CountryUtils;
 import com.bumptech.glide.Glide;
 
@@ -80,14 +84,15 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
         } else {
             holder.userFlag.setVisibility(View.GONE);
         }
+        if (model.getUserModel().getGender() != null) {
+            if (model.getUserModel().getGender().replace("Any", "").equalsIgnoreCase("female")) {
+                Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
+                holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_pink));
+            } else {
+                Glide.with(context).load(R.drawable.ic_male).into(holder.gender);
+                holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_blue));
 
-        if (model.getUserModel().getGender().replace("Any", "").equalsIgnoreCase("female")) {
-            Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
-            holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_pink));
-        } else {
-            Glide.with(context).load(R.drawable.ic_male).into(holder.gender);
-            holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_blue));
-
+            }
         }
 
         holder.userStatus.setText(
@@ -116,9 +121,11 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
 
 
         holder.itemView.setOnClickListener(v -> {
-            Intent i1 = new Intent(context, UserProfileScreen.class);
-            i1.putExtra("userId", model.getUserModel().getUsername());
+            Intent i1 = new Intent(context, MainActivity.class);
+            Constants.USER_ID = model.getUserModel().getUsername();
+            i1.putExtra("value", 2);
             context.startActivity(i1);
+
         });
         holder.pic.setOnClickListener(new View.OnClickListener() {
             @Override

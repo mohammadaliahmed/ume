@@ -15,13 +15,15 @@ import android.os.Vibrator;
 import android.provider.Settings;
 
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.util.Log;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
-import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.FloatingChatButton.FloatingButton;
+import com.umetechnologypvt.ume.Interface.NotificationInterface;
 import com.umetechnologypvt.ume.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -119,15 +121,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    private void sendMessage() {
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent("custom-event-name");
+        // You can also include some extra data.
+        intent.putExtra("message", "This is my message!");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
     private void handleNow(String notificationTitle, String messageBody, String type) {
 
         int num = (int) System.currentTimeMillis();
         /**Creates an explicit intent for an Activity in your app**/
         Intent resultIntent = null;
         if (type.equalsIgnoreCase("chat")) {
-//            SharedPrefs.setNewMsg("1");
-//            startService(new Intent(ApplicationClass.getInstance().getApplicationContext(), FloatingButton.class));
-
             resultIntent = new Intent(this, SingleChattingScreen.class);
             resultIntent.putExtra("userId", Id);
 
@@ -137,9 +144,43 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 int co = Integer.parseInt(SharedPrefs.getNotificationCount());
                 SharedPrefs.setNotificationCount("" + (co + 1));
             }
+            sendMessage();
+            resultIntent = new Intent(this, MainActivity.class);
+//            resultIntent.putExtra("userId", Id);
+            Constants.USER_ID =Id;
+            resultIntent.putExtra("value", 2);
+        } else if (type.equalsIgnoreCase("likePost")) {
+            if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
 
-            resultIntent = new Intent(this, UserProfileScreen.class);
-            resultIntent.putExtra("userId", Id);
+                int co = Integer.parseInt(SharedPrefs.getNotificationCount());
+                SharedPrefs.setNotificationCount("" + (co + 1));
+            } else {
+                SharedPrefs.setNotificationCount("" + 1);
+            }
+            sendMessage();
+            resultIntent = new Intent(this, MainActivity.class);
+            resultIntent.putExtra("postId", Id);
+            resultIntent.putExtra("value", 1);
+            Constants.POST_ID = Id;
+            Constants.LIKE_COMMENT = 1;
+
+
+        } else if (type.equalsIgnoreCase("commentPost")) {
+            if (!SharedPrefs.getNotificationCount().equalsIgnoreCase("")) {
+
+                int co = Integer.parseInt(SharedPrefs.getNotificationCount());
+                SharedPrefs.setNotificationCount("" + (co + 1));
+            } else {
+                SharedPrefs.setNotificationCount("" + 1);
+            }
+
+            sendMessage();
+
+            resultIntent = new Intent(this, MainActivity.class);
+            resultIntent.putExtra("postId", Id);
+            resultIntent.putExtra("value", 1);
+            Constants.POST_ID = Id;
+            Constants.LIKE_COMMENT = 1;
         }
 
 

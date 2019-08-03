@@ -4,19 +4,22 @@
     android:layout_height="match_parent"
     android:background="#fff">
 
-    <androidx.appcompat.widget.Toolbar
+    <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="50dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp">
 
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
                 android:padding="4dp"
 
                 android:src="@drawable/ic_camera_black_stroke" />
@@ -24,7 +27,8 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -44,17 +48,41 @@
             </RelativeLayout>
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_marginRight="5dp"
-                android:padding="3dp"
-                android:layout_height="20dp"
+                android:id="@+id/notifications"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:layout_marginRight="35dp"
+                android:src="@drawable/ic_notification" />
+
+            <TextView
+                android:id="@+id/badgeCount"
+                android:layout_width="20dp"
+                android:visibility="gone"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/badge_background"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="#fff"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:padding="3dp"
                 android:src="@drawable/menu" />
 
         </RelativeLayout>
 
-    </androidx.appcompat.widget.Toolbar>
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"

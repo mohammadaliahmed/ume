@@ -2,19 +2,24 @@ package com.umetechnologypvt.ume.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
+import com.umetechnologypvt.ume.Activities.ViewPost;
 import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.bumptech.glide.Glide;
+import com.umetechnologypvt.ume.Utils.Constants;
 
 import java.util.ArrayList;
 
@@ -50,16 +55,28 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
         holder.cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callbacks.onDelete(model.getId());
+                callbacks.onDelete(model.getNotifcationId());
             }
         });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (model.getType().equalsIgnoreCase("newRequest") || model.getType().equalsIgnoreCase("requestAccept")) {
-                    Intent i = new Intent(context, UserProfileScreen.class);
-                    i.putExtra("userId", model.getHisusername());
+                if (model.getType().equalsIgnoreCase("newRequest")
+                        || model.getType().equalsIgnoreCase("requestAccept")) {
+                    Intent i = new Intent(context, MainActivity.class);
+                    Constants.USER_ID = model.getId();
+                    i.putExtra("value", 2);
                     context.startActivity(i);
+
+                } else if (model.getType().equalsIgnoreCase("likePost")
+                        || model.getType().equalsIgnoreCase("commentPost")) {
+                    Intent i = new Intent(context, ViewPost.class);
+                    i.putExtra("postId", model.getId());
+//                    i.putExtra("value", 1);
+//                    Constants.POST_ID = model.getId();
+//                    Constants.LIKE_COMMENT = 1;
+                    context.startActivity(i);
+
                 }
             }
         });
