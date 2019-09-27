@@ -1,10 +1,18 @@
 package com.umetechnologypvt.ume.BottomDialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,17 +22,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 
+import com.google.firebase.database.DatabaseReference;
 import com.umetechnologypvt.ume.Activities.Home.FiltersFragment;
 import com.umetechnologypvt.ume.Activities.Search.Filters;
+import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.Adapters.ChooseCountryAdapter;
+import com.umetechnologypvt.ume.Adapters.ShareMessageFriendsAdapter;
 import com.umetechnologypvt.ume.BottomDialogs.Adapters.ChooseInterestListAdapter;
 import com.umetechnologypvt.ume.BottomDialogs.Adapters.ChooseSingleInterestListAdapter;
 import com.umetechnologypvt.ume.BottomDialogs.Adapters.LearningLanguageListAdapter;
 import com.umetechnologypvt.ume.BottomDialogs.Adapters.SpokenLanguageListAdapter;
+import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.Country;
 import com.umetechnologypvt.ume.Models.LangaugeModel;
+import com.umetechnologypvt.ume.Models.PostsModel;
+import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
@@ -32,8 +47,107 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+@SuppressLint("WrongConstant")
 public class BottomDialog {
+
     private BottomDialog() {
+    }
+
+    @SuppressLint("WrongConstant")
+    public static void showFriendsAdapter(Context context, PostsModel postsModel, DatabaseReference mDatabase) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.share_frnds_bottom_option, null);
+        final Dialog dialog = new Dialog(context, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen
+        );
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        dialog.setContentView(customView);
+        EditText searchName = customView.findViewById(R.id.searchName);
+        EditText messageText = customView.findViewById(R.id.messageText);
+        RecyclerView recyclerview = customView.findViewById(R.id.recyclerview);
+        CircleImageView image = customView.findViewById(R.id.image);
+        Glide.with(context).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(image);
+
+
+        ShareMessageFriendsAdapter adapter = new ShareMessageFriendsAdapter(context, SharedPrefs.getFriendsList(),
+                new ShareMessageFriendsAdapter.ShareMessageFriendsAdapterCallbacks() {
+                    @Override
+                    public void onSend(UserModel model) {
+                        Intent i = new Intent(context, SingleChattingScreen.class);
+                        i.putExtra("userId", model.getUsername());
+                        Constants.FORWARD_POST = 1;
+                        String url = "";
+                        if (postsModel.getType().equalsIgnoreCase("image")) {
+                            url = postsModel.getPictureUrl();
+                        } else if (postsModel.getType().equalsIgnoreCase("video")) {
+                            url = postsModel.getVideoThumbnailUrl();
+                        } else if (postsModel.getType().equalsIgnoreCase("multi")) {
+                            url = postsModel.getPictureUrl();
+                        }
+
+                        Constants.FORWARD_PIC_URL = url;
+                        Constants.POST_MESSAGE = messageText.getText().toString();
+                        Constants.POST_ID = postsModel.getId();
+
+
+                        String key = mDatabase.push().getKey();
+                        ChatModel forwardChatModel = new ChatModel(
+                                key,
+                                SharedPrefs.getUserModel().getUsername(),
+                                model.getUsername(),
+                                model.getName(),
+                                model.getPicUrl(),
+                                Constants.POST_MESSAGE,
+                                Constants.MESSAGE_TYPE_POST,
+
+                                System.currentTimeMillis(),
+                                Constants.POST_ID,
+                                Constants.FORWARD_PIC_URL,
+                                "sent",
+                                model.getCountryNameCode()
+                        );
+
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                .child(model.getUsername()).child(key)
+                                .setValue(forwardChatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                forwardChatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                                forwardChatModel.setName(SharedPrefs.getUserModel().getName());
+                                forwardChatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
+                                mDatabase.child("Chats").child(model.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(forwardChatModel.getId())
+                                        .setValue(forwardChatModel);
+//                                sendNotification(forwardChatModel.getMessageType(), forwardChatModel.getId());
+                            }
+                        });
+
+
+                    }
+                });
+        adapter.updateList(SharedPrefs.getFriendsList());
+        recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+        recyclerview.setAdapter(adapter);
+        searchName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                adapter.filter(s.toString());
+
+            }
+        });
+
+        dialog.show();
+
+
     }
 
     public static void showSpokenDialog(Context context, List<LangaugeModel> languageList, DialogCallbacks callbacks) {
@@ -49,8 +163,7 @@ public class BottomDialog {
         RecyclerView recyclerview = customView.findViewById(R.id.recyclerview);
         Button cancel = customView.findViewById(R.id.cancel);
         Button ok = customView.findViewById(R.id.ok);
-        ArrayList<LangaugeModel> langaugeModelList=new ArrayList<>();
-
+        ArrayList<LangaugeModel> langaugeModelList = new ArrayList<>();
 
 
         Collections.sort(languageList, new Comparator<LangaugeModel>() {
@@ -80,7 +193,7 @@ public class BottomDialog {
 
 
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        SpokenLanguageListAdapter adapter = new SpokenLanguageListAdapter(context,langaugeModelList, new SpokenLanguageListAdapter.onitemClick() {
+        SpokenLanguageListAdapter adapter = new SpokenLanguageListAdapter(context, langaugeModelList, new SpokenLanguageListAdapter.onitemClick() {
             @Override
             public void onItemClicked(LangaugeModel langaugeModel) {
                 dialog.dismiss();

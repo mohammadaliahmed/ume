@@ -118,6 +118,7 @@
                         android:text="Hindi"
                         android:textSize="12sp" />
                 </LinearLayout>
+
                 <TextView
                     android:id="@+id/translatedText"
                     android:layout_width="match_parent"
@@ -187,6 +188,43 @@
                     android:layout_centerInParent="true"
                     android:indeterminateTint="@color/colorWhite"
                     android:visibility="gone" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+                android:layout_marginLeft="15dp"
+                android:visibility="gone">
+
+
+                <ImageView
+                    android:id="@+id/postImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginLeft="5dp"
+                    android:scaleType="centerCrop"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:padding="2dp"
+                    android:src="@drawable/placeholder" />
+
+                <TextView
+                    android:id="@+id/postMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/postImage"
+                    android:layout_margin="5dp"
+
+                    android:autoLink="web|phone|all"
+                    android:text="dsfsdfsdsdf"
+                    android:textColor="#000"
+                    android:textIsSelectable="true"
+                    android:visibility="visible" />
+
 
             </RelativeLayout>
 
@@ -289,7 +327,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Ali Ahmed"
+                        android:text=""
                         android:textColor="#000" />
 
                     <TextView

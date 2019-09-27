@@ -1,104 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="5dp">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:padding="4dp"
-
-                android:src="@drawable/ic_camera_black_stroke" />
+            android:layout_height="50dp">
 
             <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp">
 
                 <ImageView
+                    android:id="@+id/camera"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/logo_purple" />
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:padding="4dp"
 
-                <TextView
+                    android:src="@drawable/ic_camera_black_stroke" />
+
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="40dp"
-                    android:text="UME"
-                    android:textColor="#000"
-                    android:textSize="18sp" />
+                    android:layout_marginLeft="50dp">
 
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:visibility="gone"
+                        android:layout_height="30dp"
+                        android:src="@drawable/logo_purple" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="0dp"
+                        android:fontFamily="@font/atomic_age"
+                        android:text="UME"
+                        android:textColor="#000"
+                        android:textSize="18sp" />
+
+
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/notifications"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="35dp"
+                    android:src="@drawable/ic_notification" />
+
+                <TextView
+                    android:id="@+id/badgeCount"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/badge_background"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="#fff"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/menu"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:padding="3dp"
+                    android:src="@drawable/menu" />
 
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/notifications"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="35dp"
-                android:src="@drawable/ic_notification" />
-
-            <TextView
-                android:id="@+id/badgeCount"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="30dp"
-                android:background="@drawable/badge_background"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="#fff"
-                android:textSize="12sp"
-                android:visibility="gone" />
-
-            <ImageView
-                android:layout_width="20dp"
-                android:id="@+id/menu"
-                android:layout_height="20dp"
-                android:layout_alignParentRight="true"
-
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:padding="3dp"
-                android:src="@drawable/menu" />
-
         </RelativeLayout>
 
-    </RelativeLayout>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/toolbar"
-        android:background="#eee" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <im.ene.toro.widget.Container
-        android:id="@+id/my_fancy_videos"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:clipToPadding="false"
-        tools:listitem="@layout/home_post_item_layout" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/toolbar"
+                    android:background="#eee" />
 
-</LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:id="@+id/hori"
+                    android:layout_width="match_parent"
+                    android:layout_height="85dp"
+
+                    android:scrollIndicators="none"
+                    android:scrollbars="horizontal">
+
+
+                    <RelativeLayout
+
+                        android:layout_width="match_parent"
+                        android:layout_height="85dp">
+
+                        <RelativeLayout
+                            android:id="@+id/addMyStory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/userPic"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_margin="10dp"
+                                android:src="@drawable/ic_profile_plc" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_below="@id/userPic"
+                                android:layout_marginLeft="-25dp"
+                                android:layout_marginTop="-25dp"
+                                android:layout_toRightOf="@id/userPic"
+                                android:padding="2dp"
+                                android:src="@drawable/plus" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/userPic"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginTop="-5dp"
+                                android:text="Your Story"
+                                android:textColor="#000"
+                                android:textSize="11sp" />
+                        </RelativeLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/friendsStories"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toRightOf="@+id/addMyStory"
+                            android:nestedScrollingEnabled="false">
+
+                        </androidx.recyclerview.widget.RecyclerView>
+
+
+
+
+                    </RelativeLayout>
+                </HorizontalScrollView>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="#eee" />
+
+                <im.ene.toro.widget.Container
+                    android:id="@+id/my_fancy_videos"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    tools:listitem="@layout/home_post_item_layout" />
+
+            </LinearLayout>
+
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/wholeLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#fff">-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/logoaa"-->
+            <!--android:layout_width="40dp"-->
+            <!--android:layout_height="40dp"-->
+            <!--android:layout_centerInParent="true"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:src="@drawable/logo_purple" />-->
+
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="60dp"-->
+            <!--android:layout_below="@id/logoaa"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:src="@drawable/progress_dotted" />-->
+
+    <!--</RelativeLayout>-->
+</RelativeLayout>

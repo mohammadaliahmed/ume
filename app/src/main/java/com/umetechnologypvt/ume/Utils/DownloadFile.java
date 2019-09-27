@@ -1,9 +1,6 @@
 package com.umetechnologypvt.ume.Utils;
 
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -41,8 +38,8 @@ public class DownloadFile {
         Uri uri = Uri.parse(Url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-        Long referene = downloadManager.enqueue(request);
-        DownloadManager downloadManagerr = (DownloadManager) ApplicationClass.getInstance().getApplicationContext().getSystemService(DOWNLOAD_SERVICE);
+//        Long referene = downloadManager.enqueue(request);
+//        DownloadManager downloadManagerr = (DownloadManager) ApplicationClass.getInstance().getApplicationContext().getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);
 
     }

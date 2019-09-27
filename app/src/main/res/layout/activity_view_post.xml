@@ -61,6 +61,12 @@
                 android:layout_height="match_parent"
                 android:visibility="gone" />
 
+            <View
+                android:id="@+id/videoView"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
             <ImageView
                 android:id="@+id/imageView_sound"
                 android:layout_width="30dp"
@@ -89,11 +95,24 @@
 
 
             </androidx.viewpager.widget.ViewPager>
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/picCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/black_rounded"
+                android:padding="5dp"
+                android:text="1/10"
+                android:textColor="#fff"
+                android:textSize="12sp" />
+
 
 
         </RelativeLayout>
 
-        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+        <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
             android:id="@+id/dots_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,9 +120,13 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:layout_margin="10dp"
-            app:dotsColor="@color/black"
-            app:dotsSize="5dp"
-            app:dotsWidthFactor="3" />
+            app:dotsCornerRadius="5dp"
+            app:dotsColor="@color/colorPurple"
+            android:layout_marginTop="15dp"
+            app:dotsStrokeColor="@color/dark_grey"
+            app:dotsSize="6dp"
+            app:dotsSpacing="2dp"
+            app:dotsStrokeWidth="3dp"  />
 
 
         <ImageView
@@ -178,7 +201,7 @@
             android:layout_below="@id/likesCount"
             android:layout_marginLeft="10dp"
             android:maxLines="2"
-            android:text="ALi Ahmed  sdfsdfd"
+            android:text="  sdfsdfd"
             android:textColor="#000"
             android:textSize="13sp" />
 

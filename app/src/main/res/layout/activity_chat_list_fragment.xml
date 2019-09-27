@@ -22,35 +22,49 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="2dp"
-                android:visibility="gone"
-                android:src="@drawable/logo_purple" />
+                android:src="@drawable/logo_purple"
+                android:visibility="gone" />
 
             <TextView
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="10dp"
                 android:text="Chats"
+                android:id="@+id/heading"
                 android:textColor="#000"
                 android:textSize="20sp" />
+
             <ImageView
                 android:id="@+id/newChat"
-                android:padding="2dp"
-                android:layout_marginRight="10dp"
-                android:layout_alignParentRight="true"
-                android:src="@drawable/ic_new_chat"
                 android:layout_width="30dp"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:padding="2dp"
+                android:src="@drawable/ic_new_chat" />
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/newChat"
+                android:layout_alignParentTop="true"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search Here" />
         </RelativeLayout>
 
 
     </androidx.appcompat.widget.Toolbar>
 
     <!--<View-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="1dp"-->
-        <!--android:layout_below="@id/toolBar"-->
-        <!--android:background="#aaa" />-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="1dp"-->
+    <!--android:layout_below="@id/toolBar"-->
+    <!--android:background="#aaa" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
@@ -61,22 +75,12 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <!--<TextView-->
-        <!--android:id="@+id/noMsgs"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:text="No messages"-->
-        <!--android:visibility="gone" />-->
+    <!--android:id="@+id/noMsgs"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:text="No messages"-->
+    <!--android:visibility="gone" />-->
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/newMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_msg"
-        app:fabSize="normal" />
 
 </RelativeLayout>

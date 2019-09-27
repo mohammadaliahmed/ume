@@ -21,13 +21,44 @@ import com.bumptech.glide.Glide;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
     Context context;
     ArrayList<UserModel> itemList;
+    ArrayList<UserModel> arrayList;
     ContactListCallbacks callbacks;
     ArrayList<String> blockedUser;
     ArrayList<String> blockedMeUser;
+
+
+
+
+    public void updateList(ArrayList<UserModel> itemList) {
+        this.itemList = itemList;
+        arrayList.clear();
+        arrayList.addAll(itemList);
+    }
+    public void filter(String charText) {
+        charText = charText.toLowerCase(Locale.getDefault());
+        itemList.clear();
+        if (charText.length() == 0) {
+            itemList.addAll(arrayList);
+        } else {
+            for (UserModel item : arrayList) {
+                if (item.getName().toLowerCase().contains(charText)) {
+
+                    itemList.add(item);
+                }
+
+            }
+
+
+        }
+
+        notifyDataSetChanged();
+    }
+
 
     public UserListAdapter(Context context, ArrayList<UserModel> itemList, ArrayList<String> blockedUser, ArrayList<String> blockedMeUser, ContactListCallbacks callbacks) {
         this.context = context;
@@ -35,6 +66,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         this.callbacks = callbacks;
         this.blockedUser = blockedUser;
         this.blockedMeUser = blockedMeUser;
+        this.arrayList = new ArrayList<>(itemList);
+
     }
 
     @NonNull
@@ -45,10 +78,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         return viewHolder;
     }
 
-    public void setUserList(ArrayList<UserModel> itemList) {
-        this.itemList = itemList;
-        notifyDataSetChanged();
-    }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {

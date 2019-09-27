@@ -4,8 +4,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper.Callback;
+
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -49,7 +51,6 @@ public class SwipeToDeleteCallback extends Callback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
     }
 
     @Override

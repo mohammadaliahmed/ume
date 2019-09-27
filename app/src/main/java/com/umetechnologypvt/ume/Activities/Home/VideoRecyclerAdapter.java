@@ -3,7 +3,6 @@ package com.umetechnologypvt.ume.Activities.Home;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -50,7 +49,7 @@ import im.ene.toro.media.VolumeInfo;
 import im.ene.toro.widget.Container;
 
 /**
- * Created by Anant Shah on 24/04/15.
+ * Created by aliah 13/08/2019.
  */
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -242,19 +241,33 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     @SuppressLint({"DefaultLocale", "ClickableViewAccessibility"})
     private void populateAdapterView(VideoViewHolder viewHolders, final int position) {
         PostsModel model = getItem(position);
+        if (viewHolders.helper != null) {
+            if (viewHolders.helper.getVolume() == 0) {
+                viewHolders.helper.setVolume(1);
+            } else {
+                viewHolders.helper.setVolume(0);
+            }
+        }
+
+        if (SharedPrefs.getMuted().equalsIgnoreCase("yes")) {
+            Log.d("muted inside yes", SharedPrefs.getMuted());
+
+            viewHolders.imageView_sound.setImageResource(R.drawable.ic_mute);
+            viewHolders.getCurrentPlaybackInfo().setVolumeInfo(new VolumeInfo(true, 0.0f));
+            model.setMute(true);
+        } else {
+            Log.d("muted inside no", SharedPrefs.getMuted());
+
+            viewHolders.imageView_sound.setImageResource(R.drawable.ic_unmute);
+            viewHolders.getCurrentPlaybackInfo().setVolumeInfo(new VolumeInfo(false, 1.0f));
+            model.setMute(false);
+        }
+
         try {
 
 
             viewHolders.bind(model, position);
-            if (SharedPrefs.getMuted().equalsIgnoreCase("yes")) {
-                viewHolders.imageView_sound.setImageResource(R.drawable.ic_mute);
-                viewHolders.getCurrentPlaybackInfo().setVolumeInfo(new VolumeInfo(true, 0.0f));
-                model.setMute(true);
-            } else {
-                viewHolders.imageView_sound.setImageResource(R.drawable.ic_unmute);
-                viewHolders.getCurrentPlaybackInfo().setVolumeInfo(new VolumeInfo(false, 1.0f));
-                model.setMute(false);
-            }
+
 
             viewHolders.imageView_sound
                     .setOnClickListener(new ClickHandler(model, viewHolders, position));
@@ -263,7 +276,10 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         boolean liked = false;
+
+
         if (likeList != null) {
             if (likeList.size() > 0) {
                 if (likeList.contains(model.getId())) {
@@ -278,14 +294,18 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         }
 
+        boolean finalLiked = liked;
+
         Glide.with(context).load(model.getUserPicUrl()).into(viewHolders.postByPic);
-        Glide.with(context).load(model.getUserPicUrl()).into(viewHolders.commenterImg);
+        Glide.with(context).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(viewHolders.commenterImg);
         if (model.getType().equalsIgnoreCase("Image")) {
             viewHolders.video_view.setVisibility(View.GONE);
             viewHolders.mainImage.setVisibility(View.VISIBLE);
             viewHolders.imageView_sound.setVisibility(View.GONE);
 
             viewHolders.muteIcon.setVisibility(View.GONE);
+            viewHolders.dots_indicator.setVisibility(View.GONE);
+            viewHolders.slider.setVisibility(View.GONE);
             viewHolders.dots_indicator.setVisibility(View.GONE);
 
             Glide.with(context).load(model.getPictureUrl()).into(viewHolders.mainImage);
@@ -296,20 +316,61 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             viewHolders.muteIcon.setVisibility(View.VISIBLE);
             viewHolders.dots_indicator.setVisibility(View.GONE);
             viewHolders.slider.setVisibility(View.GONE);
+            viewHolders.picCount.setVisibility(View.GONE);
+            viewHolders.dots_indicator.setVisibility(View.GONE);
+
             viewHolders.imageView_sound.setVisibility(View.VISIBLE);
 
 
-
         } else if (model.getType().equalsIgnoreCase("multi")) {
+            viewHolders.picCount.setText(1 + "/" + (model.getMultiImages() == null ? 1 : model.getMultiImages().size()));
+            viewHolders.slider.setOffscreenPageLimit(0);
             viewHolders.video_view.setVisibility(View.GONE);
             viewHolders.mainImage.setVisibility(View.GONE);
+            viewHolders.picCount.setVisibility(View.VISIBLE);
             viewHolders.muteIcon.setVisibility(View.GONE);
             viewHolders.dots_indicator.setVisibility(View.VISIBLE);
             viewHolders.imageView_sound.setVisibility(View.GONE);
-
             viewHolders.slider.setVisibility(View.VISIBLE);
+            viewHolders.slider.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    viewHolders.picCount.setText((position + 1) + "/" + model.getMultiImages().size());
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
             this.items = model.getMultiImages();
-            MainSliderAdapter mViewPagerAdapter = new MainSliderAdapter(context, model.getMultiImages());
+            MainSliderAdapter mViewPagerAdapter = new MainSliderAdapter(context, model.getMultiImages(), new MainSliderAdapter.ClicksCallback() {
+                @Override
+                public void onDoubleClick() {
+                    viewHolders.showLike.setVisibility(View.VISIBLE);
+                    Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                    viewHolders.showLike.startAnimation(myFadeInAnimation);
+                    likePost(finalLiked, viewHolders, model);
+//                    viewHolders.showLike.setVisibility(View.GONE);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            // yourMethod();
+                            viewHolders.showLike.setVisibility(View.GONE);
+                        }
+                    }, 2500);
+                }
+
+                @Override
+                public void onPicChanged(int position) {
+//                    viewHolders.picCount.setText((position )+ "/" + model.getMultiImages().size());
+                }
+            });
             viewHolders.slider.setAdapter(mViewPagerAdapter);
 //            mViewPagerAdapter.notifyDataSetChanged();
             viewHolders.dots_indicator.setViewPager(viewHolders.slider);
@@ -354,7 +415,7 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         viewHolders.forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                callBacks.onSharePostWithFriends(model);
 //                Intent shareIntent = new Intent(Intent.ACTION_SEND);
 //
 //                shareIntent.setType("text/plain");
@@ -401,8 +462,10 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                 if (model.getPostBy().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
                     mute.setVisibility(View.GONE);
                 }
-                if (SharedPrefs.getMutedList().contains(model.getPostBy())) {
-                    mute.setText("Un Mute");
+                if (SharedPrefs.getMutedList() != null) {
+                    if (SharedPrefs.getMutedList().contains(model.getPostBy())) {
+                        mute.setText("Un Mute");
+                    }
                 }
 
                 mute.setOnClickListener(new View.OnClickListener() {
@@ -508,7 +571,6 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             viewHolders.flag.setVisibility(View.GONE);
         }
 
-        boolean finalLiked = liked;
         viewHolders.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -570,32 +632,51 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return true;
             }
         });
-//        viewHolders.video_view.setOnTouchListener(new View.OnTouchListener() {
-//            private GestureDetector gestureDetector = new GestureDetegictor(context, new GestureDetector.SimpleOnGestureListener() {
-//                @Override
-//                public boolean onDoubleTap(MotionEvent e) {
-//
-//                    likePost(finalLiked, viewHolders, model);
-//                    return super.onDoubleTap(e);
-//                }
-//            });
-//
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Log.d("TEST", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
-//                gestureDetector.onTouchEvent(event);
-//                return true;
-//            }
-//        });
 
+
+        viewHolders.repost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBacks.onRePost(model);
+            }
+        });
+        viewHolders.download.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBacks.onShowDownloadMenu(model);
+            }
+        });
+
+
+        if (model.getGender() != null) {
+            viewHolders.genderBg.setVisibility(View.VISIBLE);
+            if (model.getGender().equalsIgnoreCase("female")) {
+                Glide.with(context).load(R.drawable.ic_female).into(viewHolders.gender);
+                viewHolders.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_pink));
+            } else {
+                Glide.with(context).load(R.drawable.ic_male).into(viewHolders.gender);
+                viewHolders.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_blue));
+
+            }
+
+            if (model.getUserAge() != 0) {
+                viewHolders.age.setText("" + model.getUserAge());
+            } else {
+
+            }
+        } else {
+            viewHolders.genderBg.setVisibility(View.GONE);
+        }
 
     }
+
 
     public void likePost(boolean value, VideoViewHolder holder, PostsModel model) {
         if (value) {
             holder.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
             model.setLikesCount(model.getLikesCount() - 1);
             callBacks.onUnlikedPost(model);
+
         } else {
             holder.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
             model.setLikesCount(model.getLikesCount() + 1);

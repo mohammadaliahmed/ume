@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/aguafina_script</item>
+        <item>@font/alegreya</item>
+        <item>@font/alfa_slab_one</item>
+        <item>@font/atomic_age</item>
+        <item>@font/caveat</item>
+        <item>@font/crafty_girls</item>
+        <item>@font/denk_one</item>
+        <item>@font/devonshire</item>
+        <item>@font/graduate</item>
+        <item>@font/nothing_you_could_do</item>
+        <item>@font/sacramento</item>
+        <item>@font/zeyada</item>
+    </array>
+</resources>

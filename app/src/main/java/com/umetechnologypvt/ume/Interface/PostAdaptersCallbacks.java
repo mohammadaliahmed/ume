@@ -18,5 +18,12 @@ public interface PostAdaptersCallbacks {
     public void onDelete(PostsModel model, int position);
 
     public void onMutePost(PostsModel model);
+
     public void onUnMutePost(PostsModel model);
+
+    public void onSharePostWithFriends(PostsModel model);
+
+    public void onRePost(PostsModel model);
+
+    public void onShowDownloadMenu(PostsModel model);
 }

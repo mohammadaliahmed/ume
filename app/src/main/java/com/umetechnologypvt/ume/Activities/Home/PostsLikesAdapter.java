@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -55,19 +56,77 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         UserModel model = itemList.get(position);
+        int value = 0;
 
-//        boolean liked = false;
-//        if (likeList.size() > 0) {
-//            if (likeList.contains(model.getId())) {
-//                liked = true;
-//            }
-//        }
-//        if (liked) {
-//            holder.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
-//        } else {
-//            holder.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
-//
-//        }
+
+        if (SharedPrefs.getUserModel().getConfirmFriends() != null && SharedPrefs.getUserModel().getConfirmFriends().size() > 0) {
+            if (SharedPrefs.getUserModel().getConfirmFriends().contains(model.getUsername())) {
+                value = 1;
+            }
+        } else if (SharedPrefs.getUserModel().getRequestSent() != null && SharedPrefs.getUserModel().getRequestSent().size() > 0) {
+            if (SharedPrefs.getUserModel().getRequestSent().contains(model.getUsername())) {
+                value = 2;
+            }
+        } else if (SharedPrefs.getUserModel().getRequestReceived() != null && SharedPrefs.getUserModel().getRequestReceived().size() > 0) {
+            if (SharedPrefs.getUserModel().getRequestReceived().contains(model.getUsername())) {
+                value = 3;
+            }
+        }
+
+        if (value == 1) {
+            holder.addAsFriend.setText("Friend");
+        } else if (value == 2) {
+            holder.addAsFriend.setText("Request sent");
+        } else if (value == 3) {
+            holder.addAsFriend.setText("Accept Request");
+        } else {
+            holder.addAsFriend.setText("Add As Friend");
+
+        }
+
+        if (model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+            holder.addAsFriend.setVisibility(View.GONE);
+
+        } else {
+            holder.addAsFriend.setVisibility(View.VISIBLE);
+        }
+        int finalValue = value;
+        holder.addAsFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (finalValue == 1) {
+
+                } else if (finalValue == 2) {
+
+                } else if (finalValue == 3) {
+                    callBacks.acceptRequest(model);
+                } else {
+                    callBacks.addAsFriend(model);
+                    holder.addAsFriend.setText("Request Sent");
+                }
+            }
+        });
+
+
+        if (model.getGender() != null) {
+            holder.genderBg.setVisibility(View.VISIBLE);
+            if (model.getGender().equalsIgnoreCase("female")) {
+                Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
+                holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_pink));
+            } else {
+                Glide.with(context).load(R.drawable.ic_male).into(holder.gender);
+                holder.genderBg.setBackground(context.getResources().getDrawable(R.drawable.custom_corners_blue));
+
+            }
+
+            if (model.getAge() != 0) {
+                holder.age.setText("" + model.getAge());
+            } else {
+
+            }
+        } else {
+            holder.genderBg.setVisibility(View.GONE);
+        }
 
         Glide.with(context).load(model.getThumbnailUrl()).into(holder.image);
         holder.name.setText(model.getName());
@@ -101,14 +160,21 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
+        TextView name, age;
         CircleImageView image;
+        TextView addAsFriend;
+        RelativeLayout genderBg;
+        ImageView gender;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name);
             image = itemView.findViewById(R.id.image);
+            addAsFriend = itemView.findViewById(R.id.addAsFriend);
+            genderBg = itemView.findViewById(R.id.genderBg);
+            gender = itemView.findViewById(R.id.gender);
+            age = itemView.findViewById(R.id.age);
 
         }
     }
@@ -117,6 +183,12 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
         public void takeUserToMyUserProfile(String userId);
 
         public void takeUserToOtherUserProfile(String userId);
+
+        public void addAsFriend(UserModel user);
+
+        public void removeAsFriend(UserModel user);
+
+        public void acceptRequest(UserModel user);
 
 
     }

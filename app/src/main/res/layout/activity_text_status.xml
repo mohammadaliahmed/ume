@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wholeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0af7b0"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/toBitmap"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_centerInParent="true">
+
+        <EditText
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:cursorVisible="false"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@null"
+            android:gravity="center"
+            android:hint="Type a status"
+            android:inputType="textCapSentences|textMultiLine"
+            android:paddingBottom="30dp"
+            android:textColor="#fff"
+            android:textColorHint="#dadada"
+            android:textSize="45dp" />
+    </RelativeLayout>
+
+
+    <ImageView
+        android:id="@+id/send"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/send" />
+
+    <ImageView
+        android:id="@+id/text"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_text" />
+
+
+    <ImageView
+        android:id="@+id/pallete"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toRightOf="@id/text"
+        android:src="@drawable/pallete" />
+
+</RelativeLayout>

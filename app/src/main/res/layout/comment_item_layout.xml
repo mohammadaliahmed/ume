@@ -5,10 +5,21 @@
     android:padding="10dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="35dp"
         android:id="@+id/image"
+        android:layout_width="35dp"
         android:layout_height="35dp"
         android:src="@drawable/ic_profile_plc" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/flag"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_below="@id/image"
+        android:layout_marginLeft="-10dp"
+        android:layout_marginTop="-15dp"
+        android:layout_toRightOf="@id/image"
+        android:src="@drawable/flag_pakistan"
+        android:visibility="visible" />
 
     <View
         android:layout_width="match_parent"
@@ -22,7 +33,7 @@
         android:id="@+id/comment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
+        android:layout_marginLeft="55dp"
         android:layout_marginTop="5dp"
         android:text="2hr"
         android:textColor="#000"
@@ -33,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/comment"
-        android:layout_marginLeft="45dp"
+        android:layout_marginLeft="55dp"
         android:text="2hr"
         android:textSize="11sp" />
 

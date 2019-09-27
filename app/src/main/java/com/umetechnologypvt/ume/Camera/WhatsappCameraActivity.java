@@ -14,6 +14,7 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.media.CamcorderProfile;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -24,7 +25,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.os.SystemClock;
-
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -41,11 +41,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
-import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.zhihu.matisse.Matisse;
@@ -82,7 +80,9 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     FrameLayout pCameraLayout;
     private List<Uri> mSelected = new ArrayList<>();
     ImageView pickVideo;
-//    ZoomControls zoomControls;
+    //    ZoomControls zoomControls;
+    static final String EXTRA_VIDEO_PATH = "EXTRA_VIDEO_PATH";
+    static final String VIDEO_TOTAL_DURATION = "VIDEO_TOTAL_DURATION";
 
 
     //    public void zoomCamera(boolean zoomInOrOut) {
@@ -232,9 +232,9 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     private void initMatisse() {
         mSelected.clear();
         Matisse.from(WhatsappCameraActivity.this)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofImage())
                 .countable(true)
-                .maxSelectable(9)
+                .maxSelectable(10)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
                 .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -253,11 +253,12 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
             mIntent.putExtra("WHO", "Image");
             SharedPrefs.setMultiPickedImg(new ArrayList<>());
             List<String> imgs = new ArrayList<>();
+
             for (Uri uri : mSelected) {
                 CompressImage compressImage = new CompressImage(WhatsappCameraActivity.this);
                 imgs.add(compressImage.compressImage("" + uri));
             }
-            if (imgs.size() > 0) {
+            if (imgs.size() > 1) {
                 mIntent.putExtra("WHO", "Multi");
                 SharedPrefs.setMultiPickedImg(imgs);
             }
@@ -276,9 +277,19 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
                 mIntent.putExtra("WHO", "GalleryVideo");
                 startActivity(mIntent);
 
+//                Intent intent = new Intent(this, TrimmerActivity.class);
+//                intent.putExtra(EXTRA_VIDEO_PATH, FileUtils.getPath(this, uri));
+//                intent.putExtra(VIDEO_TOTAL_DURATION, getMediaDuration(uri));
+//                startActivity(intent);
             }
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private int getMediaDuration(Uri uriOfFile) {
+        MediaPlayer mp = MediaPlayer.create(this, uriOfFile);
+        int duration = mp.getDuration();
+        return duration;
     }
 
 
@@ -1041,6 +1052,7 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     public void onVideoSendDialog(final String videopath, final String thumbPath) {
 
         runOnUiThread(new Runnable() {
+            @SuppressLint("StringFormatMatches")
             @Override
             public void run() {
                 if (videopath != null) {

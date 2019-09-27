@@ -22,7 +22,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
@@ -97,18 +96,8 @@ public class FloatingButton extends Service {
                 Glide.with(this).load(PictureUrl).into(chatheadImg);
 
             } else {
-                Glide.with(this).load(R.drawable.ic_profile_plc).placeholder(R.drawable.ic_profile_plc).listener(new RequestListener<Integer, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        return false;
-                    }
+                Glide.with(this).load(R.drawable.ic_profile_plc).into(chatheadImg);
 
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-
-                        return false;
-                    }
-                }).into(chatheadImg);
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

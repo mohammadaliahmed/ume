@@ -1,8 +1,8 @@
 package com.umetechnologypvt.ume.Utils;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
@@ -21,20 +22,18 @@ import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 
-import android.net.ConnectivityManager;
-
-
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.Country;
 import com.umetechnologypvt.ume.Models.Example;
 import com.umetechnologypvt.ume.Models.LangaugeModel;
 import com.umetechnologypvt.ume.R;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -140,12 +139,34 @@ public class CommonUtils {
         Bitmap image = retriever.getFrameAtTime(2000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.PNG, 50, bytes);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, "Title", null);
             return Uri.parse(path);
         } catch (Exception e) {
             e.printStackTrace();
             return Uri.parse("");
+        }
+    }
+    public static Uri getImageContentUri(Context context, File imageFile) {
+        String filePath = imageFile.getAbsolutePath();
+        Cursor cursor = context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[] { MediaStore.Images.Media._ID },
+                MediaStore.Images.Media.DATA + "=? ",
+                new String[] { filePath }, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            cursor.close();
+            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + id);
+        } else {
+            if (imageFile.exists()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DATA, filePath);
+                return context.getContentResolver().insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -194,7 +215,7 @@ public class CommonUtils {
         Bitmap image = ThumbnailUtils.createVideoThumbnail(getRealPathFromURI(uri), MediaStore.Images.Thumbnails.MINI_KIND);
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.PNG, 50, bytes);
+            image.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
             String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, "Title", null);
             return Uri.parse(path);
         } catch (Exception e) {

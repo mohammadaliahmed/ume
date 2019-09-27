@@ -1,25 +1,33 @@
 package com.umetechnologypvt.ume.Activities.Home;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
-
+import com.bumptech.glide.Glide;
+import com.danikula.videocache.CacheListener;
+import com.danikula.videocache.HttpProxyCacheServer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
+import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator;
+import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.R;
-import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.io.File;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -48,29 +56,66 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
     public ExoPlayerViewHelper helper;
     Uri mediaUri;
 
-    TextView postByName, likesCount, time, addComment, lastComment, commentsCount;
-    ImageView mainImage,showLike;
-    CircleImageView commenterImg, postByPic,flag;
-    ImageView muteIcon, comments, likeBtn, menu,forward;
+    TextView postByName, likesCount, time, addComment, lastComment, commentsCount, picCount, duration;
+    ImageView mainImage, showLike;
+    CircleImageView commenterImg, postByPic, flag;
+    ImageView muteIcon, comments, likeBtn, menu, forward, download, repost;
     ViewPager slider;
-    DotsIndicator dots_indicator;
+    WormDotsIndicator dots_indicator;
+    TextView age;
+    RelativeLayout genderBg;
+    ImageView gender;
+    ImageView progress_image;
+    ProgressBar videoProgress;
 
 
     private final Playable.EventListener listener = new Playable.DefaultEventListener() {
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             super.onPlayerStateChanged(playWhenReady, playbackState);
+            if (playbackState == Player.STATE_BUFFERING) {
+                Glide.with(context).load(imageUrl).into(progress_image);
+                progress_image.setVisibility(View.VISIBLE);
+                videoProgress.setVisibility(View.VISIBLE);
+            } else {
+                progress_image.setVisibility(View.INVISIBLE);
+                videoProgress.setVisibility(View.GONE);
+            }
+
             Log.d("onPlayerStateChanged", ":" +
                     format(Locale.getDefault(), "STATE: %d・PWR: %s", playbackState, playWhenReady));
         }
     };
+    private String imageUrl;
+//    private final Runnable updateUI= new Runnable()
+//    {
+//        public void run()
+//        {
+//            try
+//            {
+//                //update ur ui here
+////                start.setText((mPlayer.getCurrentPosition()/mPlayer.getDuration())*100);
+//                ‌ duration.setText(helper.getDuration()-mPlayer.getCurrentPosition());
+//
+//            }
+//            catch (Exception e)
+//            {
+//                e.printStackTrace();
+//            }
+//        }
+//    };
+//    private final Handler mHandler = new Handler();
 
 
     public VideoViewHolder(View itemView, Context context) {
         super(itemView);
         this.context = context;
+        duration = itemView.findViewById(R.id.duration);
+        videoProgress = itemView.findViewById(R.id.videoProgress);
         slider = itemView.findViewById(R.id.slider);
         dots_indicator = itemView.findViewById(R.id.dots_indicator);
+        picCount = itemView.findViewById(R.id.picCount);
+        progress_image = itemView.findViewById(R.id.progress_image);
         video_view = itemView.findViewById(R.id.video_view);
         imageView_sound = itemView.findViewById(R.id.imageView_sound);
         postByName = itemView.findViewById(R.id.postByName);
@@ -89,8 +134,13 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
         forward = itemView.findViewById(R.id.forward);
         showLike = itemView.findViewById(R.id.showLike);
         flag = itemView.findViewById(R.id.flag);
-
-        //textView_description = itemView.findViewById(R.id.textView_description);
+        download = itemView.findViewById(R.id.download);
+        repost = itemView.findViewById(R.id.repost);
+        genderBg = itemView.findViewById(R.id.genderBg);
+        gender = itemView.findViewById(R.id.gender);
+        age = itemView.findViewById(R.id.age);
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
+                new IntentFilter("pause"));
     }
 
     @NonNull
@@ -121,7 +171,14 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
 
     @Override
     public void play() {
-        if (helper != null) helper.play();
+        if (helper != null) {
+            helper.play();
+            if (SharedPrefs.getMuted().equalsIgnoreCase("yes")) {
+                helper.setVolume(0);
+            } else {
+                helper.setVolume(1);
+            }
+        }
     }
 
     @Override
@@ -144,6 +201,20 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
     }
 
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            if (helper != null) {
+                helper.removeEventListener(listener);
+                helper.release();
+                helper = null;
+            }
+
+        }
+    };
+
+
     @Override
     public boolean wantsToPlay() {
         return ToroUtil.visibleAreaOffset(this, itemView.getParent()) >= 0.85;
@@ -161,17 +232,18 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
 
     public void bind(PostsModel videoDictionary, int position) {
 
+//        String url = videoDictionary.getProxyUrl();
         String url = videoDictionary.getVideoUrl();
+        imageUrl = videoDictionary.getVideoThumbnailUrl();
         //String url = videoDictionary.getUrl();
 
-/*
 
         // video cache
-        HttpProxyCacheServer proxy = App.getProxy(context);
-        proxy.registerCacheListener(this, url);
-        String proxyUrl = proxy.getProxyUrl(url);
+//        HttpProxyCacheServer proxy = ApplicationClass.getProxy(context);
+//        proxy.registerCacheListener(this, url);
+//        String proxyUrl = proxy.getProxyUrl(url);
 
-*/
+
 
         Uri uri = Uri.parse(url);
         videoDictionary.setMediaUri(uri);
@@ -181,6 +253,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
     public void onRecycled() {
         // do nothing
     }
+
 
 
 }

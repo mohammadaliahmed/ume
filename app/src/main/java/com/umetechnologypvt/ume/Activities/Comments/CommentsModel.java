@@ -3,17 +3,27 @@ package com.umetechnologypvt.ume.Activities.Comments;
 public class CommentsModel {
     String commentId,commentText,commentBy,commentByName,commentByPicUrl;
     long time;
+    String countryCode;
 
-    public CommentsModel(String commentId, String commentText, String commentBy, String commentByName, String commentByPicUrl, long time) {
+    public CommentsModel(String commentId, String commentText, String commentBy, String commentByName, String commentByPicUrl, long time,String countryCode) {
         this.commentId = commentId;
         this.commentText = commentText;
         this.commentBy = commentBy;
         this.commentByName = commentByName;
         this.commentByPicUrl = commentByPicUrl;
         this.time = time;
+        this.countryCode = countryCode;
     }
 
     public CommentsModel() {
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public String getCommentId() {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<color name="progress_primary">#fff</color>-->
+    <color name="progress_primary">@color/white</color>
+    <color name="progress_secondary">@color/gray_scale</color>
+    <color name="progress_max_active">@color/white</color>
+
+    <color name="gray_scale">#8affffff</color>
+    <color name="white">#fff</color>
+
+
+    <color name="darkPurple">#9800b3</color>
+    <color name="darkGrey">#696969</color>
+    <color name="darkSilver">#b9b9b9</color>
+    <color name="black">#000000</color>
+    <color name="red">#e90000</color>
+    <color name="darkGreen">#49af00</color>
+    <color name="darkYellow">#f1d900</color>
+    <color name="darkBlue">#0043ed</color>
+    <color name="darkPink">#e100a9</color>
+    <color name="greyColor">#d1d1d1</color>
+
+
+
+
+</resources>

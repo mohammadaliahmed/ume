@@ -121,8 +121,8 @@ public class CommentsActivity extends AppCompatActivity implements NotificationO
         CommentsModel model = new CommentsModel(
                 key, comment.getText().toString(),
                 SharedPrefs.getUserModel().getUsername(), SharedPrefs.getUserModel().getName(),
-                SharedPrefs.getUserModel().getPicUrl(),
-                System.currentTimeMillis()
+                SharedPrefs.getUserModel().getThumbnailUrl(),
+                System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
         );
         mDatabase.child("Posts").child("Comments").child(postId).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

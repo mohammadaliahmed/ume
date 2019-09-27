@@ -8,8 +8,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.umetechnologypvt.ume.Activities.PlayVideo;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
+import com.umetechnologypvt.ume.Activities.ViewPost;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
@@ -31,12 +31,13 @@ import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.CountryUtils;
 import com.umetechnologypvt.ume.Utils.DownloadFile;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
-import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> implements Handler.Callback {
@@ -150,6 +151,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     }
                 }
                 holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
                 holder.time.setVisibility(View.GONE);
@@ -169,6 +174,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.messageDeleted.setVisibility(View.VISIBLE);
                 holder.map.setVisibility(View.GONE);
                 holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STICKER)) {
@@ -188,6 +196,57 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 Glide.with(context).load(model.getStickerUrl()).into(holder.sticker);
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
+
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_POST)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
+
+                holder.image.setVisibility(View.GONE);
+                holder.post.setVisibility(View.VISIBLE);
+                holder.postMsg.setText(model.getMessageText());
+                Glide.with(context).load(model.getImageUrl()).into(holder.postImage);
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.VISIBLE);
+
+
+
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_STORY)) {
+                holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
+                holder.msgtext.setVisibility(View.GONE);
+                holder.audio.setVisibility(View.GONE);
+                holder.name.setText(model.getName());
+                holder.balloon.setVisibility(View.VISIBLE);
+                holder.video.setVisibility(View.GONE);
+
+                holder.document.setVisibility(View.GONE);
+                holder.sticker.setVisibility(View.GONE);
+                holder.translation.setVisibility(View.GONE);
+                holder.map.setVisibility(View.GONE);
+
+                holder.image.setVisibility(View.GONE);
+                holder.post.setVisibility(View.VISIBLE);
+                holder.postMsg.setText(model.getMessageText());
+                Glide.with(context).load(model.getImageUrl()).into(holder.postImage);
+                holder.messageDeleted.setVisibility(View.GONE);
+                holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.VISIBLE);
+
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
@@ -210,8 +269,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 } else {
                     holder.imgProgress.setVisibility(View.GONE);
                 }
+
+
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
                 holder.image.setVisibility(View.GONE);
@@ -224,6 +288,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.sticker.setVisibility(View.GONE);
 
                 holder.balloon.setVisibility(View.VISIBLE);
+                holder.postImage.setVisibility(View.GONE);
+
                 holder.translation.setVisibility(View.GONE);
 
                 holder.document.setVisibility(View.GONE);
@@ -232,6 +298,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.contact.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
@@ -249,12 +318,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.translation.setVisibility(View.GONE);
 
                 holder.document.setVisibility(View.GONE);
+
+
                 holder.msgtext.setText(model.getMessageText());
                 holder.imgProgress.setVisibility(View.GONE);
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
                 holder.messageDeleted.setVisibility(View.GONE);
                 holder.phoneName.setText(model.getPhoneName());
                 holder.phoneNumber.setText(model.getPhoneNumber());
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
                 holder.contact.setVisibility(View.GONE);
@@ -268,7 +342,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.video.setVisibility(View.GONE);
 
                 holder.sticker.setVisibility(View.GONE);
-
                 holder.balloon.setVisibility(View.VISIBLE);
                 holder.translation.setVisibility(View.GONE);
 
@@ -277,6 +350,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 holder.imgProgress.setVisibility(View.GONE);
                 holder.time.setText("" + CommonUtils.getFormattedDate(model.getTime()));
                 holder.messageDeleted.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
                 holder.contact.setVisibility(View.GONE);
@@ -301,6 +377,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     holder.documentName.setText(model.getDocumentFileName());
                 }
                 holder.documentType.setText(model.getMediaType().replace(".", ""));
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
@@ -332,6 +410,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 }
 //                holder.translatedText.setCompoundDrawablesWithIntrinsicBounds(0, CountryUtils.getFlagDrawableResId(model.getLanguage()), 0, 0);
                 holder.originalText.setText(model.getOriginalText());
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
+
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
                 holder.contact.setVisibility(View.GONE);
@@ -376,6 +457,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                     updateInitialPlayerView(holder);
                 }
                 holder.messageDeleted.setVisibility(View.GONE);
+                holder.postImage.setVisibility(View.GONE);
+                holder.post.setVisibility(View.GONE);
 
             }
 
@@ -409,6 +492,26 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
                 mapIntent.setPackage("com.google.android.apps.maps");
                 if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
                     context.startActivity(mapIntent);
+                }
+            }
+        });
+
+
+        holder.post.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_STORY)) {
+
+                    if (System.currentTimeMillis() - model.getStoryTime() < 86400000) {
+
+
+                    } else {
+                        CommonUtils.showToast("Story is expired");
+                    }
+                } else {
+                    Intent i = new Intent(context, ViewPost.class);
+                    i.putExtra("postId", model.getPostId());
+                    context.startActivity(i);
                 }
             }
         });
@@ -593,7 +696,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     }
 
     public void setNewList(ArrayList<ChatModel> chatModelArrayList) {
-        this.chatList=chatModelArrayList;
+        this.chatList = chatModelArrayList;
         notifyDataSetChanged();
     }
 
@@ -792,6 +895,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         LinearLayout contact;
         CircleImageView translationFlag;
         TextView translationName;
+        RelativeLayout post;
+        ImageView postImage;
+        TextView postMsg;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -828,6 +935,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             map = itemView.findViewById(R.id.map);
             translationFlag = itemView.findViewById(R.id.translationFlag);
             translationName = itemView.findViewById(R.id.translationName);
+            post = itemView.findViewById(R.id.post);
+            postImage = itemView.findViewById(R.id.postImage);
+            postMsg = itemView.findViewById(R.id.postMsg);
 
 //            seekBar.setOnSeekBarChangeListener(this);
 

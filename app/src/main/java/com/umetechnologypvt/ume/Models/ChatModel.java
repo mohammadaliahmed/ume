@@ -17,8 +17,11 @@ public class ChatModel {
     String translatedText, language, originalText;
     String countryCode;
     double lat, lon;
-    String phoneName,phoneNumber;
+    String phoneName, phoneNumber;
     String languageName;
+    String postId;
+    String storyId;
+    long storyTime;
 
     //for location
     public ChatModel(String id, String messageBy, String username, String name, String picUrl,
@@ -36,9 +39,47 @@ public class ChatModel {
         this.countryCode = countryCode;
     }
 
+
+    //for post
+    public ChatModel(String id, String messageBy, String username, String name, String picUrl, String messageText,
+                     String messageType, long time, String postId, String imageUrl, String messageStatus, String countryCode) {
+        this.id = id;
+        this.messageBy = messageBy;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.messageText = messageText;
+        this.time = time;
+        this.postId = postId;
+        this.imageUrl = imageUrl;
+
+        this.messageStatus = messageStatus;
+        this.countryCode = countryCode;
+    }
+
+    //for story
+    public ChatModel(String id, String messageBy, String username, String name, String picUrl, String messageText,
+                     String messageType, long time, long storyTime, String postId, String imageUrl, String messageStatus, String countryCode) {
+        this.id = id;
+        this.messageBy = messageBy;
+        this.username = username;
+        this.name = name;
+        this.picUrl = picUrl;
+        this.messageType = messageType;
+        this.messageText = messageText;
+        this.time = time;
+        this.storyTime = storyTime;
+        this.postId = postId;
+        this.imageUrl = imageUrl;
+
+        this.messageStatus = messageStatus;
+        this.countryCode = countryCode;
+    }
+
     //for contact
     public ChatModel(String id, String messageBy, String username, String name, String picUrl,
-                     String messageType, long time, String messageStatus,String phoneName,String phoneNumber, String countryCode) {
+                     String messageType, long time, String messageStatus, String phoneName, String phoneNumber, String countryCode) {
         this.id = id;
         this.messageBy = messageBy;
         this.username = username;
@@ -46,8 +87,8 @@ public class ChatModel {
         this.picUrl = picUrl;
         this.messageType = messageType;
         this.time = time;
-        this.phoneName=phoneName;
-        this.phoneNumber=phoneNumber;
+        this.phoneName = phoneName;
+        this.phoneNumber = phoneNumber;
         this.messageStatus = messageStatus;
         this.countryCode = countryCode;
     }
@@ -56,7 +97,7 @@ public class ChatModel {
     public ChatModel(String id, String messageText, String messageBy,
                      String username, String name, String picUrl, String messageType,
                      long time, String messageStatus, String translatedText, String originalText, String language
-            , String countryCode,String languageName
+            , String countryCode, String languageName
 
     ) {
         this.id = id;
@@ -143,6 +184,31 @@ public class ChatModel {
         this.messageStatus = messageStatus;
         this.documentFileName = documentFileName;
         this.countryCode = countryCode;
+    }
+
+
+    public String getStoryId() {
+        return storyId;
+    }
+
+    public void setStoryId(String storyId) {
+        this.storyId = storyId;
+    }
+
+    public long getStoryTime() {
+        return storyTime;
+    }
+
+    public void setStoryTime(long storyTime) {
+        this.storyTime = storyTime;
+    }
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
     }
 
     public String getPhoneName() {

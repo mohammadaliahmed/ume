@@ -1,13 +1,14 @@
 package com.umetechnologypvt.ume.Activities;
 
 import android.content.Intent;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
-import com.umetechnologypvt.ume.R;
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 import com.bumptech.glide.Glide;
+import com.umetechnologypvt.ume.R;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 
 public class ViewPictures extends AppCompatActivity {
@@ -19,8 +20,7 @@ public class ViewPictures extends AppCompatActivity {
         Intent i=getIntent();
         String  url=i.getStringExtra("url");
         ImageView img=findViewById(R.id.img);
-
-        Glide.with(this).load(url).placeholder(R.drawable.placeholder).into(img);
+        Glide.with(this).load(url).into(img);
         img.setOnTouchListener(new ImageMatrixTouchHandler(this));
     }
 }

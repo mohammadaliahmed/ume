@@ -18,27 +18,10 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.core.view.inputmethod.InputContentInfoCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -56,6 +39,26 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.devlomi.record_view.OnBasketAnimationEnd;
+import com.devlomi.record_view.OnRecordListener;
+import com.devlomi.record_view.RecordButton;
+import com.devlomi.record_view.RecordView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
 import com.umetechnologypvt.ume.Adapters.ChatAdapter;
@@ -76,28 +79,6 @@ import com.umetechnologypvt.ume.Utils.MyEditText;
 import com.umetechnologypvt.ume.Utils.NotificationAsync;
 import com.umetechnologypvt.ume.Utils.NotificationObserver;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
-import com.bumptech.glide.Glide;
-
-import com.devlomi.record_view.OnBasketAnimationEnd;
-import com.devlomi.record_view.OnRecordListener;
-import com.devlomi.record_view.RecordButton;
-import com.devlomi.record_view.RecordView;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.TranslateOptions;
-import com.google.cloud.translate.Translation;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import com.google.gson.Gson;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
@@ -107,13 +88,21 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.view.inputmethod.InputContentInfoCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SingleChattingScreen extends AppCompatActivity implements NotificationObserver, ChatCallbacks {
@@ -307,7 +296,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //                startActivity(i1);
                 Intent i1 = new Intent(SingleChattingScreen.this, MainActivity.class);
                 Constants.USER_ID = hisUserModel.getUsername();
-                i.putExtra("value", 2);
+                i1.putExtra("value", 2);
                 startActivity(i1);
             }
         });
@@ -319,7 +308,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //                startActivity(i1);
                 Intent i1 = new Intent(SingleChattingScreen.this, MainActivity.class);
                 Constants.USER_ID = hisUserModel.getUsername();
-                i.putExtra("value", 2);
+                i1.putExtra("value", 2);
                 startActivity(i1);
             }
         });
@@ -686,6 +675,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
         dialog.show();
     }
 
+    @SuppressLint("WrongConstant")
     private void showLanguagePickerDialog(ImageView translateTo, TextView languageName) {
         LayoutInflater factory = LayoutInflater.from(this);
         final View languageDialogView = factory.inflate(R.layout.dialog_language_pick, null);
@@ -1090,6 +1080,39 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                             });
                         }
                         ForwardContactSelectionScreen.fromForward = false;
+                    } else if (Constants.FORWARD_POST == 1) {
+                        Constants.FORWARD_POST = 0;
+                        String key = mDatabase.push().getKey();
+                        ChatModel forwardChatModel = new ChatModel(
+                                key,
+                                SharedPrefs.getUserModel().getUsername(),
+                                hisUserModel.getUsername(),
+                                hisUserModel.getName(),
+                                hisUserModel.getPicUrl(),
+                                Constants.POST_MESSAGE,
+                                Constants.MESSAGE_TYPE_POST,
+
+                                System.currentTimeMillis(),
+                                Constants.POST_ID,
+                                Constants.FORWARD_PIC_URL,
+                                "sent",
+                                hisUserModel.getCountryNameCode()
+                        );
+
+                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+                                .child(hisUserModel.getUsername()).child(key)
+                                .setValue(forwardChatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                forwardChatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+                                forwardChatModel.setName(SharedPrefs.getUserModel().getName());
+                                forwardChatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
+                                mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(forwardChatModel.getId())
+                                        .setValue(forwardChatModel);
+                                sendNotification(forwardChatModel.getMessageType(), forwardChatModel.getId());
+                            }
+                        });
+
                     }
 
 
@@ -1830,7 +1853,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     private void initMatisse() {
         Matisse.from(SingleChattingScreen.this)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofImage())
                 .countable(true)
                 .maxSelectable(10)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
@@ -1925,9 +1948,6 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         recyclerView.scrollToPosition(chatModelArrayList.size() - 1);
 
 
-//                        mDatabase.child("LastMessages").child(SharedPrefs.getUserModel().getUsername()).child(hisUserModel.getUsername())
-//                                .setValue(chatModel);
-
                         chatModel.setUsername(SharedPrefs.getUserModel().getUsername());
                         chatModel.setName(SharedPrefs.getUserModel().getName());
                         chatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
@@ -1935,9 +1955,6 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(messageId)
                                 .setValue(chatModel);
 
-
-//                        mDatabase.child("LastMessages").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername())
-//                                .setValue(chatModel);
 
                         sendNotification(type, chatModel.getId());
 
@@ -1977,6 +1994,8 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCCD Location";
         } else if (type.equals(Constants.MESSAGE_TYPE_CONTACT)) {
             NotificationMessage = SharedPrefs.getUserModel().getName() + ": ☎ Contact";
+        } else if (type.equals(Constants.MESSAGE_TYPE_POST)) {
+            NotificationMessage = SharedPrefs.getUserModel().getName() + ":  \uD83D\uDCF7 Post";
         }
         notificationAsync.setMsgId(msgId);
         notificationAsync.execute(
@@ -2320,7 +2339,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
     private void getMessagesFromServer() {
         mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername()).child(userId)
-                .limitToLast(100).addValueEventListener(eventListener);
+                .limitToLast(200).addValueEventListener(eventListener);
 
     }
 
@@ -2333,9 +2352,11 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ChatModel chat = snapshot.getValue(ChatModel.class);
                     if (chat != null) {
-                        chatModelArrayList.add(chat);
+                        if (chat.getName() != null) {
+                            chatModelArrayList.add(chat);
 
-                        chatCallbacks.abc(chatModelArrayList.size(), dataSnapshot.getChildrenCount());
+                            chatCallbacks.abc(chatModelArrayList.size(), dataSnapshot.getChildrenCount());
+                        }
                     }
                 }
                 recyclerView.scrollToPosition(chatModelArrayList.size() - 1);

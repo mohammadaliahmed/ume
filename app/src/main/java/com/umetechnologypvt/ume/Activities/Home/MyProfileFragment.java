@@ -1,21 +1,23 @@
 package com.umetechnologypvt.ume.Activities.Home;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,21 +26,20 @@ import com.google.firebase.database.ValueEventListener;
 import com.umetechnologypvt.ume.Activities.EditProfile;
 import com.umetechnologypvt.ume.Activities.Splash;
 import com.umetechnologypvt.ume.Activities.UserFriends;
+import com.umetechnologypvt.ume.Activities.UserManagement.AccountSettings;
+import com.umetechnologypvt.ume.Adapters.SimpleFragmentPagerAdapter;
 import com.umetechnologypvt.ume.Models.PostsModel;
+import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
-import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager.widget.ViewPager;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -50,14 +51,15 @@ public class MyProfileFragment extends Fragment {
     TextView about, name, friendsCount, postCount;
     CircleImageView picture;
     TextView toolbarName;
-    RecyclerView recyclerview;
+//    RecyclerView recyclerview;
 
     ArrayList<PostsModel> itemList = new ArrayList<>();
     ArrayList<String> postIdsList = new ArrayList<>();
-    UserPostsAdapter adapter;
+    //    UserPostsAdapter adapter;
     LinearLayout frnds;
 
     ImageView menu;
+
 
     @SuppressLint("WrongConstant")
     @Override
@@ -72,9 +74,11 @@ public class MyProfileFragment extends Fragment {
         postCount = rootView.findViewById(R.id.postCount);
         picture = rootView.findViewById(R.id.picture);
         toolbarName = rootView.findViewById(R.id.toolbarName);
-        recyclerview = rootView.findViewById(R.id.recyclerview);
+//        recyclerview = rootView.findViewById(R.id.recyclerview);
         frnds = rootView.findViewById(R.id.frnds);
         menu = rootView.findViewById(R.id.menu);
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
+                new IntentFilter("postsCount"));
 
 
         menu.setOnClickListener(new View.OnClickListener() {
@@ -93,9 +97,58 @@ public class MyProfileFragment extends Fragment {
                 context.startActivity(i);
             }
         });
+        Constants.USER_ID = SharedPrefs.getUserModel().getUsername();
+        ViewPager viewPager = rootView.findViewById(R.id.viewpager);
+        SimpleFragmentPagerAdapter adapter = new SimpleFragmentPagerAdapter(context, getChildFragmentManager());
+
+        viewPager.setAdapter(adapter);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = rootView.findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_grid));
+        tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_save_post));
+        getUserDataFromDB();
+//        if(SharedPrefs.getPosts()!=null) {
+//            postCount.setText("" + SharedPrefs.getPosts().size());
+//        }
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    Constants.SAVED_POST = true;
+                } else {
+                    Constants.SAVED_POST = false;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
 
         return rootView;
     }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("postsCount");
+            postCount.setText(message);
+
+
+        }
+    };
+
 
     public void showPopup(View v) {
         PopupMenu popup = new PopupMenu(getActivity(), v);
@@ -106,12 +159,12 @@ public class MyProfileFragment extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.logout:
-                        SharedPrefs.logout();
-                        Intent i = new Intent(context, Splash.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    case R.id.accountSettings:
+//                        SharedPrefs.logout();
+                        Intent i = new Intent(context, AccountSettings.class);
+//                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(i);
-                        MainActivity.activity.finish();
+//                        MainActivity.activity.finish();
                         return true;
 
                     default:
@@ -140,16 +193,6 @@ public class MyProfileFragment extends Fragment {
             }
         });
 
-        recyclerview.setLayoutManager(new GridLayoutManager(context, 3));
-        adapter = new UserPostsAdapter(context, itemList);
-        adapter.setCallBacks(new UserPostsAdapter.HomePostsAdapterCallBacks() {
-            @Override
-            public void onPictureSelected(int position) {
-                Constants.PICTURE_POSITION = position;
-                Fragment fragment = new UserPostsFragment();
-                loadFragment(fragment);
-            }
-        });
         friendsCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,40 +201,6 @@ public class MyProfileFragment extends Fragment {
                 context.startActivity(i);
             }
         });
-        recyclerview.setAdapter(adapter);
-
-        if (Constants.LIKE_COMMENT == 1) {
-            ArrayList<PostsModel> abc = SharedPrefs.getPosts();
-            Collections.sort(abc, new Comparator<PostsModel>() {
-                @Override
-                public int compare(PostsModel listData, PostsModel t1) {
-                    Long ob1 = listData.getTime();
-                    Long ob2 = t1.getTime();
-                    return ob2.compareTo(ob1);
-
-                }
-            });
-
-            if (SharedPrefs.getPosts().size() > 0) {
-                Constants.PICTURE_POSITION = 0;
-
-                int count = 0;
-                for (PostsModel m : abc) {
-                    if (m.getId().equalsIgnoreCase(Constants.POST_ID)) {
-                        Constants.PICTURE_POSITION = count;
-
-                        break;
-                    }
-                    count++;
-                }
-                Fragment fragment = new UserPostsFragment();
-                loadFragment(fragment);
-                Constants.LIKE_COMMENT = 0;
-
-            }
-        } else {
-            getPostIdsFromDB();
-        }
 
 
     }
@@ -205,65 +214,6 @@ public class MyProfileFragment extends Fragment {
     }
 
 
-    private void getPostIdsFromDB() {
-        mDatabase.child("PostsBy").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    postIdsList.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String key = snapshot.getKey();
-                        postIdsList.add(key);
-                    }
-                    itemList.clear();
-                    if (postIdsList.size() > 0) {
-                        for (String id : postIdsList) {
-                            getPostsFromDB(id);
-                        }
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getPostsFromDB(String id) {
-        mDatabase.child("Posts").child("Posts").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    PostsModel model = dataSnapshot.getValue(PostsModel.class);
-                    if (model != null && model.getId() != null) {
-                        itemList.add(model);
-                        SharedPrefs.setPosts(itemList);
-                        postCount.setText("" + itemList.size());
-                    }
-                    Collections.sort(itemList, new Comparator<PostsModel>() {
-                        @Override
-                        public int compare(PostsModel listData, PostsModel t1) {
-                            Long ob1 = listData.getTime();
-                            Long ob2 = t1.getTime();
-                            return ob2.compareTo(ob1);
-
-                        }
-                    });
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -271,5 +221,28 @@ public class MyProfileFragment extends Fragment {
 
     }
 
+    private void getUserDataFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    UserModel model = dataSnapshot.getValue(UserModel.class);
+                    SharedPrefs.setUserModel(model);
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(mMessageReceiver);
+
+        super.onDestroy();
+
+    }
 }

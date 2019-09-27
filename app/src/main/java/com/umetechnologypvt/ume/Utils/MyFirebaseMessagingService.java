@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
+import com.umetechnologypvt.ume.Activities.ViewPost;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.FloatingChatButton.FloatingButton;
 import com.umetechnologypvt.ume.Interface.NotificationInterface;
@@ -158,11 +159,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 SharedPrefs.setNotificationCount("" + 1);
             }
             sendMessage();
-            resultIntent = new Intent(this, MainActivity.class);
+            resultIntent = new Intent(this, ViewPost.class);
             resultIntent.putExtra("postId", Id);
-            resultIntent.putExtra("value", 1);
-            Constants.POST_ID = Id;
-            Constants.LIKE_COMMENT = 1;
 
 
         } else if (type.equalsIgnoreCase("commentPost")) {
@@ -176,11 +174,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             sendMessage();
 
-            resultIntent = new Intent(this, MainActivity.class);
+            resultIntent = new Intent(this, ViewPost.class);
             resultIntent.putExtra("postId", Id);
-            resultIntent.putExtra("value", 1);
-            Constants.POST_ID = Id;
-            Constants.LIKE_COMMENT = 1;
+
         }
 
 
@@ -202,7 +198,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
             notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setLightColor(Color.WHITE);
             notificationChannel.enableVibration(true);
             notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             assert mNotificationManager != null;

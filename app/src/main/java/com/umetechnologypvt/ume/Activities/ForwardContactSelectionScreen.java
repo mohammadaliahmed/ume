@@ -76,71 +76,15 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-//        getDataFromDB();
-        getPermissions();
-
-
-    }
-
-
-    private void getDataFromMobile() {
-        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (phones.moveToNext()) {
-            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            phoneContacts.add(new PhoneContactModel(name, phoneNumber));
-
-        }
-        if (phoneContacts.size() > 0) {
-            getDataFromDB();
-            for (PhoneContactModel contact : phoneContacts) {
-//                getFriendsFromDB(contact.getNumber());
-                String numer = contact.getNumber();
-                if (numer.startsWith("03")) {
-                    numer = numer.substring(1);
-                    numer = "+92" + numer;
-                }
-                numer = numer.replace(" ", "").replace("-", "");
-
-                getFriendsFromDB(numer);
-            }
+        for (String abc : SharedPrefs.getUserModel().getConfirmFriends()) {
+            getFriendsFromDB(abc);
         }
 
-//        adapter.notifyDataSetChanged();
-        phones.close();
+
     }
 
 
-    private void getDataFromDB() {
-        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    noContacts.setVisibility(View.GONE);
-                    itemList.clear();
-                    UserModel model = dataSnapshot.getValue(UserModel.class);
-                    if (model != null) {
-                        if (model.getConfirmFriends().size() > 0) {
-                            for (String userId : model.getConfirmFriends()) {
-                                if (userId != null) {
-                                    getFriendsFromDB(userId);
-                                }
-                            }
-                        } else {
-                            noContacts.setVisibility(View.VISIBLE);
-                        }
 
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     private void getFriendsFromDB(String userId) {
         try {
@@ -217,32 +161,6 @@ public class ForwardContactSelectionScreen extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPermissions() {
-        int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {
-                Manifest.permission.READ_CONTACTS,
 
 
-        };
-
-        if (!hasPermissions(ForwardContactSelectionScreen.this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-        } else {
-            getDataFromMobile();
-        }
-    }
-
-
-    public boolean hasPermissions(Context context, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                } else {
-
-                }
-            }
-        }
-        return true;
-    }
 }

@@ -1,24 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="70dp"
     android:orientation="vertical">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_centerVertical="true"
-        android:id="@+id/image"
         android:layout_margin="10dp"
         android:src="@drawable/ic_profile_plc" />
 
-    <TextView
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/flag"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_below="@id/image"
+        android:layout_marginLeft="-20dp"
+        android:layout_marginTop="-25dp"
+        android:layout_toRightOf="@id/image"
+        android:src="@drawable/flag_pakistan"
+        android:visibility="visible" />
+
+    <RelativeLayout
+        android:id="@+id/genderBg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="70dp"
+        android:background="@drawable/custom_corners_blue"
+        android:padding="3dp"
+        android:visibility="visible">
+
+
+        <ImageView
+            android:id="@+id/gender"
+            android:layout_width="9dp"
+            android:layout_height="9dp"
+            android:src="@drawable/ic_male" />
+
+
+        <TextView
+            android:id="@+id/age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/gender"
+            android:text=""
+            android:textColor="#fff"
+            android:textSize="8sp"
+            android:textStyle="bold" />
+
+        />
+    </RelativeLayout>
+
+
+    <TextView
         android:id="@+id/name"
-        android:text="Ali Ahmed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="110dp"
+        android:text=""
         android:textColor="#000" />
 
+    <TextView
+        android:id="@+id/addAsFriend"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/btn_bg_grey"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Add as Friend"
+        android:textSize="11sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="#ddd" />
 </RelativeLayout>

@@ -9,11 +9,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,17 +23,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.umetechnologypvt.ume.Activities.Home.MainActivity;
-import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
-import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
-import com.umetechnologypvt.ume.BottomDialogs.DialogCallbacks;
-import com.umetechnologypvt.ume.Models.UserModel;
-import com.umetechnologypvt.ume.R;
-import com.umetechnologypvt.ume.Utils.CommonUtils;
-import com.umetechnologypvt.ume.Utils.CompressImage;
-import com.umetechnologypvt.ume.Utils.CompressImageToThumbnail;
-import com.umetechnologypvt.ume.Utils.GifSizeFilter;
-import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,6 +34,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.umetechnologypvt.ume.Activities.Home.MainActivity;
+import com.umetechnologypvt.ume.Activities.ImageCrop.PickerBuilder;
+import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
+import com.umetechnologypvt.ume.BottomDialogs.DialogCallbacks;
+import com.umetechnologypvt.ume.Models.UserModel;
+import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.CompressImage;
+import com.umetechnologypvt.ume.Utils.CompressImageToThumbnail;
+import com.umetechnologypvt.ume.Utils.GifSizeFilter;
+import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
@@ -62,6 +57,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class EditProfile extends AppCompatActivity {
@@ -327,18 +327,18 @@ public class EditProfile extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-//        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
-//            mSelected = Matisse.obtainResult(data);
-//            progress.setVisibility(View.VISIBLE);
-//            for (Uri img :
-//                    mSelected) {
-//                CompressImage compressImage = new CompressImage(EditProfile.this);
-//                imageUrl.add(compressImage.compressImage("" + img));
-//            }
-//            Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
-//            putPictures(imageUrl.get(0));
-//
-//        }
+        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+            mSelected = Matisse.obtainResult(data);
+            progress.setVisibility(View.VISIBLE);
+            for (Uri img :
+                    mSelected) {
+                CompressImage compressImage = new CompressImage(EditProfile.this);
+                imageUrl.add(compressImage.compressImage("" + img));
+            }
+            Glide.with(EditProfile.this).load(mSelected.get(0)).into(image);
+            putPictures(imageUrl.get(0));
+
+        }
         super.onActivityResult(requestCode, resultCode, data);
 
     }
@@ -521,7 +521,7 @@ public class EditProfile extends AppCompatActivity {
 
     private void initMatisse() {
         Matisse.from(EditProfile.this)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofImage())
                 .countable(true)
                 .maxSelectable(1)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))

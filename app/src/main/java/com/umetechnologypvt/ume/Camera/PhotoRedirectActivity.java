@@ -13,9 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +31,7 @@ import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -90,7 +88,7 @@ public class PhotoRedirectActivity extends AppCompatActivity {
             imagePath = getIntent().getStringExtra("PATH");
             CompressImage image = new CompressImage(this);
             imgUrl = image.compressImage(imagePath);
-            Glide.with(this).load(imagePath).into(thumbnail);
+            Glide.with(this).load(imgUrl).into(thumbnail);
         }
         if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Multi")) {
             postType = "Multi";
@@ -103,6 +101,7 @@ public class PhotoRedirectActivity extends AppCompatActivity {
 
 
     }
+
 
     private void initMultiImages() {
         adapter = new MultiImagesPickedAdapter(this, multiImagesList, new MultiImagesPickedAdapter.AdapterCallbacks() {
@@ -136,13 +135,15 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                 postType,
                 1,
                 comment.getText().length() > 0 ? 1 : 0,
-                SharedPrefs.getUserModel().getCountryNameCode()
+                SharedPrefs.getUserModel().getCountryNameCode(),
+                SharedPrefs.getUserModel().getAge(),
+                SharedPrefs.getUserModel().getGender()
         );
         mDatabase.child("Posts").child("Posts").child(id).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
 
-
+                changeFlagOfAllPosts();
                 putPictures(model, imgUrl);
                 if (comment.getText().length() > 0) {
                     String key = mDatabase.push().getKey();
@@ -150,8 +151,8 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                             key, comment.getText().toString(),
                             SharedPrefs.getUserModel().getUsername(),
                             SharedPrefs.getUserModel().getName(),
-                            SharedPrefs.getUserModel().getPicUrl(),
-                            System.currentTimeMillis()
+                            SharedPrefs.getUserModel().getThumbnailUrl(),
+                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
 
                     );
                     mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
@@ -159,6 +160,20 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                 mDatabase.child("PostsBy").child(SharedPrefs.getUserModel().getUsername()).child(id).setValue(id);
             }
         });
+    }
+
+    private void changeFlagOfAllPosts() {
+        if (SharedPrefs.getPosts() != null) {
+            for (PostsModel post : SharedPrefs.getPosts()) {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("countryCode", SharedPrefs.getUserModel().getCountryNameCode());
+                map.put("userPicUrl", SharedPrefs.getUserModel().getThumbnailUrl());
+                map.put("userAge", SharedPrefs.getUserModel().getAge());
+                map.put("gender", SharedPrefs.getUserModel().getGender());
+                mDatabase.child("Posts").child("Posts").child(post.getId()).updateChildren(map);
+            }
+        }
+
     }
 
     private void sendMultiImages() {
@@ -178,9 +193,10 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                 postType,
                 1,
                 comment.getText().length() > 0 ? 1 : 0,
-                SharedPrefs.getUserModel().getCountryNameCode()
+                SharedPrefs.getUserModel().getCountryNameCode(), SharedPrefs.getUserModel().getAge(),
+                SharedPrefs.getUserModel().getGender()
         );
-        this.finalPostModel=model;
+        this.finalPostModel = model;
         mDatabase.child("Posts").child("Posts").child(id).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -191,8 +207,8 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                             key, comment.getText().toString(),
                             SharedPrefs.getUserModel().getUsername(),
                             SharedPrefs.getUserModel().getName(),
-                            SharedPrefs.getUserModel().getPicUrl(),
-                            System.currentTimeMillis()
+                            SharedPrefs.getUserModel().getThumbnailUrl(),
+                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
                     );
                     mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
                 }
@@ -226,8 +242,10 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                                     uploadMultiPictures(0);
                                 }
                                 wholeLayout.setVisibility(View.GONE);
-                                WhatsappCameraActivity.activity.finish();
-                                Intent i=new Intent(PhotoRedirectActivity.this,MainActivity.class);
+                                if (WhatsappCameraActivity.activity != null) {
+                                    WhatsappCameraActivity.activity.finish();
+                                }
+                                Intent i = new Intent(PhotoRedirectActivity.this, MainActivity.class);
                                 startActivity(i);
 //                                finish();
                             }

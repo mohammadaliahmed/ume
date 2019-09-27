@@ -20,6 +20,11 @@ public class PostsModel {
 
     List<String> multiImages;
 
+    int userAge;
+    String gender;
+
+    boolean repost;
+    String proxyUrl;
 
     public PostsModel() {
     }
@@ -28,7 +33,7 @@ public class PostsModel {
     public PostsModel(String id, String postBy, String postByName, String userPicUrl,
                       String comment, String commentBy, String commentByName, String commentByPicUrl,
                       String pictureUrl, long time,
-                      String type, int postFor, long commentsCount, String countryCode) {
+                      String type, int postFor, long commentsCount, String countryCode,int userAge,String gender) {
         this.id = id;
         this.postBy = postBy;
         this.comment = comment;
@@ -43,13 +48,15 @@ public class PostsModel {
         this.postFor = postFor;
         this.commentsCount = commentsCount;
         this.countryCode = countryCode;
+        this.userAge = userAge;
+        this.gender = gender;
     }
 
     //for video
     public PostsModel(String id, String postBy, String postByName, String userPicUrl,
                       String comment, String commentBy, String commentByName, String commentByPicUrl,
                       String videoUrl, String videoThumbnailUrl, long time,
-                      String type, int postFor, long commentsCount, long videoViews, String countryCode) {
+                      String type, int postFor, long commentsCount, long videoViews, String countryCode,int userAge,String gender) {
         this.id = id;
         this.postBy = postBy;
         this.comment = comment;
@@ -66,6 +73,32 @@ public class PostsModel {
         this.commentsCount = commentsCount;
         this.videoViews = videoViews;
         this.countryCode = countryCode;
+        this.userAge = userAge;
+        this.gender = gender;
+    }
+
+    public boolean isRepost() {
+        return repost;
+    }
+
+    public void setRepost(boolean repost) {
+        this.repost = repost;
+    }
+
+    public int getUserAge() {
+        return userAge;
+    }
+
+    public void setUserAge(int userAge) {
+        this.userAge = userAge;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public List<String> getMultiImages() {
@@ -103,6 +136,15 @@ public class PostsModel {
     public Uri getMediaUri() {
 
         return mediaUri;
+    }
+
+
+    public String getProxyUrl() {
+        return proxyUrl;
+    }
+
+    public void setProxyUrl(String proxyUrl) {
+        this.proxyUrl = proxyUrl;
     }
 
     public void setMediaUri(Uri mediaUri) {

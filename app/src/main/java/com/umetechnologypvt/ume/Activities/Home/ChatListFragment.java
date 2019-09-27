@@ -1,26 +1,17 @@
 package com.umetechnologypvt.ume.Activities.Home;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,20 +23,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.umetechnologypvt.ume.Activities.ContactSelectionScreen;
-import com.umetechnologypvt.ume.Activities.EditProfile;
-import com.umetechnologypvt.ume.Activities.Location.NearbyPeople;
-import com.umetechnologypvt.ume.Activities.NotificationsList;
-import com.umetechnologypvt.ume.Activities.Profile;
-import com.umetechnologypvt.ume.Activities.Search.Filters;
-import com.umetechnologypvt.ume.Activities.Splash;
-import com.umetechnologypvt.ume.Activities.UserManagement.Login;
 import com.umetechnologypvt.ume.Adapters.ChatListAdapter;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.ConnectivityManager;
-import com.umetechnologypvt.ume.Utils.PrefManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
@@ -55,17 +38,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 public class ChatListFragment extends Fragment {
     Context context;
-    FloatingActionButton newMessage;
     RecyclerView recyclerview;
     DatabaseReference mDatabase;
     ArrayList<ChatListModel> itemList = new ArrayList<>();
@@ -75,6 +56,8 @@ public class ChatListFragment extends Fragment {
     HashMap<String, ChatListModel> map = new HashMap<>();
     int count = 0;
     ImageView newChat;
+    SearchView searchView;
+    TextView heading;
 
 
     @SuppressLint("WrongConstant")
@@ -84,7 +67,8 @@ public class ChatListFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         View rootView = inflater.inflate(R.layout.activity_chat_list_fragment, container, false);
         recyclerview = rootView.findViewById(R.id.recyclerview);
-        newMessage = rootView.findViewById(R.id.newMessage);
+        searchView = rootView.findViewById(R.id.searchView);
+        heading = rootView.findViewById(R.id.heading);
         newChat = rootView.findViewById(R.id.newChat);
 
         newChat.setOnClickListener(new View.OnClickListener() {
@@ -102,29 +86,58 @@ public class ChatListFragment extends Fragment {
         recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         recyclerview.setAdapter(adapter);
 
-        if (ConnectivityManager.isNetworkConnected(context)) {
-            getMessagesFromDB();
 
-        } else {
-            itemList = SharedPrefs.getChatList();
-            Collections.sort(itemList, new Comparator<ChatListModel>() {
-                @Override
-                public int compare(ChatListModel listData, ChatListModel t1) {
-                    Long ob1 = listData.getMessage().getTime();
-                    Long ob2 = t1.getMessage().getTime();
+        itemList = SharedPrefs.getChatList();
+        Collections.sort(itemList, new Comparator<ChatListModel>() {
+            @Override
+            public int compare(ChatListModel listData, ChatListModel t1) {
+                Long ob1 = listData.getMessage().getTime();
+                Long ob2 = t1.getMessage().getTime();
 
-                    return ob2.compareTo(ob1);
+                return ob2.compareTo(ob1);
 
-                }
-            });
-            adapter.setNewList(itemList);
-        }
+            }
+        });
+        adapter.setNewList(itemList);
+
 
         if (SharedPrefs.getUserModel().getUsername() != null) {
             if (SharedPrefs.getFcmKey() != null) {
                 mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("fcmKey").setValue(FirebaseInstanceId.getInstance().getToken());
             }
         }
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //    adapter.getFilter().filter(newText);
+                adapter.filter(newText);
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                heading.setVisibility(View.VISIBLE);
+                return false;
+            }
+
+        });
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                heading.setVisibility(View.GONE);
+            }
+        });
+
+
+        getMessagesFromDB();
         return rootView;
     }
 
@@ -213,8 +226,6 @@ public class ChatListFragment extends Fragment {
                         if (snapshot1 != null) {
                             ChatModel model = snapshot1.getValue(ChatModel.class);
                             if (model != null) {
-
-
                                 map.put(key, new ChatListModel(key, model));
                                 itemList.clear();
                                 for (Map.Entry<String, ChatListModel> entry : map.entrySet()) {
@@ -243,6 +254,13 @@ public class ChatListFragment extends Fragment {
                                                 unreadCount.put(model.getMessageBy(), counts);
                                                 adapter.setUnreadCount(unreadCount);
                                                 chatCount = chatCount + 1;
+                                                SharedPrefs.setChatCount("0");
+                                                int cou = 0;
+                                                for (Map.Entry<String, Integer> entry : unreadCount.entrySet()) {
+                                                    cou = cou + entry.getValue();
+                                                }
+                                                SharedPrefs.setChatCount("" + (cou - 1));
+
 
                                             } else {
                                                 unreadCount.put(model.getMessageBy(), 0);
@@ -258,9 +276,11 @@ public class ChatListFragment extends Fragment {
                             }
                         }
                     }
+                    sendMessage();
 
-
+                    adapter.updateList(itemList);
                     adapter.notifyDataSetChanged();
+                    SharedPrefs.setChatList(itemList);
 
                 } else {
                 }
@@ -273,6 +293,14 @@ public class ChatListFragment extends Fragment {
             }
         });
 
+    }
+
+    private void sendMessage() {
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent("chatCount");
+        // You can also include some extra data.
+        intent.putExtra("message", "asda");
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
 

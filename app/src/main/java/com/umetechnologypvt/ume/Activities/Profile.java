@@ -527,7 +527,7 @@ Profile extends AppCompatActivity {
 
     private void initMatisse() {
         Matisse.from(Profile.this)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofImage())
                 .countable(true)
                 .maxSelectable(1)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))

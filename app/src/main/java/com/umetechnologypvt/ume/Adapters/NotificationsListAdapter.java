@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
@@ -20,20 +21,22 @@ import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.bumptech.glide.Glide;
 import com.umetechnologypvt.ume.Utils.Constants;
+import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NotificationsListAdapter extends RecyclerView.Adapter<NotificationsListAdapter.ViewHolder> {
-    private Callbacks callbacks;
     Context context;
     ArrayList<NotificationModel> itemList;
 
-    public NotificationsListAdapter(Context context, ArrayList<NotificationModel> itemList, Callbacks callbacks) {
+    NotificationCallbacks callbacks;
+
+    public NotificationsListAdapter(Context context, ArrayList<NotificationModel> itemList, NotificationCallbacks callbacks) {
+        this.callbacks = callbacks;
         this.context = context;
         this.itemList = itemList;
-        this.callbacks = callbacks;
     }
 
     @NonNull
@@ -52,12 +55,26 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
         }
         holder.title.setText(model.getTitle());
         holder.time.setText(CommonUtils.getFormattedDate(model.getTime()));
-        holder.cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callbacks.onDelete(model.getNotifcationId());
+
+        if (SharedPrefs.getUserModel().getConfirmFriends().contains(model.getId())) {
+            holder.buttonLayout.setVisibility(View.GONE);
+        } else {
+            if (model.getType().equalsIgnoreCase("newRequest")) {
+                holder.buttonLayout.setVisibility(View.VISIBLE);
+            } else {
+                holder.buttonLayout.setVisibility(View.GONE);
             }
-        });
+        }
+        if (SharedPrefs.getUserModel().getRequestReceived().contains(model.getId())) {
+            holder.buttonLayout.setVisibility(View.VISIBLE);
+        } else {
+            if (model.getType().equalsIgnoreCase("newRequest")) {
+                holder.buttonLayout.setVisibility(View.VISIBLE);
+            } else {
+                holder.buttonLayout.setVisibility(View.GONE);
+            }
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,6 +97,21 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
                 }
             }
         });
+
+        holder.accept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.buttonLayout.setVisibility(View.GONE);
+                callbacks.onAccept(model.getId());
+            }
+        });
+        holder.delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.buttonLayout.setVisibility(View.GONE);
+                callbacks.onDelete(model.getId());
+            }
+        });
     }
 
     @Override
@@ -88,20 +120,27 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView cancel;
         CircleImageView image;
         TextView time, title;
+        TextView accept, delete;
+        LinearLayout buttonLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            cancel = itemView.findViewById(R.id.cancel);
             image = itemView.findViewById(R.id.image);
+            accept = itemView.findViewById(R.id.accept);
             time = itemView.findViewById(R.id.time);
             title = itemView.findViewById(R.id.title);
+            delete = itemView.findViewById(R.id.delete);
+            buttonLayout = itemView.findViewById(R.id.buttonLayout);
         }
     }
 
-    public interface Callbacks {
-        public void onDelete(String id);
+    public interface NotificationCallbacks {
+        public void onAccept(String userId);
+
+        public void onDelete(String userId);
     }
+
+
 }

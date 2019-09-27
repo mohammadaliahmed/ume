@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,9 +63,9 @@ public class ContactSelectionScreen extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-//            getSupportActionBar().setElevation(0);
+            getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Select Contact");
+        this.setTitle("Friend List");
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
 //        noContacts = findViewById(R.id.noContacts);
@@ -84,8 +85,6 @@ public class ContactSelectionScreen extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-        getPermissions();
-//        getDataFromDB();
 
         getBlockListFromDB();
         getMeBlockListFromDB();
@@ -228,7 +227,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
                             }
 
                         }
-                        getSupportActionBar().setSubtitle(itemList.size() + " Contacts");
+                        getSupportActionBar().setSubtitle(itemList.size() + " Friends");
 
                         Collections.sort(itemList, new Comparator<UserModel>() {
                             @Override
@@ -246,7 +245,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
                                 return 0;
                             }
                         });
-//                        adapter.setUserList(itemList);
+                        adapter.updateList(itemList);
                         adapter.notifyDataSetChanged();
                     }
                 }
@@ -265,6 +264,23 @@ public class ContactSelectionScreen extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.contact_menu, menu);
 
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Search People");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.filter(newText.toString());
+
+                return false;
+            }
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -289,32 +305,4 @@ public class ContactSelectionScreen extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPermissions() {
-        int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {
-                Manifest.permission.READ_CONTACTS,
-
-
-        };
-
-        if (!hasPermissions(ContactSelectionScreen.this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-        } else {
-//            getDataFromMobile();
-        }
-    }
-
-
-    public boolean hasPermissions(Context context, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                } else {
-
-                }
-            }
-        }
-        return true;
-    }
 }

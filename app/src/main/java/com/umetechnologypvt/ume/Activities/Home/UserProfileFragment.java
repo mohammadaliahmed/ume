@@ -1,9 +1,11 @@
 package com.umetechnologypvt.ume.Activities.Home;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -18,16 +20,19 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.umetechnologypvt.ume.Activities.EditProfile;
+import com.umetechnologypvt.ume.Activities.Fragments.SimpleFragmentPagerAdapter2;
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
 import com.umetechnologypvt.ume.Activities.UserFriends;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
+import com.umetechnologypvt.ume.Adapters.SimpleFragmentPagerAdapter;
 import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.Models.UserModel;
@@ -45,8 +50,10 @@ import java.util.Comparator;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -59,16 +66,12 @@ public class UserProfileFragment extends Fragment {
     TextView about, name, friendsCount, postCount;
     CircleImageView picture;
     TextView toolbarName;
-    RecyclerView recyclerview;
 
-    ArrayList<PostsModel> itemList = new ArrayList<>();
-    ArrayList<String> postIdsList = new ArrayList<>();
-    UserPostsAdapter adapter;
 
     String userId;
     ImageView back;
     TextView startChat;
-    TextView addAsFriend;
+    TextView addAsFriend, viewProfile;
     int abc = 0;
     UserModel myUserModel, hisUserModel;
     private long totalPostCount;
@@ -92,9 +95,57 @@ public class UserProfileFragment extends Fragment {
         back = rootView.findViewById(R.id.back);
         startChat = rootView.findViewById(R.id.startChat);
         addAsFriend = rootView.findViewById(R.id.addAsFriend);
+        viewProfile = rootView.findViewById(R.id.viewProfile);
 
-        recyclerview = rootView.findViewById(R.id.recyclerview);
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
+                new IntentFilter("postsCount"));
+
         userId = Constants.USER_ID;
+
+
+        ViewPager viewPager = rootView.findViewById(R.id.viewpager);
+        SimpleFragmentPagerAdapter2 adapter = new SimpleFragmentPagerAdapter2(context, getChildFragmentManager());
+
+        viewPager.setAdapter(adapter);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = rootView.findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_grid));
+        tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_save_post));
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    Constants.SAVED_POST = true;
+                } else {
+                    Constants.SAVED_POST = false;
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        viewProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, UserProfileScreen.class);
+                i.putExtra("userId", userId);
+                context.startActivity(i);
+            }
+
+        });
+
+        getUserDataFromDB();
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +155,7 @@ public class UserProfileFragment extends Fragment {
         });
 
         if (userId != null) {
+            Constants.POST_ID = userId;
             getUserDataFromDB();
         }
 
@@ -141,19 +193,6 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
-        recyclerview.setLayoutManager(new GridLayoutManager(context, 3));
-        adapter = new UserPostsAdapter(context, itemList);
-        recyclerview.setAdapter(adapter);
-
-        adapter.setCallBacks(new UserPostsAdapter.HomePostsAdapterCallBacks() {
-            @Override
-            public void onPictureSelected(int position) {
-                Constants.PICTURE_POSITION = position;
-
-                Fragment fragment = new UserPostsFragment();
-                loadFragment(fragment);
-            }
-        });
 
         startChat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,6 +250,17 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("postsCount");
+            postCount.setText(message);
+
+
+        }
+    };
+
     private void sendFriendRequest() {
         if (myUserModel != null) {
 
@@ -235,20 +285,16 @@ public class UserProfileFragment extends Fragment {
             CommonUtils.showToast("No internet");
         }
         if (hisUserModel != null) {
-            if (hisUserModel.getRequestReceived().contains(SharedPrefs.getUserModel().getUsername())) {
-//            CommonUtils.showToast("Already exits");
-            } else {
-                hisUserModel.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
-                mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived").setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                    }
-                });
 
-            }
-        } else {
-            CommonUtils.showToast("No internet");
+            hisUserModel.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
+            mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived").setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                }
+            });
+
         }
+
     }
 
     private void removeAsFriend() {
@@ -347,6 +393,7 @@ public class UserProfileFragment extends Fragment {
 
 
         mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
+
     }
 
     private void getMyDataFromDB() {
@@ -431,6 +478,7 @@ public class UserProfileFragment extends Fragment {
         transaction.commit();
     }
 
+    //
     private void getUserDataFromDB() {
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -447,15 +495,9 @@ public class UserProfileFragment extends Fragment {
                         } catch (Exception e) {
 
                         }
-//                        editProfile.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                startActivity(new Intent(context, EditProfile.class));
-//                            }
-//                        });
 
 
-                        getPostIdsFromDB(hisUserModel);
+//                        getPostIdsFromDB(hisUserModel);
                     }
                 }
             }
@@ -469,84 +511,35 @@ public class UserProfileFragment extends Fragment {
 
     }
 
-    private void getPostIdsFromDB(UserModel userModel) {
-        mDatabase.child("PostsBy").child(userModel.getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    postIdsList.clear();
-                    totalPostCount = dataSnapshot.getChildrenCount();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String key = snapshot.getKey();
-                        postIdsList.add(key);
-                    }
-
-                    if (postIdsList.size() > 0) {
-                        itemList.clear();
-                        for (String id : postIdsList) {
-                            getPostsFromDB(id);
-                        }
-                    } else {
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getPostsFromDB(String id) {
-        mDatabase.child("Posts").child("Posts").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    PostsModel model = dataSnapshot.getValue(PostsModel.class);
-                    if (model != null && model.getId() != null) {
-                        itemList.add(model);
-                        SharedPrefs.setPosts(itemList);
-                        postCount.setText("" + itemList.size());
-
-                    }
-                    Collections.sort(itemList, new Comparator<PostsModel>() {
-                        @Override
-                        public int compare(PostsModel listData, PostsModel t1) {
-                            Long ob1 = listData.getTime();
-                            Long ob2 = t1.getTime();
-                            return ob2.compareTo(ob1);
-
-                        }
-                    });
-                    adapter.notifyDataSetChanged();
-                    if (itemList.size() == totalPostCount) {
-                        if (Constants.LIKE_COMMENT == 1) {
-
-                            int count = 0;
-                            for (PostsModel m : itemList) {
-                                if (m.getId().equalsIgnoreCase(Constants.POST_ID)) {
-                                    Constants.PICTURE_POSITION = count;
-
-                                    break;
-                                }
-                                count++;
-                            }
-                            Fragment fragment = new UserPostsFragment();
-                            loadFragment(fragment);
-                            Constants.LIKE_COMMENT = 0;
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
+//    private void getPostIdsFromDB(UserModel userModel) {
+//        mDatabase.child("PostsBy").child(userModel.getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.getValue() != null) {
+//                    postIdsList.clear();
+//                    totalPostCount = dataSnapshot.getChildrenCount();
+//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                        String key = snapshot.getKey();
+//                        postIdsList.add(key);
+//                    }
+//
+//                    if (postIdsList.size() > 0) {
+//                        itemList.clear();
+//                        for (String id : postIdsList) {
+//                            getPostsFromDB(id);
+//                        }
+//                    } else {
+//                    }
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
 
     @Override
@@ -571,5 +564,12 @@ public class UserProfileFragment extends Fragment {
 //        }
 //    }
 
+    @Override
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(mMessageReceiver);
+
+        super.onDestroy();
+
+    }
 
 }

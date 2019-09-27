@@ -238,6 +238,38 @@
 
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+
+                android:visibility="gone">
+
+
+                <ImageView
+                    android:id="@+id/postImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/placeholder" />
+
+                <TextView
+                    android:id="@+id/postMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/postImage"
+                    android:layout_margin="5dp"
+                    android:autoLink="web|phone|all"
+                    android:text="dsfsdfsdsdf"
+                    android:textColor="#000"
+                    android:textIsSelectable="true"
+                    android:visibility="visible" />
+
+
+            </RelativeLayout>
+
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
@@ -270,7 +302,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Ali Ahmed"
+                        android:text=""
                         android:textColor="#000" />
 
                     <TextView

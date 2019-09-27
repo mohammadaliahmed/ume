@@ -13,15 +13,21 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
+import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
+import com.umetechnologypvt.ume.Adapters.ShareMessageFriendsAdapter;
 import com.umetechnologypvt.ume.Interface.PostAdaptersCallbacks;
 import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
@@ -29,6 +35,7 @@ import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
+import com.umetechnologypvt.ume.Utils.DownloadFile;
 import com.umetechnologypvt.ume.Utils.NotificationAsync;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
@@ -36,6 +43,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -46,6 +54,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
 import im.ene.toro.PlayerSelector;
 import im.ene.toro.media.PlaybackInfo;
 import im.ene.toro.media.VolumeInfo;
@@ -89,7 +98,12 @@ public class UserPostsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        itemList = SharedPrefs.getPosts();
+        if(Constants.SAVED_POST) {
+            itemList = SharedPrefs.getSavedPosts();
+        }else{
+            itemList = SharedPrefs.getPosts();
+
+        }
         Collections.sort(itemList, new Comparator<PostsModel>() {
             @Override
             public int compare(PostsModel listData, PostsModel t1) {
@@ -178,6 +192,21 @@ public class UserPostsFragment extends Fragment {
 
                 showUnMuteAlert(model);
             }
+
+            @Override
+            public void onSharePostWithFriends(PostsModel model) {
+                showBottomDialog(model);
+            }
+
+            @Override
+            public void onRePost(PostsModel model) {
+                showRepostAlert(model);
+            }
+
+            @Override
+            public void onShowDownloadMenu(PostsModel model) {
+                showDownloadMenuAlert(model);
+            }
         });
         recycler.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         recycler.setAdapter(adapter);
@@ -195,6 +224,167 @@ public class UserPostsFragment extends Fragment {
                 }
             });
         }
+
+    }
+
+
+    private void showRepostAlert(PostsModel model) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+        builder1.setTitle("Repost?");
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "Yes",
+                new DialogInterface.OnClickListener() {
+
+
+                    public void onClick(DialogInterface dialog, int id) {
+                        String key = mDatabase.push().getKey();
+                        model.setId(key);
+                        model.setPostByName(SharedPrefs.getUserModel().getName());
+//                        model.setPostBy(SharedPrefs.getUserModel().getUsername());
+                        model.setUserPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
+                        model.setCountryCode(SharedPrefs.getUserModel().getCountryNameCode());
+                        model.setLikesCount(0);
+                        model.setTime(System.currentTimeMillis());
+                        model.setCommentsCount(0);
+                        model.setComment("");
+                        model.setUserAge(SharedPrefs.getUserModel().getAge());
+                        model.setGender(SharedPrefs.getUserModel().getGender());
+                        model.setCommentBy("");
+                        model.setCommentByName("");
+                        model.setCommentsCount(0);
+                        mDatabase.child("Posts").child("Posts").child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                HashMap<String, Object> map = new HashMap<>();
+                                map.put("repost", true);
+                                map.put("originalPostBy", model.getPostBy());
+                                map.put("postBy", SharedPrefs.getUserModel().getUsername());
+                                mDatabase.child("Posts").child("Posts").child(model.getId()).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        CommonUtils.showToast("Reposted");
+//                                        loadFragment(new NewHomeFragment());
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+        AlertDialog.Builder builder;
+
+
+    }
+    private void showDownloadMenuAlert(PostsModel model) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Choose option");
+        AlertDialog alert = builder.create();
+
+
+        builder.setItems(new CharSequence[]
+                        {"Save post", "Download", "Cancel"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                mDatabase.child("SavedPosts").child(SharedPrefs.getUserModel().getUsername()).child(model.getId()).setValue(model.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        CommonUtils.showToast("Post Saved");
+                                    }
+                                });
+                                break;
+                            case 1:
+                                String filen = (model.getType().equalsIgnoreCase("image") ? model.getPictureUrl().substring(model.getPictureUrl().length() - 10, model.getPictureUrl().length()) + ".jpg" :
+                                        model.getVideoUrl().substring(model.getVideoUrl().length() - 10, model.getVideoUrl().length()) + ".mp4");
+                                File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
+                                        Environment.DIRECTORY_DOWNLOADS) + "/" + filen
+                                );
+                                if (applictionFile != null && applictionFile.exists()) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                                    context.startActivity(intent);
+
+                                } else {
+                                    DownloadFile.fromUrll((model.getType().equalsIgnoreCase("image")
+                                            ? model.getPictureUrl() : model.getVideoUrl()), filen);
+                                    filnamea = filen;
+                                }
+                                break;
+                            case 2:
+                                dialog.dismiss();
+
+                                break;
+
+                        }
+                    }
+                });
+        alert = builder.create();
+        alert.show();
+
+
+    }
+    @SuppressLint("WrongConstant")
+    private void showBottomDialog(PostsModel postsModel) {
+
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.share_frnds_bottom_option, null);
+        BottomSheetDialog dialog = new BottomSheetDialog(context);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        dialog.setContentView(customView);
+        EditText search = customView.findViewById(R.id.search);
+        EditText messageText = customView.findViewById(R.id.messageText);
+        RecyclerView recyclerview = customView.findViewById(R.id.recyclerview);
+        CircleImageView image = customView.findViewById(R.id.image);
+        Glide.with(context).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(image);
+
+        ShareMessageFriendsAdapter adapter = new ShareMessageFriendsAdapter(context, SharedPrefs.getFriendsList(), new ShareMessageFriendsAdapter.ShareMessageFriendsAdapterCallbacks() {
+            @Override
+            public void onSend(UserModel model) {
+                Intent i = new Intent(context, SingleChattingScreen.class);
+                i.putExtra("userId", model.getUsername());
+                Constants.FORWARD_POST = 1;
+                String url = "";
+                if (postsModel.getType().equalsIgnoreCase("image")) {
+                    url = postsModel.getPictureUrl();
+                } else if (postsModel.getType().equalsIgnoreCase("video")) {
+                    url = postsModel.getVideoThumbnailUrl();
+                } else if (postsModel.getType().equalsIgnoreCase("multi")) {
+                    url = postsModel.getPictureUrl();
+                }
+
+                Constants.FORWARD_PIC_URL = url;
+                Constants.POST_MESSAGE = messageText.getText().toString();
+                Constants.POST_ID = postsModel.getId();
+                startActivity(i);
+
+                dialog.dismiss();
+            }
+        });
+
+
+        recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+        recyclerview.setAdapter(adapter);
+
+        dialog.show();
+
 
     }
 

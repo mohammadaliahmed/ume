@@ -50,8 +50,8 @@ public class CompressImageToThumbnail {
 
 //      max Height and width values of the compressed image is taken as 816x612
 
-        float maxHeight = 100.0f;
-        float maxWidth = 100.0f;
+        float maxHeight = 200.0f;
+        float maxWidth = 200.0f;
         float imgRatio = actualWidth / actualHeight;
         float maxRatio = maxWidth / maxHeight;
 
@@ -142,7 +142,7 @@ public class CompressImageToThumbnail {
             out = new FileOutputStream(filename);
 
 //          write the compressed bitmap at the destination specified by filename.
-            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 80, out);
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -1,11 +1,16 @@
 package com.umetechnologypvt.ume.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.graphics.Canvas;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,8 +18,11 @@ import android.widget.TextView;
 
 import com.umetechnologypvt.ume.Adapters.NotificationsListAdapter;
 import com.umetechnologypvt.ume.Models.NotificationModel;
+import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.NotificationAsync;
+import com.umetechnologypvt.ume.Utils.NotificationObserver;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -22,19 +30,24 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.umetechnologypvt.ume.Utils.SwipeControllerActions;
+import com.umetechnologypvt.ume.Utils.SwipeToDeleteCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 
-public class NotificationsList extends AppCompatActivity {
+public class NotificationsList extends AppCompatActivity implements NotificationObserver {
     RecyclerView recyclerview;
     NotificationsListAdapter adapter;
     private ArrayList<NotificationModel> itemList = new ArrayList<>();
     DatabaseReference mDatabase;
     TextView notiText;
+    private SwipeToDeleteCallback swipeController;
 
+
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +60,140 @@ public class NotificationsList extends AppCompatActivity {
         recyclerview = findViewById(R.id.recyclerview);
         notiText = findViewById(R.id.notiText);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        adapter = new NotificationsListAdapter(this, itemList, new NotificationsListAdapter.Callbacks() {
+        adapter = new NotificationsListAdapter(this, itemList, new NotificationsListAdapter.NotificationCallbacks() {
             @Override
-            public void onDelete(String id) {
-                showAlert(id);
+            public void onAccept(String userId) {
+                acceptRequest(userId);
+            }
+
+            @Override
+            public void onDelete(String userId) {
+                deleteRequest(userId);
             }
         });
         recyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerview.setAdapter(adapter);
+        swipeController = new SwipeToDeleteCallback(new SwipeControllerActions() {
+            @Override
+            public void onRightClicked(final int position) {
+
+                showAlert(itemList.get(position).getNotifcationId());
+
+            }
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(recyclerview);
+
+        recyclerview.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
+
         getDataFromDB();
         SharedPrefs.setNotificationCount("0");
 
+    }
+
+    private void deleteRequest(String userId) {
+        getUserDataDelete(userId);
+    }
+
+    private void acceptRequest(String userId) {
+        getUserData(userId);
+    }
+
+    private void getUserDataDelete(String userId) {
+        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                if (userModel != null) {
+                    CommonUtils.showToast("Deleted");
+                    try {
+                        SharedPrefs.getUserModel().getRequestReceived().remove(SharedPrefs.getUserModel().getRequestReceived().indexOf(userId));
+                        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestReceived").setValue(SharedPrefs.getUserModel().getRequestReceived());
+                        userModel.getRequestSent().remove(userModel.getRequestSent().indexOf(SharedPrefs.getUserModel()));
+                        mDatabase.child("Users").child(userModel.getUsername()).child("requestSent").setValue(userModel.getRequestSent());
+
+                        adapter.notifyDataSetChanged();
+
+                    }catch (Exception e) {
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getUserData(String userId) {
+        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                if (userModel != null) {
+                    CommonUtils.showToast("Accepted");
+                    SharedPrefs.getUserModel().getConfirmFriends().add(userId);
+                    mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(SharedPrefs.getUserModel().getConfirmFriends());
+
+                    userModel.getConfirmFriends().add(SharedPrefs.getUserModel().getUsername());
+                    mDatabase.child("Users").child(userModel.getUsername()).child("confirmFriends").setValue(userModel.getConfirmFriends());
+                    try {
+                        SharedPrefs.getUserModel().getRequestReceived().remove(SharedPrefs.getUserModel().getRequestReceived().indexOf(userModel.getUsername()));
+
+                    } catch (Exception e) {
+
+                    }
+
+                    mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestReceived").setValue(SharedPrefs.getUserModel().getRequestReceived());
+
+                    try {
+                        SharedPrefs.getUserModel().getRequestSent().remove(SharedPrefs.getUserModel().getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
+
+                    } catch (Exception e) {
+
+                    }
+                    mDatabase.child("Users").child(userModel.getUsername()).child("requestSent").setValue(userModel.getRequestSent());
+                    adapter.notifyDataSetChanged();
+                    sendAcceptRequestNotification(userModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendAcceptRequestNotification(UserModel userModel) {
+        NotificationAsync notificationAsync = new NotificationAsync(NotificationsList.this);
+//                        String NotificationTitle = "New message in " + groupName;
+        String NotificationTitle = SharedPrefs.getUserModel().getName() + " accepted your friend request";
+        String NotificationMessage = "Click to view ";
+
+        notificationAsync.execute("ali", userModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
+                SharedPrefs.getUserModel().getUsername(),
+                "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
+        );
+        String key = mDatabase.push().getKey();
+        NotificationModel model = new NotificationModel(
+                key, userModel.getUsername(),
+                SharedPrefs.getUserModel().getUsername(),
+                SharedPrefs.getUserModel().getPicUrl(),
+                SharedPrefs.getUserModel().getName() + " accepted your friend request",
+                "requestAccept",
+                System.currentTimeMillis()
+        );
+
+
+        mDatabase.child("Notifications").child(userModel.getUsername()).child(key).setValue(model);
     }
 
     private void getDataFromDB() {
@@ -149,4 +285,13 @@ public class NotificationsList extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onSuccess(String chatId) {
+
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 }

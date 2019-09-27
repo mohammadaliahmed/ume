@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -27,6 +28,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -34,12 +36,14 @@ import android.widget.VideoView;
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
+import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator;
 import com.umetechnologypvt.ume.Activities.Comments.CommentsActivity;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.Home.MyProfileFragment;
@@ -49,6 +53,7 @@ import com.umetechnologypvt.ume.Activities.Home.VideoRecyclerAdapter;
 import com.umetechnologypvt.ume.Activities.Home.VideoViewHolder;
 import com.umetechnologypvt.ume.Activities.UserManagement.Login;
 import com.umetechnologypvt.ume.Adapters.MainSliderAdapter;
+import com.umetechnologypvt.ume.Adapters.ShareMessageFriendsAdapter;
 import com.umetechnologypvt.ume.Interface.PostAdaptersCallbacks;
 import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
@@ -71,6 +76,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.ene.toro.exoplayer.ExoPlayerViewHelper;
@@ -82,11 +89,11 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
     public ImageView imageView_sound;
     private static final String TAG = "IOSTUDIO:Video:Holder";
 
-    TextView postByName, likesCount, time, addComment, lastComment, commentsCount;
+    TextView postByName, likesCount, time, addComment, lastComment, commentsCount, picCount;
     ImageView mainImage, showLike;
     CircleImageView commenterImg, postByPic, flag;
     ImageView muteIcon, comments, likeBtn, menu, forward;
-    DotsIndicator dots_indicator;
+    WormDotsIndicator dots_indicator;
     PostAdaptersCallbacks callbacks;
     PostsModel model;
     boolean finalLiked;
@@ -95,6 +102,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
     MainSliderAdapter mViewPagerAdapter;
 
     VideoView video_view;
+    View videoView;
     private String filnamea;
     private List<String> imgsList = new ArrayList<>();
     ViewPager banner;
@@ -121,8 +129,46 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
         mDatabase = FirebaseDatabase.getInstance().getReference();
         callbacks = (PostAdaptersCallbacks) this;
         dots_indicator = findViewById(R.id.dots_indicator);
+        picCount = findViewById(R.id.picCount);
         banner = findViewById(R.id.slider);
-        mViewPagerAdapter = new MainSliderAdapter(this, new ArrayList<>());
+        banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                picCount.setText((position + 1) + "/" + model.getMultiImages().size());
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mViewPagerAdapter = new MainSliderAdapter(this, new ArrayList<>(), new MainSliderAdapter.ClicksCallback() {
+            @Override
+            public void onDoubleClick() {
+                showLike.setVisibility(View.VISIBLE);
+                Animation myFadeInAnimation = AnimationUtils.loadAnimation(ViewPost.this, R.anim.fadein);
+                showLike.startAnimation(myFadeInAnimation);
+                likePost(finalLiked, model);
+//                    showLike.setVisibility(View.GONE);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        // yourMethod();
+                        showLike.setVisibility(View.GONE);
+                    }
+                }, 2500);
+            }
+
+            @Override
+            public void onPicChanged(int position) {
+            }
+        });
         banner.setAdapter(mViewPagerAdapter);
         mViewPagerAdapter.notifyDataSetChanged();
         dots_indicator.setViewPager(banner);
@@ -141,6 +187,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
 
             }
         });
+        videoView = findViewById(R.id.videoView);
         video_view = findViewById(R.id.video_view);
         imageView_sound = findViewById(R.id.imageView_sound);
         postByName = findViewById(R.id.postByName);
@@ -164,7 +211,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
         forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                showBottomDialog(model);
 
             }
         });
@@ -206,8 +253,10 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
                 if (model.getPostBy().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
                     mute.setVisibility(View.GONE);
                 }
-                if (SharedPrefs.getMutedList().contains(model.getPostBy())) {
-                    mute.setText("Un Mute");
+                if (SharedPrefs.getMutedList() != null) {
+                    if (SharedPrefs.getMutedList().contains(model.getPostBy())) {
+                        mute.setText("Un Mute");
+                    }
                 }
 
                 mute.setOnClickListener(new View.OnClickListener() {
@@ -334,7 +383,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
                 return true;
             }
         });
-        video_view.setOnTouchListener(new View.OnTouchListener() {
+        videoView.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(ViewPost.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
@@ -361,33 +410,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
                 return true;
             }
         });
-//        banner.setOnTouchListener(new View.OnTouchListener() {
-//            private GestureDetector gestureDetector = new GestureDetector(ViewPost.this, new GestureDetector.SimpleOnGestureListener() {
-//                @Override
-//                public boolean onDoubleTap(MotionEvent e) {
-//                    showLike.setVisibility(View.VISIBLE);
-//                    Animation myFadeInAnimation = AnimationUtils.loadAnimation(ViewPost.this, R.anim.fadein);
-//                    showLike.startAnimation(myFadeInAnimation);
-//                    likePost(finalLiked, model);
-////                    showLike.setVisibility(View.GONE);
-//                    Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                        public void run() {
-//                            // yourMethod();
-//                            showLike.setVisibility(View.GONE);
-//                        }
-//                    }, 2500);
-//                    return super.onDoubleTap(e);
-//                }
-//            });
-//
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Log.d("TEST", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
-//                gestureDetector.onTouchEvent(event);
-//                return true;
-//            }
-//        });
+
         video_view.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(ViewPost.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -566,6 +589,123 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
         showUnMuteAlert(model);
     }
 
+    @Override
+    public void onSharePostWithFriends(PostsModel model) {
+        showBottomDialog(model);
+    }
+
+    @Override
+    public void onRePost(PostsModel model) {
+
+    }
+
+    @Override
+    public void onShowDownloadMenu(PostsModel model) {
+        showDownloadMenuAlert(model);
+    }
+
+    private void showDownloadMenuAlert(PostsModel model) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ViewPost.this);
+        builder.setTitle("Choose option");
+        AlertDialog alert = builder.create();
+
+
+        builder.setItems(new CharSequence[]
+                        {"Save post", "Download", "Cancel"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                mDatabase.child("SavedPosts").child(SharedPrefs.getUserModel().getUsername()).child(model.getId()).setValue(model.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        CommonUtils.showToast("Post Saved");
+                                    }
+                                });
+                                break;
+                            case 1:
+                                String filen = (model.getType().equalsIgnoreCase("image") ? model.getPictureUrl().substring(model.getPictureUrl().length() - 10, model.getPictureUrl().length()) + ".jpg" :
+                                        model.getVideoUrl().substring(model.getVideoUrl().length() - 10, model.getVideoUrl().length()) + ".mp4");
+                                File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
+                                        Environment.DIRECTORY_DOWNLOADS) + "/" + filen
+                                );
+                                if (applictionFile != null && applictionFile.exists()) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                                    startActivity(intent);
+
+                                } else {
+                                    DownloadFile.fromUrll((model.getType().equalsIgnoreCase("image")
+                                            ? model.getPictureUrl() : model.getVideoUrl()), filen);
+                                    filnamea = filen;
+                                }
+                                break;
+                            case 2:
+                                dialog.dismiss();
+
+                                break;
+
+                        }
+                    }
+                });
+        alert = builder.create();
+        alert.show();
+
+
+    }
+
+    @SuppressLint("WrongConstant")
+    private void showBottomDialog(PostsModel postsModel) {
+
+
+        LayoutInflater inflater = (LayoutInflater) ViewPost.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.share_frnds_bottom_option, null);
+        BottomSheetDialog dialog = new BottomSheetDialog(ViewPost.this);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        dialog.setContentView(customView);
+        EditText search = customView.findViewById(R.id.search);
+        EditText messageText = customView.findViewById(R.id.messageText);
+        RecyclerView recyclerview = customView.findViewById(R.id.recyclerview);
+        CircleImageView image = customView.findViewById(R.id.image);
+        Glide.with(ViewPost.this).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(image);
+
+        ShareMessageFriendsAdapter adapter = new ShareMessageFriendsAdapter(ViewPost.this, SharedPrefs.getFriendsList(), new ShareMessageFriendsAdapter.ShareMessageFriendsAdapterCallbacks() {
+            @Override
+            public void onSend(UserModel model) {
+                Intent i = new Intent(ViewPost.this, SingleChattingScreen.class);
+                i.putExtra("userId", model.getUsername());
+                Constants.FORWARD_POST = 1;
+                String url = "";
+                if (postsModel.getType().equalsIgnoreCase("image")) {
+                    url = postsModel.getPictureUrl();
+                } else if (postsModel.getType().equalsIgnoreCase("video")) {
+                    url = postsModel.getVideoThumbnailUrl();
+                } else if (postsModel.getType().equalsIgnoreCase("multi")) {
+                    url = postsModel.getPictureUrl();
+                }
+
+                Constants.FORWARD_PIC_URL = url;
+                Constants.POST_MESSAGE = messageText.getText().toString();
+                Constants.POST_ID = postsModel.getId();
+                startActivity(i);
+
+                dialog.dismiss();
+            }
+        });
+
+
+        recyclerview.setLayoutManager(new LinearLayoutManager(ViewPost.this, LinearLayoutManager.VERTICAL, false));
+        recyclerview.setAdapter(adapter);
+
+        dialog.show();
+
+
+    }
+
 
     protected void onNewIntent(Intent intent) {
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -732,6 +872,7 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
             Glide.with(ViewPost.this).load(model.getPictureUrl()).into(mainImage);
 
         } else if (model.getType().equalsIgnoreCase("video")) {
+            videoView.setVisibility(View.VISIBLE);
             video_view.setVisibility(View.VISIBLE);
             mainImage.setVisibility(View.GONE);
             muteIcon.setVisibility(View.VISIBLE);
@@ -754,13 +895,18 @@ public class ViewPost extends AppCompatActivity implements PostAdaptersCallbacks
 
 
         } else if (model.getType().equalsIgnoreCase("multi")) {
+            banner.setOffscreenPageLimit(0);
+
             video_view.setVisibility(View.GONE);
             mainImage.setVisibility(View.GONE);
             muteIcon.setVisibility(View.GONE);
             dots_indicator.setVisibility(View.VISIBLE);
+            picCount.setVisibility(View.VISIBLE);
             banner.setVisibility(View.VISIBLE);
+
             imgsList = model.getMultiImages();
             mViewPagerAdapter.setPicturesList(model.getMultiImages());
+            picCount.setText(1 + "/" + model.getMultiImages().size());
 
 
         } else {

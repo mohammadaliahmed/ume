@@ -7,6 +7,7 @@ import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -84,6 +85,12 @@ public class Register extends AppCompatActivity {
                 }
             }
         });
+
+        if (Login.account != null) {
+            name.setText(Login.account.getDisplayName());
+            email.setText(Login.account.getEmail());
+            username.setText(Login.account.getEmail().replace("@gmail.com", "").replace(".", ""));
+        }
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,7 +192,7 @@ public class Register extends AppCompatActivity {
         spanTxt.setSpan(new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-               finish();
+                finish();
             }
         }, spanTxt.length() - "Login".length(), spanTxt.length(), 0);
 

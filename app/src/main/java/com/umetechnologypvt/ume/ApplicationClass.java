@@ -2,8 +2,11 @@ package com.umetechnologypvt.ume;
 
 import android.app.Application;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import android.content.Context;
 import android.os.StrictMode;
 
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.umetechnologypvt.ume.Utils.SampleLifecycleListener;
 import com.google.firebase.database.DatabaseReference;
 
@@ -14,10 +17,23 @@ import com.google.firebase.database.DatabaseReference;
 public class ApplicationClass extends Application {
     private static ApplicationClass instance;
     DatabaseReference mDatabase;
+    private HttpProxyCacheServer proxy;
+
 
     public static ApplicationClass getInstance() {
         return instance;
     }
+
+    public static HttpProxyCacheServer getProxy(Context context) {
+        ApplicationClass app = (ApplicationClass) context.getApplicationContext();
+        return app.proxy == null ? (app.proxy = app.newProxy()) : app.proxy;
+    }
+
+    private HttpProxyCacheServer newProxy() {
+        return new HttpProxyCacheServer(this);
+    }
+
+
 
     @Override
     public void onCreate() {

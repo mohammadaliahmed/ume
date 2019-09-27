@@ -2,8 +2,10 @@ package com.umetechnologypvt.ume.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +14,10 @@ import android.widget.TextView;
 
 
 import com.umetechnologypvt.ume.Activities.SingleChattingScreen;
+import com.umetechnologypvt.ume.Interface.ChatCallbacks;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
+import com.umetechnologypvt.ume.Models.LangaugeModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
@@ -23,6 +27,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,6 +40,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     HashMap<String, Integer> unreadCount = new HashMap<>();
     HashMap<Integer, ChatListModel> map;
 
+    private ArrayList<ChatListModel> arrayList;
+
     ChatCallbacks callbacks;
 
 //    public ChatListAdapter(Context context, HashMap<Integer, ChatListModel> map) {
@@ -42,10 +50,41 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 //    }
 
 
-        public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList,ChatCallbacks callbacks) {
+    public void filter(String charText) {
+        charText = charText.toLowerCase(Locale.getDefault());
+        itemList.clear();
+        if (charText.length() == 0) {
+            itemList.addAll(arrayList);
+        } else {
+            for (ChatListModel item : arrayList) {
+                if (item.getMessage() != null && item.getMessage().getName() != null) {
+                    if (item.getMessage().getName().toLowerCase().contains(charText)) {
+
+                        itemList.add(item);
+                    }
+                }
+
+            }
+
+
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void updateList(ArrayList<ChatListModel> itemList) {
+        this.itemList = itemList;
+        arrayList.clear();
+        arrayList.addAll(itemList);
+    }
+
+
+    public ChatListAdapter(Context context, ArrayList<ChatListModel> itemList, ChatCallbacks callbacks) {
         this.context = context;
         this.itemList = itemList;
-        this.callbacks=callbacks;
+        this.callbacks = callbacks;
+        this.arrayList = new ArrayList<>(itemList);
+
 
     }
 
@@ -54,9 +93,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         notifyDataSetChanged();
     }
 
-    public void setNewList(ArrayList<ChatListModel> itemList){
-            this.itemList=itemList;
-            notifyDataSetChanged();
+    public void setNewList(ArrayList<ChatListModel> itemList) {
+        this.itemList = itemList;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -117,6 +156,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.message.setText("\uD83D\uDCCD Location");
             } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
                 holder.message.setText("☎ Contact");
+            } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_POST)) {
+                holder.message.setText("" + "\uD83D\uDCF7  Post");
             }
 
 
@@ -173,7 +214,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
         }
     }
-    public interface ChatCallbacks{
-            public void onChatDelete(String username);
+
+    public interface ChatCallbacks {
+        public void onChatDelete(String username);
     }
 }

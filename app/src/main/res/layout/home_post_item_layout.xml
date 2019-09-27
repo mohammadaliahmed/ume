@@ -37,10 +37,43 @@
         android:id="@+id/postByName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="60dp"
+        android:layout_marginLeft="100dp"
         android:layout_marginTop="5dp"
         android:text=""
         android:textColor="#000" />
+
+    <RelativeLayout
+        android:id="@+id/genderBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/custom_corners_blue"
+        android:padding="3dp"
+        android:visibility="gone">
+
+
+        <ImageView
+            android:id="@+id/gender"
+            android:layout_width="9dp"
+            android:layout_height="9dp"
+            android:src="@drawable/ic_male" />
+
+
+        <TextView
+            android:id="@+id/age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/gender"
+            android:text=""
+            android:textColor="#fff"
+            android:textSize="8sp"
+            android:textStyle="bold" />
+
+        />
+    </RelativeLayout>
+
 
     <RelativeLayout
         android:id="@+id/content"
@@ -59,15 +92,29 @@
                 android:id="@+id/video_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:layout_centerInParent="true"
+                android:visibility="gone"
                 app:surface_type="texture_view"
                 app:use_controller="false" />
 
             <ImageView
+                android:id="@+id/progress_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:src="@drawable/placeholder" />
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/videoProgress"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ImageView
                 android:id="@+id/imageView_sound"
                 android:layout_width="30dp"
-                android:visibility="gone"
                 android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
@@ -75,15 +122,16 @@
                 android:layout_margin="15dp"
                 android:contentDescription="@null"
                 android:padding="5dp"
-                android:src="@drawable/ic_unmute" />
+                android:src="@drawable/ic_unmute"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
         <ImageView
             android:id="@+id/mainImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:src="@drawable/placeholder"
             android:visibility="gone" />
 
@@ -94,21 +142,47 @@
 
 
         </androidx.viewpager.widget.ViewPager>
+        <TextView
+            android:id="@+id/picCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:background="@drawable/black_rounded"
+            android:padding="5dp"
+            android:text="1/10"
+            android:textColor="#fff"
+            android:textSize="12sp"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:background="@drawable/black_rounded"
+            android:padding="5dp"
+            android:text="1/10"
+            android:textColor="#fff"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
 
     </RelativeLayout>
 
-    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+    <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
         android:id="@+id/dots_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
         android:layout_centerHorizontal="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
-        app:dotsColor="@color/black"
+        app:dotsColor="@color/colorPurple"
+        app:dotsCornerRadius="5dp"
+        android:layout_marginTop="2dp"
         app:dotsSize="4dp"
-        app:dotsWidthFactor="3" />
+        app:dotsSpacing="2dp"
+        app:dotsStrokeColor="@color/colorGrey"
+        app:dotsStrokeWidth="2dp" />
 
     <ImageView
         android:id="@+id/showLike"
@@ -160,6 +234,20 @@
             android:layout_marginLeft="20dp"
             android:src="@drawable/ic_forward" />
 
+        <ImageView
+            android:id="@+id/download"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/ic_download_home" />
+
+        <ImageView
+            android:id="@+id/repost"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/ic_repost" />
+
     </LinearLayout>
 
     <TextView
@@ -182,7 +270,7 @@
         android:layout_below="@id/likesCount"
         android:layout_marginLeft="10dp"
         android:maxLines="2"
-        android:text="ALi Ahmed  sdfsdfd"
+        android:text="  sdfsdfd"
         android:textColor="#000"
         android:textSize="13sp" />
 

@@ -4,15 +4,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.ChatModel;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.Models.UserModel;
-import com.google.gson.Gson;
+import com.umetechnologypvt.ume.Stories.StoriesPickedModel;
+import com.umetechnologypvt.ume.Stories.StoryModel;
+import com.umetechnologypvt.ume.Stories.StoryViewsModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -61,6 +63,37 @@ public class SharedPrefs {
         return playersList;
     }
 
+
+    public static void setFriendsList(ArrayList<UserModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("friends", json);
+    }
+
+    public static ArrayList getFriendsList() {
+        Gson gson = new Gson();
+        ArrayList<UserModel> playersList = (ArrayList<UserModel>) gson.fromJson(preferenceGetter("friends"),
+                new TypeToken<ArrayList<UserModel>>() {
+                }.getType());
+        return playersList;
+    }
+
+    public static void setPickedList(ArrayList<StoriesPickedModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("storiesPicked", json);
+    }
+
+    public static ArrayList getPickedList() {
+        Gson gson = new Gson();
+        ArrayList<StoriesPickedModel> playersList = (ArrayList<StoriesPickedModel>) gson.fromJson(preferenceGetter("storiesPicked"),
+                new TypeToken<ArrayList<StoriesPickedModel>>() {
+                }.getType());
+        return playersList;
+    }
+
     public static void setMutedList(List<String> itemList) {
 
         Gson gson = new Gson();
@@ -73,7 +106,7 @@ public class SharedPrefs {
         ArrayList<String> playersList = (ArrayList<String>) gson.fromJson(preferenceGetter("mutes"),
                 new TypeToken<ArrayList<String>>() {
                 }.getType());
-        return playersList;
+        return playersList == null ? new ArrayList() : playersList;
     }
 
 
@@ -109,9 +142,56 @@ public class SharedPrefs {
         preferenceSetter("PostsModel", json);
     }
 
-    public static ArrayList getPosts() {
+    public static ArrayList<PostsModel> getPosts() {
         Gson gson = new Gson();
         ArrayList<PostsModel> playersList = (ArrayList<PostsModel>) gson.fromJson(preferenceGetter("PostsModel"),
+                new TypeToken<ArrayList<PostsModel>>() {
+                }.getType());
+        return playersList;
+    }
+
+    public static void setHomePosts(ArrayList<PostsModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("homePosts", json);
+    }
+
+    public static ArrayList<PostsModel> getHomePosts() {
+        Gson gson = new Gson();
+        ArrayList<PostsModel> playersList = (ArrayList<PostsModel>) gson.fromJson(preferenceGetter("homePosts"),
+                new TypeToken<ArrayList<PostsModel>>() {
+                }.getType());
+        return playersList == null ? new ArrayList<>() : playersList;
+    }
+
+
+    public static void setHomeStories(ArrayList<ArrayList<StoryModel>> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("getHomeStories", json);
+    }
+
+    public static ArrayList<ArrayList<StoryModel>> getHomeStories() {
+        Gson gson = new Gson();
+        ArrayList<ArrayList<StoryModel>> playersList = (ArrayList<ArrayList<StoryModel>>) gson.fromJson(preferenceGetter("getHomeStories"),
+                new TypeToken<ArrayList<ArrayList<StoryModel>>>() {
+                }.getType());
+
+        return playersList == null ? new ArrayList<>() : playersList;
+    }
+
+    public static void setSavedPosts(ArrayList<PostsModel> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("savedPosts", json);
+    }
+
+    public static ArrayList<PostsModel> getSavedPosts() {
+        Gson gson = new Gson();
+        ArrayList<PostsModel> playersList = (ArrayList<PostsModel>) gson.fromJson(preferenceGetter("savedPosts"),
                 new TypeToken<ArrayList<PostsModel>>() {
                 }.getType());
         return playersList;
@@ -131,6 +211,7 @@ public class SharedPrefs {
                 }.getType());
         return playersList;
     }
+
 
     public static void setParticipantModel(String userId, UserModel model) {
 
@@ -237,6 +318,14 @@ public class SharedPrefs {
 
     public static String getNotificationCount() {
         return preferenceGetter("setChatCount");
+    }
+
+    public static void setChatCount(String count) {
+        preferenceSetter("chatCount", count);
+    }
+
+    public static String getChatCount() {
+        return preferenceGetter("chatCount");
     }
 
     public static void logout() {
