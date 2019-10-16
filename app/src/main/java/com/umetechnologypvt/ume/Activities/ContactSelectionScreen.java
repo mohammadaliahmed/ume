@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import com.umetechnologypvt.ume.Models.PhoneContactModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.PinchZoomItemTouchListener;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,7 +47,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ContactSelectionScreen extends AppCompatActivity {
+public class ContactSelectionScreen extends AppCompatActivity implements PinchZoomItemTouchListener.PinchZoomListener {
     RecyclerView recyclerView;
     ArrayList<UserModel> itemList = new ArrayList<>();
     ArrayList<String> blockedList = new ArrayList<>();
@@ -54,6 +56,7 @@ public class ContactSelectionScreen extends AppCompatActivity {
     //    TextView noContacts;
     HashMap<String, UserModel> map = new HashMap<>();
     private ArrayList<String> blockedMeList = new ArrayList<>();
+//    SwipeRefreshLayout swipe;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -70,6 +73,14 @@ public class ContactSelectionScreen extends AppCompatActivity {
 
 //        noContacts = findViewById(R.id.noContacts);
         recyclerView = findViewById(R.id.recyclerview);
+//        swipe = findViewById(R.id.swipe);
+//
+//        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                CommonUtils.showToast("On Refresh");
+//            }
+//        });
 
         adapter = new UserListAdapter(this, itemList, blockedList, blockedMeList, new ContactListCallbacks() {
             @Override
@@ -305,4 +316,8 @@ public class ContactSelectionScreen extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onPinchZoom(int position) {
+
+    }
 }

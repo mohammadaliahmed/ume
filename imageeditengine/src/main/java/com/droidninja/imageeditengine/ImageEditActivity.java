@@ -16,6 +16,7 @@ public class ImageEditActivity extends BaseImageEditActivity
     implements PhotoEditorFragment.OnFragmentInteractionListener,
     CropFragment.OnFragmentInteractionListener {
   private Rect cropRect;
+  public  static ImageEditActivity activity;
 
   //private View touchView;
 
@@ -23,6 +24,7 @@ public class ImageEditActivity extends BaseImageEditActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_image_edit);
 
+    activity=this;
     String imagePath = getIntent().getStringExtra(EXTRA_IMAGE_PATH);
     if (imagePath != null) {
       FragmentUtil.addFragment(this, R.id.fragment_container,

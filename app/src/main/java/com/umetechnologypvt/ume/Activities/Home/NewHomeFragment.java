@@ -29,8 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.danikula.videocache.CacheListener;
-import com.danikula.videocache.HttpProxyCacheServer;
+
 import com.droidninja.imageeditengine.ImageEditor;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -80,6 +79,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.ene.toro.PlayerSelector;
 import im.ene.toro.media.PlaybackInfo;
@@ -133,6 +133,10 @@ public class NewHomeFragment extends Fragment {
                 new IntentFilter("custom-event-name"));
         context.registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
+
+        LocalBroadcastManager.getInstance(context).registerReceiver(mSeenMessageReceiver,
+                new IntentFilter("updateSeenList"));
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
         View rootView = inflater.inflate(R.layout.activity_new_home_fragment, container, false);
         recycler = rootView.findViewById(R.id.my_fancy_videos);
@@ -162,6 +166,8 @@ public class NewHomeFragment extends Fragment {
         friendsStories.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         friendsStories.setAdapter(storiesAdapter);
         storiesAdapter.notifyDataSetChanged();
+
+        performSeenOperations();
 
 
         if (SharedPrefs.getUserModel().getPicUrl() != null) {
@@ -264,7 +270,7 @@ public class NewHomeFragment extends Fragment {
                 }
                 list.add(model.getId());
                 SharedPrefs.setLikesList(list);
-                adapter.setLikeList(SharedPrefs.getLikesList());
+//                adapter.setLikeList(SharedPrefs.getLikesList());
                 mDatabase.child("Posts").child("Posts").child(model.getId())
                         .child("likesCount").setValue(model.getLikesCount());
                 mDatabase.child("Posts").child("Likes").child(model.getId())
@@ -281,7 +287,7 @@ public class NewHomeFragment extends Fragment {
                 try {
                     list.remove(list.indexOf(model.getId()));
                     SharedPrefs.setLikesList(list);
-                    adapter.setLikeList(SharedPrefs.getLikesList());
+//                    adapter.setLikeList(SharedPrefs.getLikesList());
                     mDatabase.child("Posts").child("Posts").child(model.getId())
                             .child("likesCount").setValue(model.getLikesCount());
                     mDatabase.child("Posts").child("Likes").child(model.getId())
@@ -316,9 +322,9 @@ public class NewHomeFragment extends Fragment {
             @Override
             public void onSharePostWithFriends(PostsModel model) {
 //                showBottomDialog(model);
-                if(friendsList!=null &&friendsList.size()>0) {
-                    BottomDialog.showFriendsAdapter(context, model,mDatabase);
-                }else{
+                if (friendsList != null && friendsList.size() > 0) {
+                    BottomDialog.showFriendsAdapter(context, model, mDatabase);
+                } else {
                     CommonUtils.showToast("No Friends");
                 }
             }
@@ -334,6 +340,10 @@ public class NewHomeFragment extends Fragment {
             }
         }
         );
+        if (SharedPrefs.getLikesList() != null && SharedPrefs.getLikesList().size() > 0) {
+            adapter.setLikeList(SharedPrefs.getLikesList());
+        }
+
         recycler.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
         recycler.setLayoutManager(layoutManager);
@@ -541,7 +551,6 @@ public class NewHomeFragment extends Fragment {
     }
 
 
-
     public void showPopup(View v) {
         PopupMenu popup = new PopupMenu(getActivity(), v);
         MenuInflater inflater = popup.getMenuInflater();
@@ -727,6 +736,40 @@ public class NewHomeFragment extends Fragment {
         }
     };
 
+    private BroadcastReceiver mSeenMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            performSeenOperations();
+
+        }
+    };
+
+    private void performSeenOperations() {
+        HashMap<String, Boolean> newMap = new HashMap<>();
+        for (ArrayList<StoryModel> list : MainActivity.arrayLists) {
+            boolean seen = false;
+            for (StoryModel item : list) {
+                HashMap<String, String> map = SharedPrefs.getStorySeenMap();
+                if (map != null) {
+                    if (map.containsKey(item.getId())) {
+                        seen = true;
+                    } else {
+                        seen = false;
+                        break;
+                    }
+                }
+            }
+            if (!seen) {
+                newMap.put(list.get(0).getStoryByUsername(), seen);
+            } else {
+                newMap.put(list.get(0).getStoryByUsername(), seen);
+            }
+
+        }
+        storiesAdapter.setHashMap(newMap);
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -871,6 +914,7 @@ public class NewHomeFragment extends Fragment {
         } else {
             badgeCount.setVisibility(View.GONE);
         }
+        performSeenOperations();
         super.onResume();
     }
 

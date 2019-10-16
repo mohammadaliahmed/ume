@@ -88,11 +88,11 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
     boolean deleteClicked;
 
 
-    TextView views;
+    TextView views, viewCount;
     RecyclerView recyclerview;
-    ImageView delete;
+    ImageView delete, eye;
 
-    HashMap<String, ArrayList<StoryViewsModel>> map = new HashMap<>();
+    //    HashMap<String, ArrayList<StoryViewsModel>> map = new HashMap<>();
     private StoryViewsAdapter adapter;
     private ArrayList<StoryViewsModel> viewsList = new ArrayList<>();
 
@@ -123,10 +123,12 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
         BottomSheetBehavior sheetBehavior;
         sheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
         views = findViewById(R.id.views);
+        eye = findViewById(R.id.eye);
+        viewCount = findViewById(R.id.viewCount);
         delete = findViewById(R.id.delete);
         recyclerview = findViewById(R.id.recyclerview);
 
-        getViewsFromDB();
+//        getViewsFromDB();
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,6 +178,8 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
                     case BottomSheetBehavior.STATE_EXPANDED: {
 //                        btnBottomSheet.setText("Close Sheet");
                         storiesProgressView.pause();
+                        viewCount.setVisibility(View.GONE);
+                        eye.setVisibility(View.GONE);
                         if (mmmmedia != null) {
                             try {
                                 mmmmedia.pause();
@@ -188,6 +192,8 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
                     break;
                     case BottomSheetBehavior.STATE_COLLAPSED: {
 //                        btnBottomSheet.setText("Expand Sheet");
+                        viewCount.setVisibility(View.VISIBLE);
+                        eye.setVisibility(View.VISIBLE);
                         storiesProgressView.resume();
                         if (mmmmedia != null) {
                             try {
@@ -277,37 +283,39 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
 
     }
 
-    private void getViewsFromDB() {
-        mDatabase.child("StoryViews").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    map.clear();
-                    for (DataSnapshot storyIds : dataSnapshot.getChildren()) {
-
-                        ArrayList<StoryViewsModel> storiesList = new ArrayList<>();
-                        for (DataSnapshot users : storyIds.getChildren()) {
-                            StoryViewsModel viewsModel = users.getValue(StoryViewsModel.class);
-                            if (viewsModel != null) {
-                                storiesList.add(viewsModel);
-                            }
-
-                        }
-                        map.put(storyIds.getKey(), storiesList);
-                        viewsList = map.get(mStoriesList.get(counter).getId());
-                        adapter.notifyDataSetChanged();
-                        views.setText((viewsList == null ? 0 : viewsList.size()) + " views");
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
+//    private void getViewsFromDB() {
+//        mDatabase.child("StoryViews").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.getValue() != null) {
+//                    map.clear();
+//                    for (DataSnapshot storyIds : dataSnapshot.getChildren()) {
+//
+//                        ArrayList<StoryViewsModel> storiesList = new ArrayList<>();
+//                        for (DataSnapshot users : storyIds.getChildren()) {
+//                            StoryViewsModel viewsModel = users.getValue(StoryViewsModel.class);
+//                            if (viewsModel != null) {
+//                                storiesList.add(viewsModel);
+//                            }
+//
+//                        }
+//                        map.put(storyIds.getKey(), storiesList);
+//                        viewsList = map.get(mStoriesList.get(counter).getId());
+//                        adapter.notifyDataSetChanged();
+//                        views.setText((viewsList == null ? 0 : viewsList.size()) + " views");
+//                        viewCount.setText((viewsList == null ? 0 : viewsList.size()) + " views");
+//                    }
+//
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
 
     private void showDeleteAlert() {
@@ -423,13 +431,15 @@ public class MyStoryActivity extends AppCompatActivity implements StoriesProgres
             }).into(image);
         }
 
-        viewsList = map.get(mStoriesList.get(counter).getId());
+//        viewsList = map.get(mStoriesList.get(counter).getId());
+        viewsList = MainActivity.seenMap.get(mStoriesList.get(counter).getId());
         if (viewsList == null) {
             viewsList = new ArrayList<>();
         }
         adapter = new StoryViewsAdapter(MyStoryActivity.this, viewsList);
         recyclerview.setAdapter(adapter);
         views.setText((viewsList == null ? 0 : viewsList.size()) + " views");
+        viewCount.setText((viewsList == null ? 0 : viewsList.size()) + " views");
     }
 
     private void prepareStoriesList() {

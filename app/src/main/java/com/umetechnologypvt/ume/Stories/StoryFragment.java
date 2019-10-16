@@ -37,6 +37,7 @@ import com.umetechnologypvt.ume.Utils.KeyboardUtils;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -391,11 +392,22 @@ public class StoryFragment extends Fragment implements StoriesProgressView.Stori
                 }
             }).into(image);
         }
+        HashMap<String, String> map = SharedPrefs.getStorySeenMap();
+        if (map != null && map.size() > 0) {
+            map.put(mStoriesList.get(counter).getId(), mStoriesList.get(counter).getId());
+            SharedPrefs.setStorySeenMap(map);
+        } else {
+            map = new HashMap<>();
+            map.put(mStoriesList.get(counter).getId(), mStoriesList.get(counter).getId());
+            SharedPrefs.setStorySeenMap(map);
+        }
+
+
     }
 
     private void prepareStoriesList() {
         mStoriesList = MainActivity.arrayLists.get(position);
-        Glide.with(context).load(MainActivity.arrayLists.get(position).get(0).storyByPicUrl).into(storyByPic);
+        Glide.with(context).load(MainActivity.arrayLists.get(position).get(MainActivity.arrayLists.get(position).size() - 1).getStoryByPicUrl()).into(storyByPic);
         storyByName.setText(MainActivity.arrayLists.get(position).get(0).getStoryByName());
         long dur = System.currentTimeMillis() - (MainActivity.arrayLists.get(position).get(counter).getTime());
 
@@ -447,7 +459,7 @@ public class StoryFragment extends Fragment implements StoriesProgressView.Stori
         Log.d("sender", "Broadcasting message");
         Intent intent = new Intent("storyPosition");
         // You can also include some extra data.
-        intent.putExtra("message", "1");
+        intent.putExtra("storyPosition", (position + 1));
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 

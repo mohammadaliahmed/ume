@@ -189,6 +189,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     ChatCallbacks chatCallbacks;
     private double lng, lat;
     String msg;
+    boolean blocked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -582,12 +583,15 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                         messagingArea.setVisibility(View.GONE);
                         recordButton.setVisibility(View.GONE);
                         cannotSend.setVisibility(View.VISIBLE);
+                        updateMenuItems(3, menu);
                     }
                     if (dataSnapshot.child("blockedUsers").child(userId).exists()) {
                         send.setVisibility(View.GONE);
                         messagingArea.setVisibility(View.GONE);
                         recordButton.setVisibility(View.GONE);
                         cannotSend.setVisibility(View.VISIBLE);
+                        blocked = true;
+                        updateMenuItems(4, menu);
 
                     }
                 }
@@ -1080,41 +1084,42 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                             });
                         }
                         ForwardContactSelectionScreen.fromForward = false;
-                    } else if (Constants.FORWARD_POST == 1) {
-                        Constants.FORWARD_POST = 0;
-                        String key = mDatabase.push().getKey();
-                        ChatModel forwardChatModel = new ChatModel(
-                                key,
-                                SharedPrefs.getUserModel().getUsername(),
-                                hisUserModel.getUsername(),
-                                hisUserModel.getName(),
-                                hisUserModel.getPicUrl(),
-                                Constants.POST_MESSAGE,
-                                Constants.MESSAGE_TYPE_POST,
-
-                                System.currentTimeMillis(),
-                                Constants.POST_ID,
-                                Constants.FORWARD_PIC_URL,
-                                "sent",
-                                hisUserModel.getCountryNameCode()
-                        );
-
-                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
-                                .child(hisUserModel.getUsername()).child(key)
-                                .setValue(forwardChatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                forwardChatModel.setUsername(SharedPrefs.getUserModel().getUsername());
-                                forwardChatModel.setName(SharedPrefs.getUserModel().getName());
-                                forwardChatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
-                                mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(forwardChatModel.getId())
-                                        .setValue(forwardChatModel);
-                                sendNotification(forwardChatModel.getMessageType(), forwardChatModel.getId());
-                            }
-                        });
-
                     }
-
+//                     else if (Constants.FORWARD_POST == 1) {
+//                        Constants.FORWARD_POST = 0;
+//                        String key = mDatabase.push().getKey();
+//                        ChatModel forwardChatModel = new ChatModel(
+//                                key,
+//                                SharedPrefs.getUserModel().getUsername(),
+//                                hisUserModel.getUsername(),
+//                                hisUserModel.getName(),
+//                                hisUserModel.getPicUrl(),
+//                                Constants.POST_MESSAGE,
+//                                Constants.MESSAGE_TYPE_POST,
+//
+//                                System.currentTimeMillis(),
+//                                Constants.POST_ID,
+//                                Constants.FORWARD_PIC_URL,
+//                                "sent",
+//                                hisUserModel.getCountryNameCode()
+//                        );
+//
+//                        mDatabase.child("Chats").child(SharedPrefs.getUserModel().getUsername())
+//                                .child(hisUserModel.getUsername()).child(key)
+//                                .setValue(forwardChatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                forwardChatModel.setUsername(SharedPrefs.getUserModel().getUsername());
+//                                forwardChatModel.setName(SharedPrefs.getUserModel().getName());
+//                                forwardChatModel.setPicUrl(SharedPrefs.getUserModel().getThumbnailUrl());
+//                                mDatabase.child("Chats").child(hisUserModel.getUsername()).child(SharedPrefs.getUserModel().getUsername()).child(forwardChatModel.getId())
+//                                        .setValue(forwardChatModel);
+//                                sendNotification(forwardChatModel.getMessageType(), forwardChatModel.getId());
+//                            }
+//                        });
+//
+//                    }
+//
 
                 }
             }
@@ -2448,17 +2453,20 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 //            menu.findItem(R.id.action_delete).setVisible(false);
 
 
+        } else if (menu != null && i == 3) {
+            menu.findItem(R.id.action_block).setVisible(false);
+        } else if (menu != null && i == 4) {
+            if (blocked) {
+                menu.findItem(R.id.action_block).setVisible(true);
+
+                menu.findItem(R.id.action_block).setTitle("Unblock");
+            } else {
+                menu.findItem(R.id.action_block).setVisible(true);
+
+                menu.findItem(R.id.action_block).setTitle("Block");
+            }
         }
 //        invalidateOptionsMenu();
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.single_chat_menu, menu);
-        updateMenuItems(0, menu);
-        return true;
     }
 
     @Override
@@ -2471,6 +2479,16 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
             finish();
+        }
+        if (item.getItemId() == R.id.action_block) {
+
+            if (blocked) {
+                showUnBlockAlert();
+            } else {
+                showBlockAlert();
+            }
+
+
         }
         if (item.getItemId() == R.id.action_clear_chat) {
             AlertDialog.Builder builder1 = new AlertDialog.Builder(SingleChattingScreen.this);
@@ -2508,6 +2526,90 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.single_chat_menu, menu);
+        updateMenuItems(0, menu);
+        return true;
+    }
+
+    private void showBlockAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        builder.setMessage("Do you want to block this user?");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername())
+                        .child("blockedUsers").child(hisUserModel.getUsername()).setValue(hisUserModel.getUsername()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("Blocked");
+                    }
+                });
+                mDatabase.child("Users").child(hisUserModel.getUsername()).child("blockedMe")
+                        .child(SharedPrefs.getUserModel().getUsername()).setValue(SharedPrefs.getUserModel().getUsername()).
+                        addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        });
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showUnBlockAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        builder.setMessage("Do you want to unblock this user?");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername())
+                        .child("blockedUsers").child(hisUserModel.getUsername()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CommonUtils.showToast("UnBlocked");
+                        Intent i = new Intent(SingleChattingScreen.this, SingleChattingScreen.class);
+                        i.putExtra("msg", msg);
+                        i.putExtra("userId", hisUserModel.getUsername());
+//                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(i);
+                        finish();
+                    }
+                });
+                mDatabase.child("Users").child(hisUserModel.getUsername()).child("blockedMe")
+                        .child(SharedPrefs.getUserModel().getUsername()).removeValue().
+                        addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        });
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
     private void showDeleteAlert(String username, ChatModel chatModel) {
 

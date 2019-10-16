@@ -50,6 +50,7 @@ public class TextStatusStory extends AppCompatActivity {
     RelativeLayout toBitmap;
     DatabaseReference mDatabase;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +67,9 @@ public class TextStatusStory extends AppCompatActivity {
 
         int randomNumber = r.nextInt(colorList.length);
         wholeLayout.setBackgroundColor(getResources().getColor(colorList[randomNumber]));
+        toBitmap.setBackgroundColor(getResources().getColor(colorList[randomNumber]));
+        int height=toBitmap.getWidth();
+        toBitmap.setMinimumHeight(height);
 
 
         pallete.setOnClickListener(new View.OnClickListener() {

@@ -2,10 +2,13 @@ package com.umetechnologypvt.ume.Camera;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -13,6 +16,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.droidninja.imageeditengine.ImageEditActivity;
+import com.droidninja.imageeditengine.ImageEditor;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +30,11 @@ import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Adapters.MultiImagesPickedAdapter;
 import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Stories.CustomViewPager;
+import com.umetechnologypvt.ume.Stories.StoriesEditing.MultiStoriesPickedAdapter;
+import com.umetechnologypvt.ume.Stories.StoriesEditing.PickedStoriesSliderAdapter;
+import com.umetechnologypvt.ume.Stories.StoriesPickedModel;
+import com.umetechnologypvt.ume.Stories.StoryRedirectActivity;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
@@ -35,8 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -45,22 +57,23 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class PhotoRedirectActivity extends AppCompatActivity {
 
-    ProgressBar progress;
-    EditText comment;
     DatabaseReference mDatabase;
     StorageReference mStorageRef;
-    private String postType;
-    private String imagePath;
-    RelativeLayout wholeLayout;
-    String imgUrl;
-    CircleImageView image;
-    ImageView thumbnail;
-    List<String> multiImagesList = new ArrayList<>();
+    ImageView delete, back, edit;
+    CustomViewPager viewPager;
+    MultiStoriesPickedAdapter adapter;
+    RecyclerView recyclerview;
+    ArrayList<StoriesPickedModel> itemList = new ArrayList<>();
+    ArrayList<String> imagess = new ArrayList<>();
+    PickedStoriesSliderAdapter sliderAdapter;
+    private int posi;
     List<String> finalLivePicsArrayList = new ArrayList<>();
-    RecyclerView recycler;
-    MultiImagesPickedAdapter adapter;
+
     int uploadPicCount = 0;
+
+    ImageView addStory;
     private PostsModel finalPostModel;
+    private String postType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,65 +89,156 @@ public class PhotoRedirectActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        progress = findViewById(R.id.progress);
-        thumbnail = findViewById(R.id.thumbnail);
-        image = findViewById(R.id.image);
-        recycler = findViewById(R.id.recycler);
-        Glide.with(this).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(image);
 
-
-        if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Image")) {
-            postType = "Image";
-            imagePath = getIntent().getStringExtra("PATH");
-            CompressImage image = new CompressImage(this);
-            imgUrl = image.compressImage(imagePath);
-            Glide.with(this).load(imgUrl).into(thumbnail);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.black));
         }
-        if (getIntent().getStringExtra("WHO").equalsIgnoreCase("Multi")) {
-            postType = "Multi";
-            multiImagesList = SharedPrefs.getMultiImgs();
-            Glide.with(this).load(multiImagesList.get(0)).into(thumbnail);
-            initMultiImages();
+        edit = findViewById(R.id.edit);
+        back = findViewById(R.id.back);
+        delete = findViewById(R.id.delete);
+        addStory = findViewById(R.id.addStory);
+        viewPager = findViewById(R.id.viewPager);
+        recyclerview = findViewById(R.id.recyclerview);
+        itemList = SharedPrefs.getPickedList();
+        if (itemList.size() > 1) {
+            postType = "multi";
+        } else {
+            postType = "image";
         }
-        comment = findViewById(R.id.comment);
-        wholeLayout = findViewById(R.id.wholeLayout);
 
 
-    }
-
-
-    private void initMultiImages() {
-        adapter = new MultiImagesPickedAdapter(this, multiImagesList, new MultiImagesPickedAdapter.AdapterCallbacks() {
+        addStory.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDelete(String id, int position) {
-                multiImagesList.remove(position);
-                SharedPrefs.setMultiPickedImg(multiImagesList);
+            public void onClick(View v) {
+                CommonUtils.showToast("Adding Post");
+                if (itemList.size() > 1) {
+                    for (StoriesPickedModel model : itemList) {
+                        CompressImage compressImage = new CompressImage(PhotoRedirectActivity.this);
+                        String abc = compressImage.compressImage(model.getUri());
+                        imagess.add(abc);
+                    }
 
-                adapter.notifyDataSetChanged();
+                    sendMultiImages();
+                } else {
+                    CompressImage compressImage = new CompressImage(PhotoRedirectActivity.this);
+                    String abc = compressImage.compressImage(itemList.get(0).getUri());
+                    sendImage(abc);
+                }
             }
         });
-        recycler.setLayoutManager(new GridLayoutManager(this, 3));
-        recycler.setAdapter(adapter);
+
+        recyclerview.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        adapter = new MultiStoriesPickedAdapter(this, itemList, new MultiStoriesPickedAdapter.AdapterCallbacks() {
+            @Override
+            public void onSelected(int position) {
+                viewPager.setCurrentItem(position);
+            }
+        });
+        recyclerview.setAdapter(adapter);
+        sliderAdapter = new PickedStoriesSliderAdapter(this, itemList);
+        viewPager.setAdapter(sliderAdapter);
+        viewPager.setOnPageChangeListener(new CustomViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                posi = position;
+                adapter.setPosition(position);
+                if (itemList.get(position).getType().equalsIgnoreCase("video")) {
+                    edit.setVisibility(View.GONE);
+                } else {
+                    edit.setVisibility(View.VISIBLE);
+                }
+                if (position == 2) {
+                    recyclerview.scrollToPosition(0);
+
+                } else if (position == 5) {
+                    recyclerview.scrollToPosition(itemList.size() - 1);
+
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemList.remove(posi);
+                if (posi > 0) {
+                    posi = posi - 1;
+                }
+                adapter.setPosition(posi);
+                sliderAdapter.setPicturesList(itemList);
+                viewPager.setAdapter(sliderAdapter);
+                viewPager.setCurrentItem(posi);
+                if (itemList.size() == 0) {
+                    finish();
+                }
+
+            }
+        });
+
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    new ImageEditor.Builder(PhotoRedirectActivity.this, CommonUtils.getRealPathFromURI(Uri.parse(itemList.get(posi).getUri())))
+                            .setStickerAssets("stickers")
+                            .open();
+                } catch (Exception e) {
+                    new ImageEditor.Builder(PhotoRedirectActivity.this, itemList.get(posi).getUri())
+                            .setStickerAssets("stickers")
+                            .open();
+                }
+
+            }
+        });
+
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 52) {
 
-    private void sendImage() {
-        wholeLayout.setVisibility(View.VISIBLE);
+            String imagePath = data.getStringExtra(ImageEditor.EXTRA_EDITED_PATH);
+            StoriesPickedModel abc = itemList.get(posi);
+            abc.setUri(imagePath);
+            itemList.set(posi, abc);
+            adapter.notifyDataSetChanged();
+            sliderAdapter.setPicturesList(itemList);
+            viewPager.setAdapter(sliderAdapter);
+            viewPager.setCurrentItem(posi);
+            sliderAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void sendImage(String abc) {
+//        wholeLayout.setVisibility(View.VISIBLE);
         String id = mDatabase.push().getKey();
         PostsModel model = new PostsModel(
                 id,
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getName(),
                 SharedPrefs.getUserModel().getThumbnailUrl(),
-                comment.getText().toString(),
+                "",
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getName(),
                 SharedPrefs.getUserModel().getThumbnailUrl(),
                 "",
                 System.currentTimeMillis(),
-                postType,
+                "image",
                 1,
-                comment.getText().length() > 0 ? 1 : 0,
+                0,
                 SharedPrefs.getUserModel().getCountryNameCode(),
                 SharedPrefs.getUserModel().getAge(),
                 SharedPrefs.getUserModel().getGender()
@@ -144,19 +248,29 @@ public class PhotoRedirectActivity extends AppCompatActivity {
             public void onSuccess(Void aVoid) {
 
                 changeFlagOfAllPosts();
-                putPictures(model, imgUrl);
-                if (comment.getText().length() > 0) {
-                    String key = mDatabase.push().getKey();
-                    CommentsModel commentsModel = new CommentsModel(
-                            key, comment.getText().toString(),
-                            SharedPrefs.getUserModel().getUsername(),
-                            SharedPrefs.getUserModel().getName(),
-                            SharedPrefs.getUserModel().getThumbnailUrl(),
-                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
-
-                    );
-                    mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
+                putPictures(model, abc);
+                if (ImageEditActivity.activity != null) {
+                    ImageEditActivity.activity.finish();
                 }
+                if (WhatsappCameraActivity.activity != null) {
+                    WhatsappCameraActivity.activity.finish();
+                }
+
+                Intent i=new Intent(PhotoRedirectActivity.this,MainActivity.class);
+                startActivity(i);
+                finish();
+//                if (comment.getText().length() > 0) {
+//                    String key = mDatabase.push().getKey();
+//                    CommentsModel commentsModel = new CommentsModel(
+//                            key, comment.getText().toString(),
+//                            SharedPrefs.getUserModel().getUsername(),
+//                            SharedPrefs.getUserModel().getName(),
+//                            SharedPrefs.getUserModel().getThumbnailUrl(),
+//                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
+//
+//                    );
+//                    mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
+//                }
                 mDatabase.child("PostsBy").child(SharedPrefs.getUserModel().getUsername()).child(id).setValue(id);
             }
         });
@@ -177,22 +291,22 @@ public class PhotoRedirectActivity extends AppCompatActivity {
     }
 
     private void sendMultiImages() {
-        wholeLayout.setVisibility(View.VISIBLE);
+//        wholeLayout.setVisibility(View.VISIBLE);
         String id = mDatabase.push().getKey();
         PostsModel model = new PostsModel(
                 id,
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getName(),
                 SharedPrefs.getUserModel().getThumbnailUrl(),
-                comment.getText().toString(),
+                "",
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getName(),
                 SharedPrefs.getUserModel().getThumbnailUrl(),
                 "",
                 System.currentTimeMillis(),
-                postType,
+                "multi",
                 1,
-                comment.getText().length() > 0 ? 1 : 0,
+                0,
                 SharedPrefs.getUserModel().getCountryNameCode(), SharedPrefs.getUserModel().getAge(),
                 SharedPrefs.getUserModel().getGender()
         );
@@ -200,31 +314,28 @@ public class PhotoRedirectActivity extends AppCompatActivity {
         mDatabase.child("Posts").child("Posts").child(id).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                putPictures(model, multiImagesList.get(0));
-                if (comment.getText().length() > 0) {
-                    String key = mDatabase.push().getKey();
-                    CommentsModel commentsModel = new CommentsModel(
-                            key, comment.getText().toString(),
-                            SharedPrefs.getUserModel().getUsername(),
-                            SharedPrefs.getUserModel().getName(),
-                            SharedPrefs.getUserModel().getThumbnailUrl(),
-                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
-                    );
-                    mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
-                }
+                CommonUtils.showToast("Sharing Post");
+                finish();
+                putPictures(model, imagess.get(0));
+//                if (comment.getText().length() > 0) {
+//                    String key = mDatabase.push().getKey();
+//                    CommentsModel commentsModel = new CommentsModel(
+//                            key, comment.getText().toString(),
+//                            SharedPrefs.getUserModel().getUsername(),
+//                            SharedPrefs.getUserModel().getName(),
+//                            SharedPrefs.getUserModel().getThumbnailUrl(),
+//                            System.currentTimeMillis(), SharedPrefs.getUserModel().getCountryNameCode()
+//                    );
+//                    mDatabase.child("Posts").child("Comments").child(model.getId()).child(key).setValue(commentsModel);
+//                }
                 mDatabase.child("PostsBy").child(SharedPrefs.getUserModel().getUsername()).child(id).setValue(id);
             }
         });
     }
 
-
     public void putPictures(PostsModel model, String path) {
         String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
-
-
         Uri file = Uri.fromFile(new File(path));
-
-
         StorageReference riversRef = mStorageRef.child("Photos").child(imgName);
 
         riversRef.putFile(file)
@@ -239,14 +350,15 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 if (postType.equalsIgnoreCase("multi")) {
+                                    finish();
                                     uploadMultiPictures(0);
                                 }
-                                wholeLayout.setVisibility(View.GONE);
+//                                wholeLayout.setVisibility(View.GONE);
                                 if (WhatsappCameraActivity.activity != null) {
                                     WhatsappCameraActivity.activity.finish();
                                 }
-                                Intent i = new Intent(PhotoRedirectActivity.this, MainActivity.class);
-                                startActivity(i);
+//                                Intent i = new Intent(PhotoRedirectActivity.this, MainActivity.class);
+//                                startActivity(i);
 //                                finish();
                             }
                         });
@@ -265,7 +377,7 @@ public class PhotoRedirectActivity extends AppCompatActivity {
     }
 
     private void uploadMultiPictures(int count) {
-        putMultiPictures(finalPostModel, multiImagesList.get(count));
+        putMultiPictures(finalPostModel, imagess.get(count));
     }
 
     private void putMultiPictures(PostsModel model, String path) {
@@ -287,7 +399,7 @@ public class PhotoRedirectActivity extends AppCompatActivity {
                         Uri downloadUrl = taskSnapshot.getDownloadUrl();
                         finalLivePicsArrayList.add("" + downloadUrl);
                         uploadPicCount++;
-                        if (finalLivePicsArrayList.size() > 0 && finalLivePicsArrayList.size() == multiImagesList.size()) {
+                        if (finalLivePicsArrayList.size() > 0 && finalLivePicsArrayList.size() == imagess.size()) {
                             mDatabase.child("Posts").child("Posts").child(model.getId()).child("multiImages").setValue(finalLivePicsArrayList).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -314,9 +426,15 @@ public class PhotoRedirectActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     public void onBackPressed() {
-
+        if(ImageEditActivity.activity!=null){
+            ImageEditActivity.activity.finish();
+        }
+        Intent i=new Intent(PhotoRedirectActivity.this,MainActivity.class);
+        startActivity(i);
+        finish();
         super.onBackPressed();
     }
 
@@ -335,12 +453,12 @@ public class PhotoRedirectActivity extends AppCompatActivity {
             finish();
         }
         if (item.getItemId() == R.id.action_share) {
-            if (postType.equalsIgnoreCase("image")) {
-                sendImage();
-            }
-            if (postType.equalsIgnoreCase("Multi")) {
-                sendMultiImages();
-            }
+//            if (postType.equalsIgnoreCase("image")) {
+//                sendImage();
+//            }
+//            if (postType.equalsIgnoreCase("Multi")) {
+//                sendMultiImages();
+//            }
         }
 
         return super.onOptionsItemSelected(item);

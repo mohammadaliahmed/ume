@@ -8,4 +8,9 @@
         android:orderInCategory="100"
         android:title="Clear Chat"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_block"
+        android:orderInCategory="100"
+        android:title="Block"
+        app:showAsAction="never" />
 </menu>

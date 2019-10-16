@@ -15,7 +15,9 @@ import com.umetechnologypvt.ume.Stories.StoryModel;
 import com.umetechnologypvt.ume.Stories.StoryViewsModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -61,6 +63,23 @@ public class SharedPrefs {
                 new TypeToken<ArrayList<String>>() {
                 }.getType());
         return playersList;
+    }
+
+    public static void setStorySeenMap(HashMap<String, String> itemList) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(itemList);
+        preferenceSetter("seenList", json);
+    }
+
+    public static HashMap getStorySeenMap() {
+        Gson gson = new Gson();
+
+        HashMap<String, Object> retMap = new Gson().fromJson(
+                preferenceGetter("seenList"), new TypeToken<HashMap<String, Object>>() {}.getType()
+        );
+
+        return retMap;
     }
 
 

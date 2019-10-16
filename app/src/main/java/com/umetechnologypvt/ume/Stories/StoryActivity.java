@@ -85,11 +85,11 @@ public class StoryActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            String position = intent.getStringExtra("storyPosition");
+            int position = intent.getIntExtra("storyPosition", 0);
 //            CommonUtils.showToast("" + position);
-            if (pos < MainActivity.arrayLists.size()) {
+            if (position < MainActivity.arrayLists.size()) {
                 viewpager.setCurrentItem(pos + 1);
-            }else{
+            } else {
                 finish();
             }
 

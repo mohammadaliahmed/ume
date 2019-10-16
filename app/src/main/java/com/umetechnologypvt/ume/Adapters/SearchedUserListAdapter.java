@@ -19,7 +19,6 @@ import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.CountryUtils;
-import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 

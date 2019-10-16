@@ -249,6 +249,7 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
         }
 
+
         if (SharedPrefs.getMuted().equalsIgnoreCase("yes")) {
             Log.d("muted inside yes", SharedPrefs.getMuted());
 
@@ -277,24 +278,26 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             e.printStackTrace();
         }
 
-        boolean liked = false;
+        final boolean[] liked = {false};
 
 
         if (likeList != null) {
             if (likeList.size() > 0) {
                 if (likeList.contains(model.getId())) {
-                    liked = true;
+                    liked[0] = true;
                 }
             }
         }
-        if (liked) {
+        if (liked[0]) {
             viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
+            model.setLiked(true);
         } else {
             viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
+            model.setLiked(false);
 
         }
 
-        boolean finalLiked = liked;
+        final boolean[] finalLiked = {liked[0]};
 
         Glide.with(context).load(model.getUserPicUrl()).into(viewHolders.postByPic);
         Glide.with(context).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(viewHolders.commenterImg);
@@ -352,10 +355,25 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             MainSliderAdapter mViewPagerAdapter = new MainSliderAdapter(context, model.getMultiImages(), new MainSliderAdapter.ClicksCallback() {
                 @Override
                 public void onDoubleClick() {
+
                     viewHolders.showLike.setVisibility(View.VISIBLE);
                     Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fadein);
                     viewHolders.showLike.startAnimation(myFadeInAnimation);
-                    likePost(finalLiked, viewHolders, model);
+                    likePost(finalLiked[0], viewHolders, model);
+                    if (liked[0]) {
+                        model.setLiked(false);
+                        liked[0] = false;
+                        finalLiked[0] = false;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
+
+                    } else {
+                        model.setLiked(true);
+                        liked[0] = true;
+                        finalLiked[0] = true;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
+
+                    }
+                    viewHolders.likesCount.setText(model.getLikesCount() + " likes");
 //                    viewHolders.showLike.setVisibility(View.GONE);
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -574,7 +592,7 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         viewHolders.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                likePost(finalLiked, viewHolders, model);
+                likePost(finalLiked[0], viewHolders, model);
             }
         });
 
@@ -585,7 +603,23 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     viewHolders.showLike.setVisibility(View.VISIBLE);
                     Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fadein);
                     viewHolders.showLike.startAnimation(myFadeInAnimation);
-                    likePost(finalLiked, viewHolders, model);
+                    likePost(finalLiked[0], viewHolders, model);
+
+                    if (liked[0]) {
+                        model.setLiked(false);
+                        liked[0] = false;
+                        finalLiked[0] = false;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
+
+                    } else {
+                        model.setLiked(true);
+                        liked[0] = true;
+                        finalLiked[0] = true;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
+
+                    }
+                    viewHolders.likesCount.setText(model.getLikesCount() + " likes");
+
 //                    viewHolders.showLike.setVisibility(View.GONE);
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -612,8 +646,22 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     viewHolders.showLike.setVisibility(View.VISIBLE);
                     Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fadein);
                     viewHolders.showLike.startAnimation(myFadeInAnimation);
-                    likePost(finalLiked, viewHolders, model);
+                    likePost(finalLiked[0], viewHolders, model);
 //                    viewHolders.showLike.setVisibility(View.GONE);
+                    if (liked[0]) {
+                        model.setLiked(false);
+                        liked[0] = false;
+                        finalLiked[0] = false;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_empty));
+
+                    } else {
+                        model.setLiked(true);
+                        liked[0] = true;
+                        finalLiked[0] = true;
+                        viewHolders.likeBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_like_fill));
+
+                    }
+                    viewHolders.likesCount.setText(model.getLikesCount() + " likes");
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         public void run() {

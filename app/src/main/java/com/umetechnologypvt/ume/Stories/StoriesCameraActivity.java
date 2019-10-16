@@ -467,9 +467,23 @@ public class StoriesCameraActivity extends AppCompatActivity implements SurfaceH
 //                    mIntent.putExtra("WHO", "Image");
 //                    startActivity(mIntent);
 
-                    new ImageEditor.Builder(StoriesCameraActivity.this, tempFile.toString())
-                            .setStickerAssets("stickers")
-                            .open();
+//                    new ImageEditor.Builder(StoriesCameraActivity.this, tempFile.toString())
+//                            .setStickerAssets("stickers")
+//                            .open();
+
+
+                    StoriesPickedModel model = new StoriesPickedModel(
+                            "" + tempFile, "" + tempFile, "", "image", System.currentTimeMillis()
+                    );
+                    ArrayList<StoriesPickedModel> list = new ArrayList<>();
+                    list.add(model);
+
+
+                    if (list.size() > 0) {
+                        SharedPrefs.setPickedList(list);
+                        startActivity(new Intent(StoriesCameraActivity.this, StoryRedirectActivity.class));
+
+                    }
                 }
             }, 100);
 
@@ -1194,14 +1208,26 @@ public class StoriesCameraActivity extends AppCompatActivity implements SurfaceH
                                 .show();
                     } else {
 
-                        Intent mIntent = new Intent(StoriesCameraActivity.this, VideoRedirectActivity.class);
-                        mIntent.putExtra("PATH", videopath.toString());
-                        mIntent.putExtra("THUMB", thumbPath.toString());
-                        mIntent.putExtra("WHO", "Video");
-                        startActivity(mIntent);
+//                        Intent mIntent = new Intent(StoriesCameraActivity.this, VideoRedirectActivity.class);
+//                        mIntent.putExtra("PATH", videopath.toString());
+//                        mIntent.putExtra("THUMB", thumbPath.toString());
+//                        mIntent.putExtra("WHO", "Video");
+//                        startActivity(mIntent);
 
                         //SendVideoDialog sendVideoDialog = SendVideoDialog.newInstance(videopath, thumbPath, name, phoneNuber);
                         // sendVideoDialog.show(getSupportFragmentManager(), "SendVideoDialog");
+                        StoriesPickedModel model = new StoriesPickedModel(
+                                "" + videopath, "" + videopath, "", "video", System.currentTimeMillis()
+                        );
+                        ArrayList<StoriesPickedModel> list = new ArrayList<>();
+                        list.add(model);
+
+
+                        if (list.size() > 0) {
+                            SharedPrefs.setPickedList(list);
+                            startActivity(new Intent(StoriesCameraActivity.this, StoryRedirectActivity.class));
+
+                        }
                     }
                 }
             }

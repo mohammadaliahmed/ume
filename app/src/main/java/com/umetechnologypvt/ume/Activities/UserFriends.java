@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.umetechnologypvt.ume.Adapters.FriendsListAdapter;
+import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
@@ -19,6 +20,8 @@ import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +35,7 @@ public class UserFriends extends AppCompatActivity {
     ArrayList<UserModel> itemList = new ArrayList<>();
     DatabaseReference mDatabase;
     String userId;
+    HashMap<String, String> userMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,7 @@ public class UserFriends extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setElevation(0);
         }
         userId = getIntent().getStringExtra("userId");
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -64,11 +69,13 @@ public class UserFriends extends AppCompatActivity {
                     if (model != null) {
                         if (model.getConfirmFriends().size() > 0) {
                             for (String userId : model.getConfirmFriends()) {
-                                if (userId != null) {
-                                    getFriendsFromDB(userId);
-                                }
+                                userMap.put(userId, userId);
+
                             }
-                        } else {
+                            for (Map.Entry<String, String> entry : userMap.entrySet()) {
+                                getFriendsFromDB(entry.getValue());
+                            }
+
                         }
 
                     }

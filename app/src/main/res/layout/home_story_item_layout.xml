@@ -4,28 +4,47 @@
     android:layout_width="85dp"
     android:layout_height="85dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/storyImg"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+    <RelativeLayout
+        android:id="@+id/adadas"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_centerHorizontal="true"
-        android:layout_margin="10dp"
-        android:src="@drawable/ic_profile_plc"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
+        android:background="@drawable/circle_story"
+        android:padding="2dp">
 
-        app:civ_border_color="@color/colorPrimary"
-        app:civ_border_width="2dp" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/storyImg"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+
+            android:src="@drawable/ic_profile_plc" />
+
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/storyName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/storyImg"
+        android:layout_below="@id/adadas"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="-5dp"
+        android:layout_marginTop="-8dp"
         android:gravity="center"
         android:text="Your Story"
 
         android:textColor="#000"
         android:textSize="11sp" />
+    <View
+        android:background="#fff"
+        android:visibility="gone"
+        android:id="@+id/seenLayout"
+        android:layout_width="match_parent"
+        android:alpha="0.7"
+        android:layout_height="match_parent"></View>
 
 </RelativeLayout>

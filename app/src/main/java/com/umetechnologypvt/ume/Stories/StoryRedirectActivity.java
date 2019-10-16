@@ -403,11 +403,43 @@ public class StoryRedirectActivity extends AppCompatActivity {
 
 
     private void compressThings(Uri uri) {
-        fnf++;
-        if (fnf == finalList.size()) {
-            uploadStory(count);
-        }
-        if (countt < finalList.size()) {
+        if (finalList.size() > 1) {
+            fnf++;
+            if (fnf == finalList.size()) {
+                uploadStory(count);
+            }
+            if (countt < finalList.size()) {
+                if (finalList.get(countt).getType().equalsIgnoreCase("video")) {
+                    try {
+
+                        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Silicompressor/videos");
+                        if (f.mkdirs() || f.isDirectory())
+
+                            new StoryRedirectActivity.VideoCompressAsyncTask(this, countt).execute("" + CommonUtils.getRealPathFromURI(uri), f.getPath());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+
+                    if (countt < finalList.size()) {
+                        CompressImage compressImage = new CompressImage(this);
+                        String aaa = compressImage.compressImage(finalList.get(countt).getUri());
+                        StoriesPickedModel ali = finalList.get(countt);
+                        ali.setUri(aaa);
+                        finalList.set(countt, ali);
+                    }
+                    countt++;
+                    try {
+                        compressThings(Uri.parse(finalList.get(countt).getUri()));
+
+                    } catch (Exception e) {
+
+                    }
+                }
+            } else {
+                CommonUtils.showToast("Compressed");
+            }
+        } else {
             if (finalList.get(countt).getType().equalsIgnoreCase("video")) {
                 try {
 
@@ -417,6 +449,11 @@ public class StoryRedirectActivity extends AppCompatActivity {
                         new StoryRedirectActivity.VideoCompressAsyncTask(this, countt).execute("" + CommonUtils.getRealPathFromURI(uri), f.getPath());
                 } catch (Exception e) {
                     e.printStackTrace();
+                    File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Silicompressor/videos");
+                    if (f.mkdirs() || f.isDirectory())
+
+                        new StoryRedirectActivity.VideoCompressAsyncTask(this, countt).execute("" + uri, f.getPath());
+
                 }
             } else {
 
@@ -426,17 +463,10 @@ public class StoryRedirectActivity extends AppCompatActivity {
                     StoriesPickedModel ali = finalList.get(countt);
                     ali.setUri(aaa);
                     finalList.set(countt, ali);
+                    uploadStory(count);
                 }
-                countt++;
-                try {
-                    compressThings(Uri.parse(finalList.get(countt).getUri()));
 
-                } catch (Exception e) {
-
-                }
             }
-        } else {
-            CommonUtils.showToast("Compressed");
         }
 
     }
@@ -492,10 +522,14 @@ public class StoryRedirectActivity extends AppCompatActivity {
             abc.setUri(finalVideoPath);
             finalList.set(posit, abc);
             countt++;
-            if (countt < finalList.size()) {
-                compressThings(Uri.parse(finalList.get(countt).getUri()));
+            if (finalList.size() == 1) {
+                uploadStory(count);
             } else {
+                if (countt < finalList.size()) {
+                    compressThings(Uri.parse(finalList.get(countt).getUri()));
+                } else {
 //                CommonUtils.showToast("compressed videos"+countt);
+                }
             }
             Log.i("Silicompressor", "Path: " + compressedFilePath);
         }

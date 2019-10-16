@@ -1,81 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
+    android:background="#000"
     android:orientation="vertical">
 
-
-    <LinearLayout
+    <com.umetechnologypvt.ume.Stories.CustomViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="5">
+    </com.umetechnologypvt.ume.Stories.CustomViewPager>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:layout_weight="4"
-                android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/addStory"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/ic_message_send" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/image"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_profile_plc" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true">
 
-                <EditText
-                    android:id="@+id/comment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:hint="Comment"
-                    android:textSize="13sp" />
+    </androidx.recyclerview.widget.RecyclerView>
 
-            </LinearLayout>
+    <ImageView
+        android:id="@+id/delete"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:padding="3dp"
+        android:src="@drawable/ic_bin" />
 
+    <ImageView
+        android:id="@+id/edit"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:layout_toLeftOf="@id/delete"
+        android:padding="3dp"
+        android:src="@drawable/ic_edit" />
 
-            <ImageView
-                android:id="@+id/thumbnail"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:scaleType="centerCrop"
-                android:src="@drawable/placeholder" />
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="15dp"
+        android:padding="3dp"
+        android:src="@drawable/back_btn" />
 
-
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:id="@+id/recycler"
-            android:layout_height="wrap_content">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-
-    </LinearLayout>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/userPic"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="10dp" />
 
     <RelativeLayout
         android:id="@+id/wholeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.8"
-        android:background="#fff"
+        android:background="#000"
         android:visibility="gone">
 
         <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
@@ -83,10 +80,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/progressBar"
+            android:layout_below="@id/progress"
             android:layout_centerHorizontal="true"
             android:layout_margin="10dp"
-            android:text="Posting.." />
+            android:text="Adding story..."
+            android:textColor="#fff" />
     </RelativeLayout>
 
 </RelativeLayout>

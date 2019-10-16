@@ -8,7 +8,7 @@ public class PostsModel {
     String id, postBy, postByName, userPicUrl, comment, commentBy, commentByName,
             commentByPicUrl, pictureUrl, videoUrl, videoThumbnailUrl, location;
     long time;
-    long commentsCount, likesCount;
+    long commentsCount, likesCount=0;
     String type;
 
     int postFor;
@@ -25,6 +25,7 @@ public class PostsModel {
 
     boolean repost;
     String proxyUrl;
+    boolean liked;
 
     public PostsModel() {
     }
@@ -75,6 +76,14 @@ public class PostsModel {
         this.countryCode = countryCode;
         this.userAge = userAge;
         this.gender = gender;
+    }
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 
     public boolean isRepost() {

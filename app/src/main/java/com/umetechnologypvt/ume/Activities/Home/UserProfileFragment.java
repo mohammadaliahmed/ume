@@ -428,8 +428,8 @@ public class UserProfileFragment extends Fragment {
                             addAsFriend.setText("Add as Friend");
                             addAsFriend.setEnabled(true);
 //                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                            addAsFriend.setBackground(context.getResources().getDrawable(R.drawable.btn_bg_grey));
+                            addAsFriend.setTextColor(context.getResources().getColor(R.color.colorGreyDark));
                         }
 
                     }

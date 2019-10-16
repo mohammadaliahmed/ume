@@ -88,16 +88,20 @@ public class ChatListFragment extends Fragment {
 
 
         itemList = SharedPrefs.getChatList();
-        Collections.sort(itemList, new Comparator<ChatListModel>() {
-            @Override
-            public int compare(ChatListModel listData, ChatListModel t1) {
-                Long ob1 = listData.getMessage().getTime();
-                Long ob2 = t1.getMessage().getTime();
+        if(itemList!=null) {
+            Collections.sort(itemList, new Comparator<ChatListModel>() {
+                @Override
+                public int compare(ChatListModel listData, ChatListModel t1) {
+                    Long ob1 = listData.getMessage().getTime();
+                    Long ob2 = t1.getMessage().getTime();
 
-                return ob2.compareTo(ob1);
+                    return ob2.compareTo(ob1);
 
-            }
-        });
+                }
+            });
+        }else{
+            itemList=new ArrayList<>();
+        }
         adapter.setNewList(itemList);
 
 

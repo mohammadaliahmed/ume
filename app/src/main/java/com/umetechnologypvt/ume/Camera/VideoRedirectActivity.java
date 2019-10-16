@@ -1,6 +1,7 @@
 package com.umetechnologypvt.ume.Camera;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -358,6 +358,14 @@ public class VideoRedirectActivity extends AppCompatActivity {
 
 
             finish();
+        }
+        if (item.getItemId() ==R.id.action_trim) {
+
+//        Intent i=new Intent(VideoRedirectActivity.this,TrimmerActivity.class);
+//        i.putExtra("path",""+videoPath);
+//        startActivity(i);
+
+
         }
         if (item.getItemId() == R.id.action_share) {
             if (postType.equalsIgnoreCase("video")) {

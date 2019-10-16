@@ -2,27 +2,33 @@ package com.umetechnologypvt.ume.Activities.Home;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.danikula.videocache.CacheListener;
-import com.danikula.videocache.HttpProxyCacheServer;
+
 import com.droidninja.imageeditengine.ImageEditor;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
@@ -43,7 +49,9 @@ import com.umetechnologypvt.ume.Camera.WhatsappCameraActivity;
 import com.umetechnologypvt.ume.Models.ChatListModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Stories.StoriesCameraActivity;
+import com.umetechnologypvt.ume.Stories.StoriesPickedModel;
 import com.umetechnologypvt.ume.Stories.StoryModel;
+import com.umetechnologypvt.ume.Stories.StoryViewsModel;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
 import com.umetechnologypvt.ume.Utils.Constants;
@@ -64,8 +72,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,7 +83,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements NotificationObserver, CacheListener {
+public class MainActivity extends AppCompatActivity implements NotificationObserver {
+    private static final int REQUEST_TAKE_GALLERY_VIDEO = 99;
     public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
     public static boolean active;
     private Fragment fragment;
@@ -90,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
     HashMap<String, ArrayList<StoryModel>> map = new HashMap<String, ArrayList<StoryModel>>();
     HashMap<String, ArrayList<StoryModel>> toDeletemap = new HashMap<String, ArrayList<StoryModel>>();
     private static final int REQUEST_CODE_CHOOSE = 23;
+    public static HashMap<String, ArrayList<StoryViewsModel>> seenMap = new HashMap<>();
+    public static HashMap<String, Boolean> checkSeenList = new HashMap<>();
 
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -167,8 +178,6 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         }
         value = getIntent().getIntExtra("value", 0);
 
-        getStoriesFromDB();
-
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -202,6 +211,42 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         View badge = LayoutInflater.from(this)
                 .inflate(R.layout.layout_news_badge, itemView, true);
         text = badge.findViewById(R.id.badge_text_view);
+        getStoriesFromDB();
+        getViewsFromDB();
+    }
+
+    private void getViewsFromDB() {
+        mDatabase.child("StoryViews").child(SharedPrefs.getUserModel().getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    map.clear();
+                    for (DataSnapshot storyIds : dataSnapshot.getChildren()) {
+
+                        ArrayList<StoryViewsModel> storiesList = new ArrayList<>();
+                        for (DataSnapshot users : storyIds.getChildren()) {
+                            StoryViewsModel viewsModel = users.getValue(StoryViewsModel.class);
+                            if (viewsModel != null) {
+                                storiesList.add(viewsModel);
+                            }
+
+                        }
+                        seenMap.put(storyIds.getKey(), storiesList);
+//                        viewsList = map.get(mStoriesList.get(counter).getId());
+//                        adapter.notifyDataSetChanged();
+//                        views.setText((viewsList == null ? 0 : viewsList.size()) + " views");
+//                        viewCount.setText((viewsList == null ? 0 : viewsList.size()) + " views");
+                    }
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void getStoriesFromDB() {
@@ -213,13 +258,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         StoryModel model = snapshot.getValue(StoryModel.class);
                         if (model != null) {
-                            if (model.getStoryType().equalsIgnoreCase("video/mp4")) {
-                                HttpProxyCacheServer proxy = ApplicationClass.getProxy(MainActivity.this);
-                                proxy.registerCacheListener(MainActivity.this, model.getVideoUrl());
-                                String proxyUrl = proxy.getProxyUrl(model.getVideoUrl());
-                                model.setProxyUrl(proxyUrl);
-//
-                            }
+
                             if (map.containsKey(model.getStoryByUsername())) {
                                 if (System.currentTimeMillis() - model.getTime() < 86400000) {
                                     ArrayList<StoryModel> list = map.get(model.getStoryByUsername());
@@ -241,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                                     toDeletemap.put(model.getStoryByUsername(), mStoriesList2);
 
                                 }
+
                             }
                         }
                     }
@@ -261,18 +301,22 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                         map.remove(SharedPrefs.getUserModel().getUsername());
                         arrayLists.clear();
                         for (Map.Entry<String, ArrayList<StoryModel>> entry : map.entrySet()) {
-                            arrayLists.add(entry.getValue());
-                            Collections.sort(arrayLists, new Comparator<ArrayList<StoryModel>>() {
-                                @Override
-                                public int compare(ArrayList<StoryModel> o1, ArrayList<StoryModel> o2) {
-                                    Long ob1 = o1.get(o1.size() - 1).getTime();
-                                    Long ob2 = o2.get(o2.size() - 1).getTime();
-                                    return ob2.compareTo(ob1);
-                                }
+                            if (SharedPrefs.getUserModel().getConfirmFriends().contains(entry.getValue().get(0).getStoryByUsername())) {
+                                arrayLists.add(entry.getValue());
+                                Collections.sort(arrayLists, new Comparator<ArrayList<StoryModel>>() {
+                                    @Override
+                                    public int compare(ArrayList<StoryModel> o1, ArrayList<StoryModel> o2) {
+                                        Long ob1 = o1.get(o1.size() - 1).getTime();
+                                        Long ob2 = o2.get(o2.size() - 1).getTime();
+                                        return ob2.compareTo(ob1);
+                                    }
 
 
-                            });
-                            SharedPrefs.setHomeStories(arrayLists);
+                                });
+
+
+                                SharedPrefs.setHomeStories(arrayLists);
+                            }
                         }
                     } else {
                         arrayLists = new ArrayList<>();
@@ -280,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                         SharedPrefs.setHomeStories(arrayLists);
 
                     }
+                    sendMsgToFragmentToUpdateList();
                     if (toDeletemap.size() > 0) {
                         toDelete = toDeletemap.get(SharedPrefs.getUserModel().getUsername());
                         if (toDelete != null && toDelete.size() > 0) {
@@ -301,6 +346,16 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
 
             }
         });
+    }
+
+    private void sendMsgToFragmentToUpdateList() {
+
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent("updateSeenList");
+        // You can also include some extra data.
+        intent.putExtra("message", "This is my message!");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
     }
 
 
@@ -394,6 +449,8 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
+
                 startActivity(new Intent(MainActivity.this, CameraActivity.class));
 
             }
@@ -401,7 +458,10 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initMatisse();
+                dialog.dismiss();
+
+//                initMatisse();
+                showUploadDialog();
 
             }
         });
@@ -414,6 +474,44 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
             }
         });
         dialog.show();
+    }
+
+    public void showUploadDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View layout = layoutInflater.inflate(R.layout.alert_dialog_upload, null);
+
+        dialog.setContentView(layout);
+
+        RelativeLayout video = layout.findViewById(R.id.video);
+        RelativeLayout picture = layout.findViewById(R.id.picture);
+
+
+        video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
+                startActivityForResult(intent, REQUEST_TAKE_GALLERY_VIDEO);
+            }
+        });
+
+
+        picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                initMatisse();
+            }
+        });
+
+
+        dialog.show();
+
     }
 
     private void initMatisse() {
@@ -465,24 +563,37 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         }
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
             List<Uri> mSelected = Matisse.obtainResult(data);
-            Intent mIntent = new Intent(MainActivity.this, PhotoRedirectActivity.class);
-            mIntent.putExtra("PATH", "" + mSelected.get(0));
-            mIntent.putExtra("THUMB", "" + mSelected.get(0));
-            mIntent.putExtra("WHO", "Image");
-            SharedPrefs.setMultiPickedImg(new ArrayList<>());
-            List<String> imgs = new ArrayList<>();
+
+            mSelected = Matisse.obtainResult(data);
+            ArrayList<StoriesPickedModel> list = new ArrayList<>();
 
             for (Uri uri : mSelected) {
-                CompressImage compressImage = new CompressImage(MainActivity.this);
-                imgs.add(compressImage.compressImage("" + uri));
-            }
-            if (imgs.size() > 1) {
-                mIntent.putExtra("WHO", "Multi");
-                SharedPrefs.setMultiPickedImg(imgs);
-            }
-            startActivity(mIntent);
+
+                StoriesPickedModel model = new StoriesPickedModel(
+                        "" + uri, "" + uri, "", "image", System.currentTimeMillis()
+                );
+                list.add(model);
 
 
+            }
+            if (list.size() > 0) {
+                SharedPrefs.setPickedList(list);
+                startActivity(new Intent(this, PhotoRedirectActivity.class));
+
+            }
+
+        } else if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
+            if (data != null) {
+                Uri selectedImageUri = data.getData();
+
+                // OI FILE Manager
+                Intent mIntent = new Intent(MainActivity.this, VideoRedirectActivity.class);
+                mIntent.putExtra("PATH", CommonUtils.getRealPathFromURI(selectedImageUri));
+                mIntent.putExtra("THUMB", CommonUtils.getRealPathFromURI(selectedImageUri));
+                mIntent.putExtra("WHO", "GalleryVideo");
+                startActivity(mIntent);
+
+            }
         }
     }
 
@@ -497,8 +608,4 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
     }
 
 
-    @Override
-    public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
-
-    }
 }

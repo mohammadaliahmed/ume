@@ -18,14 +18,16 @@ import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.PrefManager;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
+
+
 import androidx.appcompat.app.AppCompatActivity;
-//import life.knowledge4.videotrimmer.K4LVideoTrimmer;
-//import life.knowledge4.videotrimmer.interfaces.OnTrimVideoListener;
 
 
 public class TrimmerActivity extends AppCompatActivity {
 
     String path;
+    private static final int CROP_REQUEST = 200;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,40 +41,22 @@ public class TrimmerActivity extends AppCompatActivity {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
         }
-//        K4LVideoTrimmer videoTrimmer = ((K4LVideoTrimmer) findViewById(R.id.timeLine));
 
         path = getIntent().getStringExtra("path");
-//        mVideoTrimmerView?.setVideoPath(videoPath!!)?.handle()
+        String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        String outputPath = "/storage/emulated/0/" + imgName + ".mp4";
+//        startActivityForResult(VideoCropActivity.createIntent(this, path, outputPath), CROP_REQUEST);
 
-//        if (videoTrimmer != null)
-//
-//        {
-//            videoTrimmer.setVideoURI(Uri.parse(path));
-//            videoTrimmer.setMaxDuration(100);
-//            videoTrimmer.setOnTrimVideoListener(new OnTrimVideoListener() {
-//                @Override
-//                public void getResult(Uri uri) {
-//                    CommonUtils.showToast(""+uri);
-//                }
-//
-//                @Override
-//                public void cancelAction() {
-//
-//                }
-//            });
-//
-//        }
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CROP_REQUEST && resultCode == RESULT_OK) {
+            //crop successful
+            CommonUtils.showToast("successful");
+        }
+    }
 
-//    @Override
-//    public void getResult(Uri uri) {
-//        CommonUtils.showToast("" + uri);
-//    }
-//
-//    @Override
-//    public void cancelAction() {
-//
-//    }
 }

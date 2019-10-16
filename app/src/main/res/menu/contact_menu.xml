@@ -6,7 +6,7 @@
     <item
         android:id="@+id/action_invite"
         android:orderInCategory="100"
-        android:title="Invie friend"
+        android:title="Invite friend"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_search"

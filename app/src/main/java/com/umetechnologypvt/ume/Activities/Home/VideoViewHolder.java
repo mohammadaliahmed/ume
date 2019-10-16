@@ -13,8 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.danikula.videocache.CacheListener;
-import com.danikula.videocache.HttpProxyCacheServer;
+
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator;
@@ -163,7 +162,12 @@ public class VideoViewHolder extends RecyclerView.ViewHolder implements ToroPlay
                 helper = new ExoPlayerViewHelper(this, mediaUri);
                 helper.addEventListener(listener);
             }
-            helper.initialize(container, playbackInfo);
+            try {
+                helper.initialize(container, playbackInfo);
+
+            }catch (Exception e){
+
+            }
         } else {
 //            CommonUtils.showToast("Its null");
         }

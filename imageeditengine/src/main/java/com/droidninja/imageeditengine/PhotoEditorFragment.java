@@ -231,7 +231,7 @@ public class PhotoEditorFragment extends BaseFragment
 
             Intent intent = getActivity().getIntent();
             setVisibility(addTextButton, intent.getBooleanExtra(ImageEditor.EXTRA_IS_TEXT_MODE, false));
-//            setVisibility(cropButton, intent.getBooleanExtra(ImageEditor.EXTRA_IS_CROP_MODE, false));
+            setVisibility(cropButton, intent.getBooleanExtra(ImageEditor.EXTRA_IS_CROP_MODE, false));
             setVisibility(stickerButton, intent.getBooleanExtra(ImageEditor.EXTRA_IS_STICKER_MODE, false));
             setVisibility(paintButton, intent.getBooleanExtra(ImageEditor.EXTRA_IS_PAINT_MODE, false));
             setVisibility(filterLayout, intent.getBooleanExtra(ImageEditor.EXTRA_HAS_FILTERS, false));

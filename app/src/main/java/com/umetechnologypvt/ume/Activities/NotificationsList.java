@@ -55,6 +55,7 @@ public class NotificationsList extends AppCompatActivity implements Notification
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setElevation(0);
         }
         this.setTitle("Notifications");
         recyclerview = findViewById(R.id.recyclerview);
@@ -62,13 +63,25 @@ public class NotificationsList extends AppCompatActivity implements Notification
         mDatabase = FirebaseDatabase.getInstance().getReference();
         adapter = new NotificationsListAdapter(this, itemList, new NotificationsListAdapter.NotificationCallbacks() {
             @Override
-            public void onAccept(String userId) {
+            public void onAccept(String userId, NotificationModel model) {
                 acceptRequest(userId);
+                mDatabase.child("Notifications").child(SharedPrefs.getUserModel().getUsername()).child(model.getNotifcationId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        getDataFromDB();
+                    }
+                });
             }
 
             @Override
-            public void onDelete(String userId) {
+            public void onDelete(String userId, NotificationModel model) {
                 deleteRequest(userId);
+                mDatabase.child("Notifications").child(SharedPrefs.getUserModel().getUsername()).child(model.getNotifcationId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        getDataFromDB();
+                    }
+                });
             }
         });
         recyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -119,7 +132,7 @@ public class NotificationsList extends AppCompatActivity implements Notification
 
                         adapter.notifyDataSetChanged();
 
-                    }catch (Exception e) {
+                    } catch (Exception e) {
 
                     }
                 }
@@ -207,7 +220,10 @@ public class NotificationsList extends AppCompatActivity implements Notification
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         NotificationModel model = snapshot.getValue(NotificationModel.class);
                         if (model != null) {
-                            itemList.add(model);
+                            if(!SharedPrefs.getUserModel().getConfirmFriends().contains(model.getId())){
+                                itemList.add(model);
+                            }
+
                         }
                     }
                     Collections.sort(itemList, new Comparator<NotificationModel>() {

@@ -72,6 +72,8 @@ public class TextStatusActivity extends AppCompatActivity {
 
         int randomNumber = r.nextInt(colorList.length);
         wholeLayout.setBackgroundColor(getResources().getColor(colorList[randomNumber]));
+        toBitmap.setBackgroundColor(getResources().getColor(colorList[randomNumber]));
+
 
 
         pallete.setOnClickListener(new View.OnClickListener() {
@@ -138,6 +140,7 @@ public class TextStatusActivity extends AppCompatActivity {
     }
 
     private void createBitmap() {
+        int height=toBitmap.getWidth();
         viewToBitmap(toBitmap, toBitmap.getWidth(), toBitmap.getHeight());
     }
 
@@ -150,24 +153,6 @@ public class TextStatusActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private void saveImage(Bitmap finalBitmap, String image_name) {
-
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root);
-        myDir.mkdirs();
-        String fname = "Image-" + image_name + ".jpg";
-        File file = new File(myDir, fname);
-        if (file.exists()) file.delete();
-        Log.i("LOAD", root + fname);
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public Uri getImageUri(Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

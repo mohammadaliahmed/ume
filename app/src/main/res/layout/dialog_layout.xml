@@ -102,7 +102,7 @@
                 android:background="@color/colorGrey"
                 android:layout_weight="1"
                 android:inputType="text"
-                android:text="Translte"
+                android:text="Translate"
                 android:textColor="#fff" />
         </LinearLayout>
 

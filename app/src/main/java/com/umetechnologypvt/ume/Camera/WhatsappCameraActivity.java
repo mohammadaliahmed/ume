@@ -42,6 +42,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Stories.StoriesPickedModel;
+import com.umetechnologypvt.ume.Stories.StoryRedirectActivity;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
 import com.umetechnologypvt.ume.Utils.GifSizeFilter;
@@ -247,22 +249,45 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
             mSelected = Matisse.obtainResult(data);
-            Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
-            mIntent.putExtra("PATH", "" + mSelected.get(0));
-            mIntent.putExtra("THUMB", "" + mSelected.get(0));
-            mIntent.putExtra("WHO", "Image");
-            SharedPrefs.setMultiPickedImg(new ArrayList<>());
-            List<String> imgs = new ArrayList<>();
+//            Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
+//            mIntent.putExtra("PATH", "" + mSelected.get(0));
+//            mIntent.putExtra("THUMB", "" + mSelected.get(0));
+//            mIntent.putExtra("WHO", "Image");
+//            SharedPrefs.setMultiPickedImg(new ArrayList<>());
+//            List<String> imgs = new ArrayList<>();
+//
+//            for (Uri uri : mSelected) {
+//                CompressImage compressImage = new CompressImage(WhatsappCameraActivity.this);
+//                imgs.add(compressImage.compressImage("" + uri));
+//            }
+//            if (imgs.size() > 1) {
+//                mIntent.putExtra("WHO", "Multi");
+//                SharedPrefs.setMultiPickedImg(imgs);
+//            }
+//            startActivity(mIntent);
+
+            mSelected = Matisse.obtainResult(data);
+            ArrayList<StoriesPickedModel> list = new ArrayList<>();
 
             for (Uri uri : mSelected) {
-                CompressImage compressImage = new CompressImage(WhatsappCameraActivity.this);
-                imgs.add(compressImage.compressImage("" + uri));
+                if (uri.toString().contains("video")) {
+                    StoriesPickedModel model = new StoriesPickedModel(
+                            "" + uri, "" + uri, "", "video", System.currentTimeMillis()
+                    );
+                    list.add(model);
+                } else {
+                    StoriesPickedModel model = new StoriesPickedModel(
+                            "" + uri, "" + uri, "", "image", System.currentTimeMillis()
+                    );
+                    list.add(model);
+                }
+
             }
-            if (imgs.size() > 1) {
-                mIntent.putExtra("WHO", "Multi");
-                SharedPrefs.setMultiPickedImg(imgs);
+            if (list.size() > 0) {
+                SharedPrefs.setPickedList(list);
+                startActivity(new Intent(this, PhotoRedirectActivity.class));
+
             }
-            startActivity(mIntent);
 
 
         } else if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
@@ -342,11 +367,25 @@ public class WhatsappCameraActivity extends AppCompatActivity implements Surface
                 @Override
                 public void run() {
 
-                    Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
-                    mIntent.putExtra("PATH", tempFile.toString());
-                    mIntent.putExtra("THUMB", tempFile.toString());
-                    mIntent.putExtra("WHO", "Image");
-                    startActivity(mIntent);
+//                    Intent mIntent = new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class);
+//                    mIntent.putExtra("PATH", tempFile.toString());
+//                    mIntent.putExtra("THUMB", tempFile.toString());
+//                    mIntent.putExtra("WHO", "Image");
+//                    startActivity(mIntent);
+
+
+                    ArrayList<StoriesPickedModel> list = new ArrayList<>();
+                    StoriesPickedModel model = new StoriesPickedModel(
+                            "" + tempFile, "" + tempFile, "", "image", System.currentTimeMillis()
+                    );
+                    list.add(model);
+
+                    if (list.size() > 0) {
+                        SharedPrefs.setPickedList(list);
+                        startActivity(new Intent(WhatsappCameraActivity.this, PhotoRedirectActivity.class));
+
+                    }
+
 
                 }
             }, 100);

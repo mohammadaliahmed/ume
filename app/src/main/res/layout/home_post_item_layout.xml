@@ -178,7 +178,7 @@
         android:layout_centerHorizontal="true"
         app:dotsColor="@color/colorPurple"
         app:dotsCornerRadius="5dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         app:dotsSize="4dp"
         app:dotsSpacing="2dp"
         app:dotsStrokeColor="@color/colorGrey"

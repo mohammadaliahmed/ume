@@ -5,6 +5,7 @@
     <item
         android:id="@+id/action_trim"
         android:orderInCategory="100"
+        android:visible="false"
         android:title="Trim"
         app:showAsAction="always" />
     <item

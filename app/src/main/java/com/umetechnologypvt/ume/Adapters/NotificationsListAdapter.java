@@ -102,14 +102,14 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
             @Override
             public void onClick(View v) {
                 holder.buttonLayout.setVisibility(View.GONE);
-                callbacks.onAccept(model.getId());
+                callbacks.onAccept(model.getId(),model);
             }
         });
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 holder.buttonLayout.setVisibility(View.GONE);
-                callbacks.onDelete(model.getId());
+                callbacks.onDelete(model.getId(),model);
             }
         });
     }
@@ -137,9 +137,9 @@ public class NotificationsListAdapter extends RecyclerView.Adapter<Notifications
     }
 
     public interface NotificationCallbacks {
-        public void onAccept(String userId);
+        public void onAccept(String userId,NotificationModel model);
 
-        public void onDelete(String userId);
+        public void onDelete(String userId,NotificationModel model);
     }
 
 
