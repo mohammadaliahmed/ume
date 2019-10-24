@@ -132,12 +132,22 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        int size = (dataArrayList != null ? dataArrayList.size() : 0);
-        if (isErrorView) {
-            size = 1;
-        }
 
-        return size;
+        if(dataArrayList!=null && dataArrayList.size()>0){
+            if(dataArrayList.size()<30){
+                return dataArrayList.size();
+            }else {
+                return 30;
+            }
+        }else{
+            return 0;
+        }
+//        int size = (dataArrayList != null ? dataArrayList.size() : 0);
+//        if (isErrorView) {
+//            size = 1;
+//        }
+//
+//        return size;
     }
 
     public void swap(ArrayList<PostsModel> dataArrayList) {

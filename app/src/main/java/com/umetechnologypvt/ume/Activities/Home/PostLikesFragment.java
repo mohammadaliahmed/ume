@@ -54,6 +54,7 @@ public class PostLikesFragment extends Fragment {
     ArrayList<UserModel> itemList = new ArrayList<>();
     String postId;
     private long likesCount;
+    private UserModel myUserModel;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -89,7 +90,7 @@ public class PostLikesFragment extends Fragment {
 
             @Override
             public void acceptRequest(UserModel user) {
-                acceptFriendRequest(user);
+//                acceptFriendRequest(user);
             }
         });
         recyclerview.setAdapter(adapter);
@@ -97,9 +98,28 @@ public class PostLikesFragment extends Fragment {
 
         getDataFromDB();
 
-
+        getUserDataFromDB();
         return rootView;
     }
+
+    private void getUserDataFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    myUserModel = dataSnapshot.getValue(UserModel.class);
+                    SharedPrefs.setUserModel(myUserModel);
+                    adapter.setMyUserModel(myUserModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void acceptFriendRequest(UserModel user) {
         CommonUtils.showToast("Accepted");
         SharedPrefs.getUserModel().getConfirmFriends().add(user.getUsername());
@@ -129,58 +149,51 @@ public class PostLikesFragment extends Fragment {
 
     }
 
-    private void sendFriendRequest(UserModel user) {
-        if (user != null) {
-            List<String> list = SharedPrefs.getUserModel().getRequestSent();
-            list.add(user.getUsername());
-            SharedPrefs.getUserModel().setRequestSent(list);
-            if (SharedPrefs.getUserModel().getRequestSent().contains(user.getUsername())) {
+    private void sendFriendRequest(UserModel hisUserModel) {
+        if (myUserModel.getRequestSent().contains(hisUserModel.getUsername())) {
 //            CommonUtils.showToast("Already sent");
-            } else {
-                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestSent")
-                        .setValue(SharedPrefs.getUserModel().getRequestSent()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        CommonUtils.showToast("Request Sent");
-                        sendNewFriendRequestNotification(user);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-
-            }
         } else {
-            CommonUtils.showToast("No internet");
+            myUserModel.getRequestSent().add(hisUserModel.getUsername());
+            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestSent")
+                    .setValue(myUserModel.getRequestSent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    CommonUtils.showToast("Request Sent");
+//                        addAsFriend.setText("Request sent");
+//                        addAsFriend.setEnabled(false);
+//                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorGrey));
+                    sendNewFriendRequestNotification(hisUserModel);
+                }
+            });
+
         }
-        if (user != null) {
-            if (SharedPrefs.getUserModel().getRequestReceived().contains(user.getUsername())) {
-            } else {
-                user.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
-                mDatabase.child("Users").child(user.getUsername()).child("requestReceived").setValue(user.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                    }
-                });
 
-            }
-        } else {
-            CommonUtils.showToast("No internet");
+        if (hisUserModel != null) {
+
+            hisUserModel.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
+            mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived").setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                }
+            });
+
         }
     }
 
-    private void sendNewFriendRequestNotification(UserModel user) {
-        NotificationAsync notificationAsync = new NotificationAsync(getActivity());
+    private void sendNewFriendRequestNotification(UserModel hisUserModel) {
+        NotificationAsync notificationAsync = new NotificationAsync(getContext());
 //                        String NotificationTitle = "New message in " + groupName;
         String NotificationTitle = "New friend request from " + SharedPrefs.getUserModel().getName();
         String NotificationMessage = "Click to view ";
 
-        notificationAsync.execute("ali", user.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
+        notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
                 SharedPrefs.getUserModel().getUsername(),
                 "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
         );
         String key = mDatabase.push().getKey();
 
         NotificationModel model = new NotificationModel(
-                key, user.getUsername(),
+                key, hisUserModel.getUsername(),
                 SharedPrefs.getUserModel().getUsername(),
                 SharedPrefs.getUserModel().getPicUrl(),
                 SharedPrefs.getUserModel().getName() == null ? " " : SharedPrefs.getUserModel().getName() + " sent you friend request",
@@ -189,7 +202,7 @@ public class PostLikesFragment extends Fragment {
         );
 
 
-        mDatabase.child("Notifications").child(user.getUsername()).child(key).setValue(model);
+        mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
 
     private void loadFragment(Fragment fragment) {

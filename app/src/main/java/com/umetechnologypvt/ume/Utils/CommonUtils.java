@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.Models.Country;
@@ -71,15 +72,16 @@ public class CommonUtils {
             DatabaseReference mDatabase;
             mDatabase = FirebaseDatabase.getInstance().getReference();
             if (mDatabase != null && SharedPrefs.getUserModel() != null && SharedPrefs.getUserModel().getUsername() != null && b != null) {
-                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                    }
-                });
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("status").setValue(b);
+                mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("fcmKey").setValue(FirebaseInstanceId.getInstance().getToken());
             }
         }
 
 
+    }
+    public static String getNameFromUrl(String url){
+        String abc = url.substring(url.length() - 10, url.length() - 1);
+        return abc;
     }
 
     public static void shareUrl(Context context, String postType, String postId) {
@@ -147,13 +149,14 @@ public class CommonUtils {
             return Uri.parse("");
         }
     }
+
     public static Uri getImageContentUri(Context context, File imageFile) {
         String filePath = imageFile.getAbsolutePath();
         Cursor cursor = context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.Media._ID },
+                new String[]{MediaStore.Images.Media._ID},
                 MediaStore.Images.Media.DATA + "=? ",
-                new String[] { filePath }, null);
+                new String[]{filePath}, null);
         if (cursor != null && cursor.moveToFirst()) {
             int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
             cursor.close();

@@ -149,32 +149,34 @@ public class NotificationsList extends AppCompatActivity implements Notification
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                if (userModel != null) {
+                UserModel hisUserModel = dataSnapshot.getValue(UserModel.class);
+                if (hisUserModel != null) {
                     CommonUtils.showToast("Accepted");
-                    SharedPrefs.getUserModel().getConfirmFriends().add(userId);
-                    mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(SharedPrefs.getUserModel().getConfirmFriends());
+                    UserModel myUserModel = SharedPrefs.getUserModel();
+                    myUserModel.getConfirmFriends().add(userId);
 
-                    userModel.getConfirmFriends().add(SharedPrefs.getUserModel().getUsername());
-                    mDatabase.child("Users").child(userModel.getUsername()).child("confirmFriends").setValue(userModel.getConfirmFriends());
+                    mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("confirmFriends").setValue(myUserModel.getConfirmFriends());
+
+                    hisUserModel.getConfirmFriends().add(SharedPrefs.getUserModel().getUsername());
+                    mDatabase.child("Users").child(hisUserModel.getUsername()).child("confirmFriends").setValue(hisUserModel.getConfirmFriends());
                     try {
-                        SharedPrefs.getUserModel().getRequestReceived().remove(SharedPrefs.getUserModel().getRequestReceived().indexOf(userModel.getUsername()));
+                        myUserModel.getRequestReceived().remove(myUserModel.getRequestReceived().indexOf(hisUserModel.getUsername()));
 
                     } catch (Exception e) {
 
                     }
 
-                    mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestReceived").setValue(SharedPrefs.getUserModel().getRequestReceived());
+                    mDatabase.child("Users").child(myUserModel.getUsername()).child("requestReceived").setValue(myUserModel.getRequestReceived());
 
                     try {
-                        SharedPrefs.getUserModel().getRequestSent().remove(SharedPrefs.getUserModel().getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
+                        hisUserModel.getRequestSent().remove(hisUserModel.getRequestSent().indexOf(SharedPrefs.getUserModel().getUsername()));
 
                     } catch (Exception e) {
 
                     }
-                    mDatabase.child("Users").child(userModel.getUsername()).child("requestSent").setValue(userModel.getRequestSent());
-                    adapter.notifyDataSetChanged();
-                    sendAcceptRequestNotification(userModel);
+                    mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestSent").setValue(hisUserModel.getRequestSent());
+
+                    sendAcceptRequestNotification(hisUserModel);
                 }
             }
 
@@ -220,7 +222,7 @@ public class NotificationsList extends AppCompatActivity implements Notification
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         NotificationModel model = snapshot.getValue(NotificationModel.class);
                         if (model != null) {
-                            if(!SharedPrefs.getUserModel().getConfirmFriends().contains(model.getId())){
+                            if (!SharedPrefs.getUserModel().getConfirmFriends().contains(model.getId())) {
                                 itemList.add(model);
                             }
 

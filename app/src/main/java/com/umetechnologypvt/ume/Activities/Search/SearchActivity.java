@@ -1,5 +1,6 @@
 package com.umetechnologypvt.ume.Activities.Search;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,9 +14,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.umetechnologypvt.ume.Adapters.SearchedUserListAdapter;
+import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
+import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.NotificationAsync;
+import com.umetechnologypvt.ume.Utils.NotificationObserver;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +34,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements NotificationObserver {
 
     RecyclerView recyclerView;
     ArrayList<UserModel> itemList = new ArrayList<>();
@@ -38,7 +44,9 @@ public class SearchActivity extends AppCompatActivity {
     int startAge = 0, endAge = 99;
     ProgressBar progress;
     TextView noResults;
+    private UserModel myUserModel;
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +54,7 @@ public class SearchActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setElevation(0);
         }
         mDatabase = FirebaseDatabase.getInstance().getReference();
         this.setTitle("List of users");
@@ -65,9 +74,10 @@ public class SearchActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerview);
 
-        adapter = new SearchedUserListAdapter(this, itemList, new SearchedUserListAdapter.SearchUserCallbacks() {
+        adapter = new SearchedUserListAdapter(this, itemList, SharedPrefs.getUserModel(), new SearchedUserListAdapter.SearchUserCallbacks() {
             @Override
             public void addAsFriend(UserModel model) {
+                sendFriendRequest(model);
             }
 
             @Override
@@ -83,7 +93,68 @@ public class SearchActivity extends AppCompatActivity {
             getFilteredDataDrmDB();
         }
 
+        getUserDataFromDB();
 
+    }
+
+    private void sendFriendRequest(UserModel hisUserModel) {
+
+
+        if (myUserModel.getRequestSent().contains(hisUserModel.getUsername())) {
+//            CommonUtils.showToast("Already sent");
+        } else {
+            myUserModel.getRequestSent().add(hisUserModel.getUsername());
+            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestSent")
+                    .setValue(myUserModel.getRequestSent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    CommonUtils.showToast("Request Sent");
+//                        addAsFriend.setText("Request sent");
+//                        addAsFriend.setEnabled(false);
+//                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorGrey));
+                    sendNewFriendRequestNotification(hisUserModel);
+                }
+            });
+
+        }
+
+        if (hisUserModel != null) {
+
+            hisUserModel.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
+            mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived")
+                    .setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                }
+            });
+
+        }
+
+    }
+
+    private void sendNewFriendRequestNotification(UserModel hisUserModel) {
+        NotificationAsync notificationAsync = new NotificationAsync(this);
+//                        String NotificationTitle = "New message in " + groupName;
+        String NotificationTitle = "New friend request from " + SharedPrefs.getUserModel().getName();
+        String NotificationMessage = "Click to view ";
+
+        notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
+                SharedPrefs.getUserModel().getUsername(),
+                "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
+        );
+        String key = mDatabase.push().getKey();
+
+        NotificationModel model = new NotificationModel(
+                key, hisUserModel.getUsername(),
+                SharedPrefs.getUserModel().getUsername(),
+                SharedPrefs.getUserModel().getPicUrl(),
+                SharedPrefs.getUserModel().getName() == null ? " " : SharedPrefs.getUserModel().getName() + " sent you friend request",
+                "newRequest",
+                System.currentTimeMillis()
+        );
+
+
+        mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
 
     private void getFilteredDataDrmDB() {
@@ -163,6 +234,24 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    private void getUserDataFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    myUserModel = dataSnapshot.getValue(UserModel.class);
+                    SharedPrefs.setUserModel(myUserModel);
+                    adapter.setMyUserModel(myUserModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void getDataFromDB() {
         mDatabase.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -232,4 +321,13 @@ public class SearchActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSuccess(String chatId) {
+
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 }

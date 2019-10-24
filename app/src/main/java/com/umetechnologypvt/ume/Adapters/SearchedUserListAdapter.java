@@ -2,8 +2,10 @@ package com.umetechnologypvt.ume.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
@@ -28,11 +31,18 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     Context context;
     ArrayList<UserModel> itemList;
     SearchUserCallbacks callbacks;
+    UserModel myUserModel;
 
-    public SearchedUserListAdapter(Context context, ArrayList<UserModel> itemList, SearchUserCallbacks callbacks) {
+    public SearchedUserListAdapter(Context context, ArrayList<UserModel> itemList, UserModel myUserModel, SearchUserCallbacks callbacks) {
         this.context = context;
         this.itemList = itemList;
         this.callbacks = callbacks;
+        this.myUserModel = myUserModel;
+    }
+
+    public void setMyUserModel(UserModel myUserModel) {
+        this.myUserModel = myUserModel;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -46,6 +56,30 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         UserModel model = itemList.get(i);
+
+
+        if (myUserModel != null) {
+            if (myUserModel.getConfirmFriends().contains(model.getUsername())
+                    && !myUserModel.getRequestSent().contains(model.getUsername()) &&
+                    !myUserModel.getRequestReceived().contains(model.getUsername())) {
+                holder.isFriend.setVisibility(View.VISIBLE);
+                holder.addAsFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.GONE);
+            } else if (!myUserModel.getConfirmFriends().contains(model.getUsername())
+                    && myUserModel.getRequestSent().contains(model.getUsername()) &&
+                    !myUserModel.getRequestReceived().contains(model.getUsername())) {
+                holder.addAsFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.VISIBLE);
+                holder.isFriend.setVisibility(View.GONE);
+
+            } else {
+                holder.addAsFriend.setVisibility(View.VISIBLE);
+                holder.isFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.GONE);
+            }
+        }
+
+
         holder.name.setText(model.getName());
         if (model.getLearningLanguage().contains("any")) {
             model.getLearningLanguage().remove(model.getLearningLanguage().indexOf("any"));
@@ -60,6 +94,7 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
         } else {
             holder.userFlag.setVisibility(View.GONE);
         }
+
 
         if (model.getGender().replace("Any", "").equalsIgnoreCase("female")) {
             Glide.with(context).load(R.drawable.ic_female).into(holder.gender);
@@ -81,16 +116,16 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 //            } else if (model.getGender().equalsIgnoreCase("female")) {
 //                holder.pic.setBorderColor(context.getResources().getColor(R.color.colorPink));
 //            }
-        }else{
+        } else {
             Glide.with(context).load(R.drawable.ic_profile_plc).into(holder.pic);
         }
         holder.userStatus.setText(
                 model.getStatus()
                         .equalsIgnoreCase("Online") ? "Online" : "Last seen " + CommonUtils.getFormattedDate(Long.parseLong(model.getStatus()))
         );
-        if(model.getStatus().equalsIgnoreCase("Online")){
+        if (model.getStatus().equalsIgnoreCase("Online")) {
             holder.onlineDot.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             holder.onlineDot.setVisibility(View.GONE);
         }
 
@@ -110,6 +145,12 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
                 context.startActivity(i);
             }
         });
+        holder.addAsFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callbacks.addAsFriend(model);
+            }
+        });
 
     }
 
@@ -120,9 +161,10 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, userStatus, speakingLanguage, learningLanguage, age;
-        ImageView  gender,onlineDot;
+        ImageView gender, onlineDot;
         RelativeLayout genderBg;
         CircleImageView pic, userFlag;
+        TextView addAsFriend, requestSent, isFriend;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -136,6 +178,13 @@ public class SearchedUserListAdapter extends RecyclerView.Adapter<SearchedUserLi
             gender = itemView.findViewById(R.id.gender);
             genderBg = itemView.findViewById(R.id.genderBg);
             onlineDot = itemView.findViewById(R.id.onlineDot);
+
+
+            requestSent = itemView.findViewById(R.id.requestSent);
+            addAsFriend = itemView.findViewById(R.id.addAsFriend);
+            isFriend = itemView.findViewById(R.id.isFriend);
+
+
         }
     }
 

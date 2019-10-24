@@ -1,25 +1,31 @@
 package com.umetechnologypvt.ume.Activities.Location;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.umetechnologypvt.ume.Activities.GPSTrackerActivity;
 import com.umetechnologypvt.ume.Models.LocationUserModel;
+import com.umetechnologypvt.ume.Models.NotificationModel;
 import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
+import com.umetechnologypvt.ume.Utils.NotificationAsync;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,7 +49,10 @@ public class NearbyPeople extends AppCompatActivity {
     SeekBar seekBar;
     private int distance;
     TextView distanceChosen;
+    private UserModel myUserModel;
 
+
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +72,11 @@ public class NearbyPeople extends AppCompatActivity {
         seekBar = findViewById(R.id.seekBar);
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        adapter = new LocationSearchUserAdapter(this, itemList, new LocationSearchUserAdapter.LocationSearchAdapterCallbacks() {
+        adapter = new LocationSearchUserAdapter(this, itemList, SharedPrefs.getUserModel(), new LocationSearchUserAdapter.LocationSearchAdapterCallbacks() {
+            @Override
+            public void addAsFriend(UserModel model) {
+                sendFriendRequest(model);
+            }
         });
         recyclerView.setAdapter(adapter);
 //        getDataFromDB();
@@ -89,6 +102,84 @@ public class NearbyPeople extends AppCompatActivity {
                 adapter.filter(seekBar.getProgress());
             }
         });
+        getUserDataFromDB();
+    }
+
+    private void getUserDataFromDB() {
+        mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    myUserModel = dataSnapshot.getValue(UserModel.class);
+                    SharedPrefs.setUserModel(myUserModel);
+                    adapter.setMyUserModel(myUserModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendFriendRequest(UserModel hisUserModel) {
+
+
+        if (myUserModel.getRequestSent().contains(hisUserModel.getUsername())) {
+//            CommonUtils.showToast("Already sent");
+        } else {
+            myUserModel.getRequestSent().add(hisUserModel.getUsername());
+            mDatabase.child("Users").child(SharedPrefs.getUserModel().getUsername()).child("requestSent")
+                    .setValue(myUserModel.getRequestSent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    CommonUtils.showToast("Request Sent");
+//                        addAsFriend.setText("Request sent");
+//                        addAsFriend.setEnabled(false);
+//                        addAsFriend.setBackgroundColor(getResources().getColor(R.color.colorGrey));
+                    sendNewFriendRequestNotification(hisUserModel);
+                }
+            });
+
+        }
+
+        if (hisUserModel != null) {
+
+            hisUserModel.getRequestReceived().add(SharedPrefs.getUserModel().getUsername());
+            mDatabase.child("Users").child(hisUserModel.getUsername()).child("requestReceived").setValue(hisUserModel.getRequestReceived()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                }
+            });
+
+        }
+
+    }
+
+    private void sendNewFriendRequestNotification(UserModel hisUserModel) {
+        NotificationAsync notificationAsync = new NotificationAsync(this);
+//                        String NotificationTitle = "New message in " + groupName;
+        String NotificationTitle = "New friend request from " + SharedPrefs.getUserModel().getName();
+        String NotificationMessage = "Click to view ";
+
+        notificationAsync.execute("ali", hisUserModel.getFcmKey(), NotificationTitle, NotificationMessage, "friend", "friendRequest",
+                SharedPrefs.getUserModel().getUsername(),
+                "" + SharedPrefs.getUserModel().getUsername().length(), SharedPrefs.getUserModel().getPicUrl()
+        );
+        String key = mDatabase.push().getKey();
+
+        NotificationModel model = new NotificationModel(
+                key, hisUserModel.getUsername(),
+                SharedPrefs.getUserModel().getUsername(),
+                SharedPrefs.getUserModel().getPicUrl(),
+                SharedPrefs.getUserModel().getName() == null ? " " : SharedPrefs.getUserModel().getName() + " sent you friend request",
+                "newRequest",
+                System.currentTimeMillis()
+        );
+
+
+        mDatabase.child("Notifications").child(hisUserModel.getUsername()).child(key).setValue(model);
     }
 
 
@@ -152,6 +243,7 @@ public class NearbyPeople extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (data != null) {
                 Bundle extras = data.getExtras();

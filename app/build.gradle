@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.umetechnologypvt.ume"
         minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 8
-        versionName "8.0"
+        targetSdkVersion 29
+        versionCode 12
+        versionName "1.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -100,7 +100,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation project(path: ':imageeditengine')
     implementation project(path: ':storiesLibrary')
-//    implementation project(path: ':videcrop')
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    //    implementation project(path: ':videcrop')
 
 
 

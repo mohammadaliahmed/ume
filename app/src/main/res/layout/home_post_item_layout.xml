@@ -102,15 +102,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="gone"
                 android:layout_gravity="center"
-                android:src="@drawable/placeholder" />
+                android:src="@drawable/placeholder"
+                android:visibility="gone" />
+
             <ProgressBar
-                android:visibility="gone"
                 android:id="@+id/videoProgress"
-                android:layout_centerInParent="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/imageView_sound"
@@ -142,6 +143,7 @@
 
 
         </androidx.viewpager.widget.ViewPager>
+
         <TextView
             android:id="@+id/picCount"
             android:layout_width="wrap_content"
@@ -154,6 +156,7 @@
             android:textColor="#fff"
             android:textSize="12sp"
             android:visibility="gone" />
+
         <TextView
             android:id="@+id/duration"
             android:layout_width="wrap_content"
@@ -175,14 +178,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
         app:dotsColor="@color/colorPurple"
         app:dotsCornerRadius="5dp"
-        android:layout_marginTop="4dp"
-        app:dotsSize="4dp"
+        app:dotsSize="6dp"
         app:dotsSpacing="2dp"
         app:dotsStrokeColor="@color/colorGrey"
-        app:dotsStrokeWidth="2dp" />
+        app:dotsStrokeWidth="3dp" />
 
     <ImageView
         android:id="@+id/showLike"

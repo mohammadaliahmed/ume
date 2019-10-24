@@ -415,8 +415,13 @@ public class UserProfileFragment extends Fragment {
                             abc = 2;
                             addAsFriend.setText("Accept request");
                             addAsFriend.setEnabled(true);
-                            addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
-                            addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                            try {
+                                addAsFriend.setBackground(getResources().getDrawable(R.drawable.btn_bg_grey));
+                                addAsFriend.setTextColor(getResources().getColor(R.color.colorGreyDark));
+                            }catch (Exception e){
+
+                            }
+
                         } else if (myUserModel.getConfirmFriends().contains(userId)) {
                             abc = 3;
                             addAsFriend.setText("Friend");

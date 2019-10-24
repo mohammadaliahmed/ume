@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,10 +50,10 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="0dp"
-                        android:fontFamily="@font/atomic_age"
                         android:text="UME"
-                        android:textColor="#000"
-                        android:textSize="18sp" />
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
 
                 </RelativeLayout>
@@ -145,6 +146,15 @@
                                 android:src="@drawable/ic_profile_plc" />
 
                             <ImageView
+                                android:id="@+id/circleImg"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginTop="5dp"
+                                android:background="@drawable/circle_story" />
+
+                            <ImageView
+                                android:id="@+id/plusImg"
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_below="@id/userPic"
@@ -193,6 +203,73 @@
                     android:orientation="vertical"
                     tools:listitem="@layout/home_post_item_layout" />
 
+                <androidx.cardview.widget.CardView
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:id="@+id/welcomeLayout"
+                    android:visibility="gone"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginBottom="10dp"
+                    android:elevation="3dp"
+                    app:cardCornerRadius="20dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:id="@+id/prfpic"
+                            android:layout_gravity="center"
+                            android:layout_margin="5dp"
+                            android:src="@drawable/ic_profile_plc" />
+
+                        <TextView
+                            android:id="@+id/name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:text="WELCOME, ali"
+                            android:textColor="#000"
+                            android:textSize="20dp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="2">
+
+                            <Button
+                                android:id="@+id/searchFriends"
+                                android:layout_width="0dp"
+                                android:layout_height="30dp"
+                                android:layout_margin="10dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/btn_bg_grey"
+                                android:inputType="text"
+                                android:text="Search Friends" />
+
+                            <Button
+                                android:id="@+id/addPictures"
+                                android:layout_width="0dp"
+                                android:layout_height="30dp"
+                                android:layout_margin="10dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/btn_bg_grey"
+                                android:inputType="text"
+                                android:text="Add Posts" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
             </LinearLayout>
 
 
@@ -200,26 +277,5 @@
 
     </LinearLayout>
 
-    <!--<RelativeLayout-->
-    <!--android:id="@+id/wholeLayout"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:background="#fff">-->
 
-    <!--<ImageView-->
-    <!--android:id="@+id/logoaa"-->
-    <!--android:layout_width="40dp"-->
-    <!--android:layout_height="40dp"-->
-    <!--android:layout_centerInParent="true"-->
-    <!--android:layout_margin="10dp"-->
-    <!--android:src="@drawable/logo_purple" />-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="60dp"-->
-    <!--android:layout_below="@id/logoaa"-->
-    <!--android:layout_centerHorizontal="true"-->
-    <!--android:src="@drawable/progress_dotted" />-->
-
-    <!--</RelativeLayout>-->
 </RelativeLayout>

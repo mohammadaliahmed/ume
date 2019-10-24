@@ -66,7 +66,7 @@ public class ContactSelectionScreen extends AppCompatActivity implements PinchZo
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setElevation(0);
+//            getSupportActionBar().setElevation(0);
         }
         this.setTitle("Friend List");
         mDatabase = FirebaseDatabase.getInstance().getReference();

@@ -35,6 +35,7 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
     Context context;
     ArrayList<UserModel> itemList;
     LikesAdapterCallBacks callBacks;
+    UserModel myUserModel;
 
 
     public PostsLikesAdapter(Context context, ArrayList<UserModel> itemList, LikesAdapterCallBacks callBacks) {
@@ -42,6 +43,11 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
         this.itemList = itemList;
         this.callBacks = callBacks;
 
+    }
+
+    public void setMyUserModel(UserModel myUserModel) {
+        this.myUserModel = myUserModel;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -58,54 +64,88 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
         UserModel model = itemList.get(position);
         int value = 0;
 
-
-        if (SharedPrefs.getUserModel().getConfirmFriends() != null && SharedPrefs.getUserModel().getConfirmFriends().size() > 0) {
-            if (SharedPrefs.getUserModel().getConfirmFriends().contains(model.getUsername())) {
-                value = 1;
-            }
-        } else if (SharedPrefs.getUserModel().getRequestSent() != null && SharedPrefs.getUserModel().getRequestSent().size() > 0) {
-            if (SharedPrefs.getUserModel().getRequestSent().contains(model.getUsername())) {
-                value = 2;
-            }
-        } else if (SharedPrefs.getUserModel().getRequestReceived() != null && SharedPrefs.getUserModel().getRequestReceived().size() > 0) {
-            if (SharedPrefs.getUserModel().getRequestReceived().contains(model.getUsername())) {
-                value = 3;
-            }
-        }
-
-        if (value == 1) {
-            holder.addAsFriend.setText("Friend");
-        } else if (value == 2) {
-            holder.addAsFriend.setText("Request sent");
-        } else if (value == 3) {
-            holder.addAsFriend.setText("Accept Request");
-        } else {
-            holder.addAsFriend.setText("Add As Friend");
-
-        }
-
         if (model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
             holder.addAsFriend.setVisibility(View.GONE);
-
+            holder.isFriend.setVisibility(View.GONE);
+            holder.requestSent.setVisibility(View.GONE);
         } else {
-            holder.addAsFriend.setVisibility(View.VISIBLE);
+            if (myUserModel != null) {
+                if (myUserModel.getConfirmFriends().contains(model.getUsername())
+                        && !myUserModel.getRequestSent().contains(model.getUsername()) &&
+                        !myUserModel.getRequestReceived().contains(model.getUsername())) {
+                    holder.isFriend.setVisibility(View.VISIBLE);
+                    holder.addAsFriend.setVisibility(View.GONE);
+                    holder.requestSent.setVisibility(View.GONE);
+                } else if (!myUserModel.getConfirmFriends().contains(model.getUsername())
+                        && myUserModel.getRequestSent().contains(model.getUsername()) &&
+                        !myUserModel.getRequestReceived().contains(model.getUsername())) {
+                    holder.addAsFriend.setVisibility(View.GONE);
+                    holder.requestSent.setVisibility(View.VISIBLE);
+                    holder.isFriend.setVisibility(View.GONE);
+
+                } else {
+                    holder.addAsFriend.setVisibility(View.VISIBLE);
+                    holder.isFriend.setVisibility(View.GONE);
+                    holder.requestSent.setVisibility(View.GONE);
+                }
+            }
         }
-        int finalValue = value;
+
         holder.addAsFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (finalValue == 1) {
-
-                } else if (finalValue == 2) {
-
-                } else if (finalValue == 3) {
-                    callBacks.acceptRequest(model);
-                } else {
-                    callBacks.addAsFriend(model);
-                    holder.addAsFriend.setText("Request Sent");
-                }
+                callBacks.addAsFriend(model);
             }
         });
+
+
+//        if (SharedPrefs.getUserModel().getConfirmFriends() != null && SharedPrefs.getUserModel().getConfirmFriends().size() > 0) {
+//            if (SharedPrefs.getUserModel().getConfirmFriends().contains(model.getUsername())) {
+//                value = 1;
+//            }
+//        } else if (SharedPrefs.getUserModel().getRequestSent() != null && SharedPrefs.getUserModel().getRequestSent().size() > 0) {
+//            if (SharedPrefs.getUserModel().getRequestSent().contains(model.getUsername())) {
+//                value = 2;
+//            }
+//        } else if (SharedPrefs.getUserModel().getRequestReceived() != null && SharedPrefs.getUserModel().getRequestReceived().size() > 0) {
+//            if (SharedPrefs.getUserModel().getRequestReceived().contains(model.getUsername())) {
+//                value = 3;
+//            }
+//        }
+//
+//        if (value == 1) {
+//            holder.addAsFriend.setText("Friend");
+//        } else if (value == 2) {
+//            holder.addAsFriend.setText("Request sent");
+//        } else if (value == 3) {
+//            holder.addAsFriend.setText("Accept Request");
+//        } else {
+//            holder.addAsFriend.setText("Add As Friend");
+//
+//        }
+//
+//        if (model.getUsername().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
+//            holder.addAsFriend.setVisibility(View.GONE);
+//
+//        } else {
+//            holder.addAsFriend.setVisibility(View.VISIBLE);
+//        }
+//        int finalValue = value;
+//        holder.addAsFriend.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (finalValue == 1) {
+//
+//                } else if (finalValue == 2) {
+//
+//                } else if (finalValue == 3) {
+//                    callBacks.acceptRequest(model);
+//                } else {
+//                    callBacks.addAsFriend(model);
+//                    holder.addAsFriend.setText("Request Sent");
+//                }
+//            }
+//        });
 
 
         if (model.getGender() != null) {
@@ -162,7 +202,7 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, age;
         CircleImageView image;
-        TextView addAsFriend;
+        TextView addAsFriend, requestSent, isFriend;
         RelativeLayout genderBg;
         ImageView gender;
 
@@ -176,6 +216,10 @@ public class PostsLikesAdapter extends RecyclerView.Adapter<PostsLikesAdapter.Vi
             gender = itemView.findViewById(R.id.gender);
             age = itemView.findViewById(R.id.age);
 
+
+            requestSent = itemView.findViewById(R.id.requestSent);
+            addAsFriend = itemView.findViewById(R.id.addAsFriend);
+            isFriend = itemView.findViewById(R.id.isFriend);
         }
     }
 

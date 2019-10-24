@@ -183,7 +183,9 @@ public class VideoRedirectActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 wholeLayout.setVisibility(View.GONE);
-                                WhatsappCameraActivity.activity.finish();
+                                if(WhatsappCameraActivity.activity!=null) {
+                                    WhatsappCameraActivity.activity.finish();
+                                }
                                 CompressImageToThumbnail compressImage = new CompressImageToThumbnail(VideoRedirectActivity.this);
                                 putVideoPicture(compressImage.compressImage("" + CommonUtils.getVideoPic("" + downloadUrl)), model);
 

@@ -61,6 +61,12 @@ public class Splash extends AppCompatActivity {
                 }
             }, SPLASH_TIME_OUT);
         }
+/*
+
+file: umetech.jks
+alias: umetech
+password: Alijangreat99.
+ */
 
     }
 

@@ -159,12 +159,32 @@ public class GPSTrackerActivity extends AppCompatActivity implements
                 finish();
 
             } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://maps.google.com/maps?"));
-                startActivity(intent);
-//                CommonUtils.showToast("Nullllll");
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                        mGoogleApiClient);
+//                Intent intent = new Intent(Intent.ACTION_VIEW,
+//                        Uri.parse("http://maps.google.com/maps?"));
+//                startActivity(intent);
+////                CommonUtils.showToast("Nullllll");
+//                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                        mGoogleApiClient);
+
+                if (mGoogleApiClient != null) {
+                    mGoogleApiClient.connect();
+                }
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                        mLocationRequest, new com.google.android.gms.location.LocationListener() {
+                            @Override
+                            public void onLocationChanged(Location location) {
+                                if (location != null) {
+                                    Intent intent = new Intent();
+                                    intent.putExtra("Longitude", location.getLongitude());
+                                    intent.putExtra("Latitude", location.getLatitude());
+                                    setResult(RESULT_OK, intent);
+                                    manager.removeUpdates(locationListener);
+
+                                    finish();
+
+                                }
+                            }
+                        });
             }
         } catch (SecurityException e) {
 

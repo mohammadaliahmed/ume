@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -45,6 +46,7 @@ import com.umetechnologypvt.ume.Adapters.ShareMessageFriendsAdapter;
 import com.umetechnologypvt.ume.ApplicationClass;
 import com.umetechnologypvt.ume.BottomDialogs.BottomDialog;
 import com.umetechnologypvt.ume.Camera.AddStoryActivity;
+import com.umetechnologypvt.ume.Camera.CameraActivity;
 import com.umetechnologypvt.ume.Camera.PhotoRedirectActivity;
 import com.umetechnologypvt.ume.Interface.PostAdaptersCallbacks;
 import com.umetechnologypvt.ume.Models.NotificationModel;
@@ -74,6 +76,7 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -117,6 +120,8 @@ public class NewHomeFragment extends Fragment {
 
     HomeStoriesAdapter storiesAdapter;
     HorizontalScrollView hori;
+    ImageView circleImg, plusImg;
+    View rootView;
 //    RelativeLayout wholeLayout;
 
     @Override
@@ -138,7 +143,7 @@ public class NewHomeFragment extends Fragment {
                 new IntentFilter("updateSeenList"));
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        View rootView = inflater.inflate(R.layout.activity_new_home_fragment, container, false);
+        rootView = inflater.inflate(R.layout.activity_new_home_fragment, container, false);
         recycler = rootView.findViewById(R.id.my_fancy_videos);
         badgeCount = rootView.findViewById(R.id.badgeCount);
         hori = rootView.findViewById(R.id.hori);
@@ -148,6 +153,8 @@ public class NewHomeFragment extends Fragment {
         camera = rootView.findViewById(R.id.camera);
         userPic = rootView.findViewById(R.id.userPic);
         friendsStories = rootView.findViewById(R.id.friendsStories);
+        plusImg = rootView.findViewById(R.id.plusImg);
+        circleImg = rootView.findViewById(R.id.circleImg);
 
 
         hori.setVerticalScrollBarEnabled(false);
@@ -746,6 +753,14 @@ public class NewHomeFragment extends Fragment {
     };
 
     private void performSeenOperations() {
+        if (MainActivity.myArrayLists != null && MainActivity.myArrayLists.size() > 0) {
+            plusImg.setVisibility(View.GONE);
+            circleImg.setVisibility(View.VISIBLE);
+        } else {
+            plusImg.setVisibility(View.VISIBLE);
+            circleImg.setVisibility(View.GONE);
+        }
+        storiesAdapter.notifyDataSetChanged();
         HashMap<String, Boolean> newMap = new HashMap<>();
         for (ArrayList<StoryModel> list : MainActivity.arrayLists) {
             boolean seen = false;
@@ -868,6 +883,8 @@ public class NewHomeFragment extends Fragment {
 
                                 } else if (model.getPostBy().equalsIgnoreCase(SharedPrefs.getUserModel().getUsername())) {
                                     itemList.add(model);
+                                } else {
+
                                 }
 
                             }
@@ -886,6 +903,9 @@ public class NewHomeFragment extends Fragment {
                     SharedPrefs.setHomePosts(itemList);
 //                    wholeLayout.setVisibility(View.GONE);
                     adapter.setLikeList(SharedPrefs.getLikesList());
+                    if(itemList.size()<1){
+                        showLayout();
+                    }
 
 //                    adapter.notifyDataSetChanged();
                 }
@@ -896,6 +916,44 @@ public class NewHomeFragment extends Fragment {
 
             }
         });
+    }
+
+    private void showLayout() {
+        CardView welcomeLayout;
+        Button addPictures, searchFriends;
+        CircleImageView prfpic;
+        TextView name;
+
+        welcomeLayout = rootView.findViewById(R.id.welcomeLayout);
+
+        addPictures = rootView.findViewById(R.id.addPictures);
+        searchFriends = rootView.findViewById(R.id.searchFriends);
+        prfpic = rootView.findViewById(R.id.prfpic);
+        name = rootView.findViewById(R.id.name);
+
+        welcomeLayout.setVisibility(View.VISIBLE);
+
+        name.setText("Welcome, " + SharedPrefs.getUserModel().getName());
+
+        if (SharedPrefs.getUserModel() != null && SharedPrefs.getUserModel().getThumbnailUrl() != null) {
+            Glide.with(context).load(SharedPrefs.getUserModel().getThumbnailUrl()).into(prfpic);
+
+        }
+        addPictures.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context, CameraActivity.class));
+
+            }
+        });
+        searchFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = new FiltersFragment();
+                loadFragment(fragment);
+            }
+        });
+
     }
 
     @Override

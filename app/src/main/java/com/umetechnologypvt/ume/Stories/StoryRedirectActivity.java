@@ -48,12 +48,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.iceteck.silicompressorr.SiliCompressor;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
+import com.umetechnologypvt.ume.Example;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Stories.StoriesEditing.MultiStoriesPickedAdapter;
 import com.umetechnologypvt.ume.Stories.StoriesEditing.PickedStoriesSliderAdapter;
+import com.umetechnologypvt.ume.Utils.AppConfig;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.CompressImage;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
+import com.umetechnologypvt.ume.Utils.UserClient;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -72,6 +75,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import de.hdodenhof.circleimageview.CircleImageView;
 import jp.shts.android.storiesprogressview.StoriesProgressView;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class StoryRedirectActivity extends AppCompatActivity {
 
@@ -349,6 +358,47 @@ public class StoryRedirectActivity extends AppCompatActivity {
     }
 
     public void uploadVideo(StoryModel model, String path) {
+//        File file = new File(path);
+
+        // Parsing any Media type file
+//        RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), file);
+//        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+//        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+//
+//        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+//        Call call = getResponse.uploadFile(fileToUpload, filename);
+//        call.enqueue(new Callback<Example>() {
+//            @Override
+//            public void onResponse(Call<Example> call, Response<Example> response) {
+//                String url="http://acnure.com/"+response.body().getFinalUrl();
+//                mDatabase.child("Stories").child(model.getId()).child("videoUrl").setValue("" + url)
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                count++;
+////                                        CommonUtils.showToast("Uploaded" + count);
+//                                if (count < finalList.size()) {
+//                                    uploadStory(count);
+//
+//                                } else {
+//                                    wholeLayout.setVisibility(View.GONE);
+//                                    CommonUtils.showToast("Story Added");
+////                                            StoriesCameraActivity.activity.finish();
+//                                    finish();
+//
+//                                }
+//                            }
+//                        });
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Example> call, Throwable t) {
+//
+//            }
+//        });
+
+
         String imgName = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
         ;
@@ -397,7 +447,7 @@ public class StoryRedirectActivity extends AppCompatActivity {
                         Toast.makeText(StoryRedirectActivity.this, exception.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
+//
 
     }
 

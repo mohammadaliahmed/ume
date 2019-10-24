@@ -158,6 +158,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.message.setText("☎ Contact");
             } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_POST)) {
                 holder.message.setText("" + "\uD83D\uDCF7  Post");
+            } else if (model.getMessage().getMessageType().equals(Constants.MESSAGE_TYPE_STORY)) {
+                holder.message.setText("" + "\uD83D\uDCF7  Story");
             }
 
 

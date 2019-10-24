@@ -68,15 +68,51 @@
     <TextView
         android:id="@+id/addAsFriend"
         android:layout_width="80dp"
+        android:layout_height="28dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+
+        android:layout_marginRight="10dp"
+        android:background="@drawable/btn_bg_purple"
+        android:gravity="center"
+        android:inputType="text"
+
+        android:text="Add as Friend"
+        android:textColor="#fff"
+        android:textSize="10sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/requestSent"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+
         android:layout_marginRight="10dp"
         android:background="@drawable/btn_bg_grey"
         android:gravity="center"
         android:inputType="text"
-        android:text="Add as Friend"
-        android:textSize="11sp" />
+        android:text="Request Sent"
+        android:textColor="@color/gray"
+        android:textSize="10sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/isFriend"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+
+        android:layout_marginRight="10dp"
+        android:background="@drawable/btn_bg_grey"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Friend"
+        android:textColor="@color/gray"
+        android:textSize="10sp"
+        android:visibility="visible" />
 
     <View
         android:layout_width="match_parent"

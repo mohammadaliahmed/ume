@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,13 +31,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.Home.UserProfileFragment;
 import com.umetechnologypvt.ume.Models.ChatModel;
+import com.umetechnologypvt.ume.Models.PostsModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
 import com.umetechnologypvt.ume.Utils.KeyboardUtils;
 import com.umetechnologypvt.ume.Utils.SharedPrefs;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import androidx.annotation.Nullable;
@@ -212,8 +217,27 @@ public class StoryFragment extends Fragment implements StoriesProgressView.Stori
 
         prepareStoriesList();
         storiesProgressView.setStoriesListener(this);
+        Collections.sort(mStoriesList, new Comparator<StoryModel>() {
+            @Override
+            public int compare(StoryModel listData, StoryModel t1) {
+                Long ob1 = listData.getTime();
+                Long ob2 = t1.getTime();
+                return ob1.compareTo(ob2);
+
+            }
+        });
+
         for (int i = 0; i < mStoriesList.size(); i++) {
             if (mStoriesList.get(i).getStoryType().contains("video")) {
+//                String abc = CommonUtils.getNameFromUrl(mStoriesList.get(i).getVideoUrl());
+//                String uploadFilepathtemp = Environment.getExternalStorageDirectory()
+//                        + "/UME/" + abc
+//                        + ".mp4";
+//                File carmeraFile = new File(uploadFilepathtemp);
+//                if (carmeraFile.exists()) {
+//                    mStoriesList.get(i).setVideoUrl(uploadFilepathtemp);
+//                } else {
+//                }
                 mediaPlayerArrayList.add(getVideoView(i));
             } else if (mStoriesList.get(i).getStoryType().contains("image")) {
                 mediaPlayerArrayList.add(getImageView(i));
@@ -302,19 +326,29 @@ public class StoryFragment extends Fragment implements StoriesProgressView.Stori
         time.setText(CommonUtils.getFormattedDate(MainActivity.arrayLists.get(position).get(counter).getTime()));
 
 
-        StoryViewsModel viewsModel = new StoryViewsModel(
-                mStoriesList.get(counter).getId(),
-                SharedPrefs.getUserModel().getName(),
-                SharedPrefs.getUserModel().getThumbnailUrl(),
-                System.currentTimeMillis()
+        HashMap<String, String> smap = SharedPrefs.getStorySeenMap();
+        if (smap != null && smap.size() > 0) {
+            if (!smap.containsKey(mStoriesList.get(counter).getId())) {
+                StoryViewsModel viewsModel = new StoryViewsModel(
+                        mStoriesList.get(counter).getId(),
+                        SharedPrefs.getUserModel().getName(),
+                        SharedPrefs.getUserModel().getThumbnailUrl(),
+                        System.currentTimeMillis()
 
-        );
-        mDatabase.child("StoryViews")
-                .child(MainActivity.arrayLists.get(position).get(counter).getStoryByUsername()).
-                child(MainActivity.arrayLists.get(position).get(counter).getId()).child(SharedPrefs.getUserModel().getUsername())
-                .setValue(viewsModel);
+                );
+                mDatabase.child("StoryViews")
+                        .child(MainActivity.arrayLists.get(position).get(counter).getStoryByUsername()).
+                        child(MainActivity.arrayLists.get(position).get(counter).getId()).child(SharedPrefs.getUserModel().getUsername())
+                        .setValue(viewsModel);
+
+
+            }
+        }
+
 
         if (view instanceof VideoView) {
+
+
             final VideoView video = (VideoView) view;
             storiesProgressView.pause();
             video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {

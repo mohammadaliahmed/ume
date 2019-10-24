@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "582678606212-utb0hftmbrcqnctu2n9hsuqe7blntcbu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umetechnologypvt.ume",
+            "certificate_hash": "40fb850f56733d0331711a91d1c20b915d9edb71"
+          }
+        },
+        {
           "client_id": "582678606212-a15brfbe1osbhq2tcqkp55djih58kdsg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -25,7 +33,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDVbITV-wIpCcdW6k1r0X2y0CRci55xFao"
+          "current_key": "AIzaSyCxFoEGl1koVrbLnIZYXVNb46XAfGCTDO0"
         }
       ],
       "services": {

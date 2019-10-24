@@ -17,6 +17,7 @@ import com.umetechnologypvt.ume.Activities.Home.MainActivity;
 import com.umetechnologypvt.ume.Activities.UserProfileScreen;
 import com.umetechnologypvt.ume.Activities.ViewPictures;
 import com.umetechnologypvt.ume.Models.LocationUserModel;
+import com.umetechnologypvt.ume.Models.UserModel;
 import com.umetechnologypvt.ume.R;
 import com.umetechnologypvt.ume.Utils.CommonUtils;
 import com.umetechnologypvt.ume.Utils.Constants;
@@ -33,6 +34,7 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
     ArrayList<LocationUserModel> itemList;
     LocationSearchAdapterCallbacks callbacks;
     private List<LocationUserModel> arrayList;
+    UserModel myUserModel;
 
 
     public void updateList(ArrayList<LocationUserModel> itemList) {
@@ -56,12 +58,13 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
     }
 
 
-    public LocationSearchUserAdapter(Context context, ArrayList<LocationUserModel> itemList, LocationSearchAdapterCallbacks callbacks) {
+    public LocationSearchUserAdapter(Context context, ArrayList<LocationUserModel> itemList, UserModel myUserModel, LocationSearchAdapterCallbacks callbacks) {
         this.context = context;
         this.itemList = itemList;
         this.arrayList = new ArrayList<>(itemList);
 
         this.callbacks = callbacks;
+        this.myUserModel = myUserModel;
     }
 
     @NonNull
@@ -72,10 +75,39 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
         return viewHolder;
     }
 
+    public void setMyUserModel(UserModel myUserModel) {
+        this.myUserModel = myUserModel;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         LocationUserModel model = itemList.get(i);
         holder.name.setText(model.getUserModel().getName());
+
+        if (myUserModel != null) {
+            if (myUserModel.getConfirmFriends().contains(model.getUserModel().getUsername())
+                    && !myUserModel.getRequestSent().contains(model.getUserModel().getUsername()) &&
+                    !myUserModel.getRequestReceived().contains(model.getUserModel().getUsername())) {
+                holder.isFriend.setVisibility(View.VISIBLE);
+                holder.addAsFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.GONE);
+            } else if (!myUserModel.getConfirmFriends().contains(model.getUserModel().getUsername())
+                    && myUserModel.getRequestSent().contains(model.getUserModel().getUsername()) &&
+                    !myUserModel.getRequestReceived().contains(model.getUserModel().getUsername())) {
+                holder.addAsFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.VISIBLE);
+                holder.isFriend.setVisibility(View.GONE);
+
+            } else {
+                holder.addAsFriend.setVisibility(View.VISIBLE);
+                holder.isFriend.setVisibility(View.GONE);
+                holder.requestSent.setVisibility(View.GONE);
+            }
+        }
+
+        holder.learningLanguage.setText("" + model.getUserModel().getLearningLanguage());
+        holder.speakingLanguage.setText("" + model.getUserModel().getLanguage().replace("any", ""));
 
         if (model.getUserModel().getCountryNameCode() != null) {
             holder.userFlag.setVisibility(View.VISIBLE);
@@ -138,6 +170,13 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
 
         holder.userDistance.setText(String.format("%.1f", model.getDistance()) + " km");
 
+        holder.addAsFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callbacks.addAsFriend(model.getUserModel());
+            }
+        });
+
     }
 
     @Override
@@ -146,28 +185,40 @@ public class LocationSearchUserAdapter extends RecyclerView.Adapter<LocationSear
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, userDistance, userStatus, learningLanguage, age;
+        TextView name, userStatus, speakingLanguage, learningLanguage, age, userDistance;
         ImageView gender, onlineDot;
         RelativeLayout genderBg;
         CircleImageView pic, userFlag;
 
+        TextView addAsFriend, requestSent, isFriend;
+
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            userDistance = itemView.findViewById(R.id.userDistance);
+            userStatus = itemView.findViewById(R.id.userStatus);
+            onlineDot = itemView.findViewById(R.id.onlineDot);
             pic = itemView.findViewById(R.id.pic);
             name = itemView.findViewById(R.id.name);
-            userDistance = itemView.findViewById(R.id.userDistance);
+            learningLanguage = itemView.findViewById(R.id.learningLanguage);
+            speakingLanguage = itemView.findViewById(R.id.speakingLanguage);
+            userStatus = itemView.findViewById(R.id.userStatus);
             userFlag = itemView.findViewById(R.id.userFlag);
             age = itemView.findViewById(R.id.age);
-            userStatus = itemView.findViewById(R.id.userStatus);
-
             gender = itemView.findViewById(R.id.gender);
             genderBg = itemView.findViewById(R.id.genderBg);
             onlineDot = itemView.findViewById(R.id.onlineDot);
+
+
+            requestSent = itemView.findViewById(R.id.requestSent);
+            addAsFriend = itemView.findViewById(R.id.addAsFriend);
+            isFriend = itemView.findViewById(R.id.isFriend);
 
         }
     }
 
     public interface LocationSearchAdapterCallbacks {
+        public void addAsFriend(UserModel model);
 
     }
 }

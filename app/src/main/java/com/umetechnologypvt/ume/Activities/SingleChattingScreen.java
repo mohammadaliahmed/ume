@@ -191,6 +191,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
     String msg;
     boolean blocked;
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -613,7 +614,7 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
 
 
         builder.setItems(new CharSequence[]
-                        {"Delete message", "Translate", "Translate to other Language"},
+                        {"Delete message", "Forward", "Translate", "Translate to other Language"},
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
@@ -628,10 +629,17 @@ public class SingleChattingScreen extends AppCompatActivity implements Notificat
                                 });
                                 break;
                             case 1:
+                                Intent i = new Intent(SingleChattingScreen.this, ForwardContactSelectionScreen.class);
+                                Gson gson = new Gson();
+                                String json = gson.toJson(model);
+                                i.putExtra("msg", json);
+                                startActivity(i);
+                                break;
+                            case 2:
                                 translateLeftText(model);
 
                                 break;
-                            case 2:
+                            case 3:
                                 showTranslateLanguagePickerDialog(model);
 
 

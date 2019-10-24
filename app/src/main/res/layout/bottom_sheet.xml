@@ -31,6 +31,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
+            android:shadowColor="#aaa"
+            android:shadowDx="1"
+            android:shadowDy="1"
             android:id="@+id/viewCount"
             android:text="0 Views"
             android:textColor="#fff" />

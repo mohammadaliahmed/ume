@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import com.droidninja.imageeditengine.ImageEditor;
+import com.droidninja.imageeditengine.adapters.FilterImageAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -63,7 +65,12 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.filter.Filter;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -102,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
     public static HashMap<String, ArrayList<StoryViewsModel>> seenMap = new HashMap<>();
     public static HashMap<String, Boolean> checkSeenList = new HashMap<>();
 
+    int downloaded = 0;
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -118,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
 
         }
     };
+    private ArrayList<String> videoArrayList = new ArrayList<>();
 
     protected void onNewIntent(Intent intent) {
 
@@ -213,6 +222,22 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         text = badge.findViewById(R.id.badge_text_view);
         getStoriesFromDB();
         getViewsFromDB();
+        checkToDeleteFiles();
+    }
+
+    private void checkToDeleteFiles() {
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "/UME/");
+
+        File[] files = mediaStorageDir.listFiles();
+        if(files!=null) {
+            for (int i = 0; i < files.length; i++) {
+                Log.d("Files", "FileName:" + files[i].lastModified());
+                if ((System.currentTimeMillis() - files[i].lastModified()) > 86400000L) {
+                    files[i].delete();
+                }
+
+            }
+        }
     }
 
     private void getViewsFromDB() {
@@ -249,7 +274,61 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
         });
     }
 
+    public void downloadVideo(String url) {
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+
+                    File mediaStorageDir = new File(mediaStorageDir = Environment.getExternalStorageDirectory(), "/UME/");
+
+                    if (mediaStorageDir.exists()) {
+
+                    } else {
+                        mediaStorageDir.mkdirs();
+                    }
+                    String abc = CommonUtils.getNameFromUrl(url);
+
+                    String uploadFilepathtemp = Environment.getExternalStorageDirectory()
+                            + "/UME/" + abc
+                            + ".mp4";
+                    File carmeraFile = new File(uploadFilepathtemp);
+                    if (carmeraFile.exists()) {
+                        return;
+                    }
+                    URL u = new URL(url);
+                    URLConnection conn = u.openConnection();
+                    int contentLength = conn.getContentLength();
+
+                    DataInputStream stream = new DataInputStream(u.openStream());
+
+                    byte[] buffer = new byte[contentLength];
+                    stream.readFully(buffer);
+                    stream.close();
+
+                    DataOutputStream fos = new DataOutputStream(new FileOutputStream(carmeraFile));
+                    fos.write(buffer);
+                    fos.flush();
+                    fos.close();
+                    downloaded++;
+                    if (downloaded < videoArrayList.size()) {
+                        dowwwnloadVideos(downloaded);
+                    } else {
+//                        CommonUtils.showToast("No More To download");
+                    }
+
+                } catch (Exception e) {
+                    CommonUtils.showToast(e.getMessage());
+                }
+            }
+        });
+        t.start();
+    }
+
     private void getStoriesFromDB() {
+
         mDatabase.child("Stories").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -258,10 +337,20 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         StoryModel model = snapshot.getValue(StoryModel.class);
                         if (model != null) {
+                            if (model.getStoryType().contains("video")) {
+                                if (model.getVideoUrl() != null && !model.getVideoUrl().equalsIgnoreCase("")) {
+                                    if (SharedPrefs.getUserModel().getConfirmFriends().contains(model.getStoryByUsername())) {
+                                        videoArrayList.add(model.getVideoUrl());
+                                    }
 
+
+                                }
+                            }
                             if (map.containsKey(model.getStoryByUsername())) {
                                 if (System.currentTimeMillis() - model.getTime() < 86400000) {
                                     ArrayList<StoryModel> list = map.get(model.getStoryByUsername());
+
+
                                     list.add(model);
                                     map.put(model.getStoryByUsername(), list);
                                 } else {
@@ -271,6 +360,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                                 }
                             } else {
                                 if (System.currentTimeMillis() - model.getTime() < 86400000) {
+
                                     ArrayList<StoryModel> mStoriesList2 = new ArrayList<>();
                                     mStoriesList2.add(model);
                                     map.put(model.getStoryByUsername(), mStoriesList2);
@@ -302,7 +392,24 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                         arrayLists.clear();
                         for (Map.Entry<String, ArrayList<StoryModel>> entry : map.entrySet()) {
                             if (SharedPrefs.getUserModel().getConfirmFriends().contains(entry.getValue().get(0).getStoryByUsername())) {
-                                arrayLists.add(entry.getValue());
+
+
+                                HashMap<String, StoryModel> maaa = new HashMap<>();
+                                ArrayList<StoryModel> list1 = new ArrayList<>();
+                                ArrayList<StoryModel> list2 = new ArrayList<>();
+                                ArrayList<String> url = new ArrayList<>();
+                                list1 = entry.getValue();
+                                for (StoryModel item : list1) {
+//                                    list2.add(item);
+                                    maaa.put(item.getId(), item);
+                                }
+                                for (Map.Entry<String, StoryModel> entry2 : maaa.entrySet()) {
+                                    list2.add(entry2.getValue());
+                                }
+
+//
+//                                arrayLists.add(entry.getValue());
+                                arrayLists.add(list2);
                                 Collections.sort(arrayLists, new Comparator<ArrayList<StoryModel>>() {
                                     @Override
                                     public int compare(ArrayList<StoryModel> o1, ArrayList<StoryModel> o2) {
@@ -325,6 +432,7 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
 
                     }
                     sendMsgToFragmentToUpdateList();
+                    dowwwnloadVideos(0);
                     if (toDeletemap.size() > 0) {
                         toDelete = toDeletemap.get(SharedPrefs.getUserModel().getUsername());
                         if (toDelete != null && toDelete.size() > 0) {
@@ -346,6 +454,10 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
 
             }
         });
+    }
+
+    private void dowwwnloadVideos(int i) {
+//        downloadVideo(videoArrayList.get(i));
     }
 
     private void sendMsgToFragmentToUpdateList() {
@@ -486,17 +598,18 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
 
         dialog.setContentView(layout);
 
-        RelativeLayout video = layout.findViewById(R.id.video);
-        RelativeLayout picture = layout.findViewById(R.id.picture);
+        LinearLayout video = layout.findViewById(R.id.video);
+        LinearLayout picture = layout.findViewById(R.id.picture);
 
 
         video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-
-                startActivityForResult(intent, REQUEST_TAKE_GALLERY_VIDEO);
+//                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+//
+//                startActivityForResult(intent, REQUEST_TAKE_GALLERY_VIDEO);
+                initVideoMatisse();
             }
         });
 
@@ -519,12 +632,27 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                 .choose(MimeType.ofImage())
                 .countable(true)
                 .maxSelectable(10)
+                .showSingleMediaType(true)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
                 .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                 .thumbnailScale(0.85f)
                 .imageEngine(new GlideEngine())
                 .forResult(REQUEST_CODE_CHOOSE);
+    }
+
+    private void initVideoMatisse() {
+        Matisse.from(MainActivity.this)
+                .choose(MimeType.ofVideo())
+                .countable(true)
+                .maxSelectable(1)
+                .showSingleMediaType(true)
+                .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
+                .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(new GlideEngine())
+                .forResult(REQUEST_TAKE_GALLERY_VIDEO);
     }
 
     private void loadFragment(Fragment fragment) {
@@ -587,9 +715,18 @@ public class MainActivity extends AppCompatActivity implements NotificationObser
                 Uri selectedImageUri = data.getData();
 
                 // OI FILE Manager
+//                Intent mIntent = new Intent(MainActivity.this, VideoRedirectActivity.class);
+//                mIntent.putExtra("PATH", CommonUtils.getRealPathFromURI(selectedImageUri));
+//                mIntent.putExtra("THUMB", CommonUtils.getRealPathFromURI(selectedImageUri));
+//                mIntent.putExtra("WHO", "GalleryVideo");
+//                startActivity(mIntent);
+
+                List<Uri> mSelected = Matisse.obtainResult(data);
+
+                mSelected = Matisse.obtainResult(data);
                 Intent mIntent = new Intent(MainActivity.this, VideoRedirectActivity.class);
-                mIntent.putExtra("PATH", CommonUtils.getRealPathFromURI(selectedImageUri));
-                mIntent.putExtra("THUMB", CommonUtils.getRealPathFromURI(selectedImageUri));
+                mIntent.putExtra("PATH", CommonUtils.getRealPathFromURI(mSelected.get(0)));
+                mIntent.putExtra("THUMB", CommonUtils.getRealPathFromURI(mSelected.get(0)));
                 mIntent.putExtra("WHO", "GalleryVideo");
                 startActivity(mIntent);
 
